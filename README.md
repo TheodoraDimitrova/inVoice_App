@@ -13,8 +13,4 @@ An online invoicing software that helps you craft and print professional invoice
 - React Toastify
 - Redux Toolkit
 
-### To work on this project
-
-- Clone the repository
-- Run `npm install`
 - Start the development `npm start`
