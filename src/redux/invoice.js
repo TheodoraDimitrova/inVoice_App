@@ -1,24 +1,26 @@
-import { createSlice} from '@reduxjs/toolkit'
+import { createSlice } from "@reduxjs/toolkit";
 
 export const invoiceSlice = createSlice({
-  name: 'invoice',
-  initialState : {
+  name: "invoice",
+  initialState: {
     value: {
       customerName: "",
       customerAddress: "",
       customerCity: "",
+      customerVat: "",
       customerEmail: "",
-      itemList: []
-    }
+      itemList: [],
+      currency: "",
+    },
   },
   reducers: {
     setInvoice: (state, action) => {
-      state.value = action.payload
-    }
+      state.value = action.payload;
+    },
   },
-})
+});
 
 // Action creators are generated for each case reducer function
-export const { setInvoice} = invoiceSlice.actions
+export const { setInvoice } = invoiceSlice.actions;
 
-export default invoiceSlice.reducer
+export default invoiceSlice.reducer;

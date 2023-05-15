@@ -1,33 +1,55 @@
-import React from "react";
+import React, { memo } from "react";
 
-const CreateInvoiceTable = ({ itemList }) => {
+const CreateInvoiceTable = memo(({ itemList, onDeleteRow }) => {
+  console.log("Render CreateInvoiceTable");
+
   return (
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Cost</th>
-          <th>Quantity</th>
-          <th>Amount</th>
-        </tr>
-      </thead>
-
-      <tbody>
-        {itemList.reverse().map((item) => (
-          <tr key={item.itemName}>
-            <td className="text-sm">{item.itemName}</td>
-            <td className="text-sm">{item.itemCost}</td>
-            <td className="text-sm">{item.itemQuantity}</td>
-            <td className="text-sm">
-              {Number(item.itemCost * item.itemQuantity).toLocaleString(
-                "en-US"
-              )}
-            </td>
+    <div className="my-4">
+      <table className="w-full table-auto">
+        <thead>
+          <tr>
+            <th className="text-left">Item Name</th>
+            <th>Item Cost</th>
+            <th className="text-right">Item Quantity</th>
+            <th className="text-right">Total Cost</th>
+            <th></th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {itemList.map((item, index) => (
+            <tr key={index}>
+              <td>{item.itemName}</td>
+              <td className="flex justify-between">
+                <span> {item.itemCost} </span>
+
+                <span className="discount-percentage">
+                  {item.itemDiscount ? `-${item.itemDiscount}%` : ""}
+                </span>
+              </td>
+              <td className="text-right">{item.itemQuantity}</td>
+              <td className="text-right">
+                {(
+                  item.itemCost * item.itemQuantity -
+                  (item.itemCost *
+                    item.itemQuantity *
+                    (parseFloat(item.itemDiscount) || 0)) /
+                    100
+                ).toFixed(2)}
+              </td>
+              <td className="text-right">
+                <button
+                  className="text-red-600"
+                  onClick={(e) => onDeleteRow(e, index)}
+                >
+                  X
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
-};
+});
 
 export default CreateInvoiceTable;

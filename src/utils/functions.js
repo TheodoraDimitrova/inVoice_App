@@ -26,7 +26,12 @@ export const showToast = (type, message) => {
 export const findGrandTotal = ({ itemList }, currency) => {
   let total = 0;
   for (let i = 0; i < itemList.length; i++) {
-    const amount = itemList[i].itemCost * itemList[i].itemQuantity;
+    const amount =
+      itemList[i].itemCost * itemList[i].itemQuantity -
+      (itemList[i].itemCost *
+        itemList[i].itemQuantity *
+        (itemList[i].itemDiscount || 0)) /
+        100;
     total += amount;
   }
   total = total * ((100 + 19) / 100);
@@ -35,7 +40,13 @@ export const findGrandTotal = ({ itemList }, currency) => {
 export const amount = ({ itemList }, currency) => {
   let total = 0;
   for (let i = 0; i < itemList.length; i++) {
-    const amount = itemList[i].itemCost * itemList[i].itemQuantity;
+    const amount =
+      itemList[i].itemCost * itemList[i].itemQuantity -
+      (itemList[i].itemCost *
+        itemList[i].itemQuantity *
+        (itemList[i].itemDiscount || 0)) /
+        100;
+
     total += amount;
   }
 
@@ -44,7 +55,12 @@ export const amount = ({ itemList }, currency) => {
 export const checkVat = ({ itemList }, currency) => {
   let total = 0;
   for (let i = 0; i < itemList.length; i++) {
-    const amount = itemList[i].itemCost * itemList[i].itemQuantity;
+    const amount =
+      itemList[i].itemCost * itemList[i].itemQuantity -
+      (itemList[i].itemCost *
+        itemList[i].itemQuantity *
+        (itemList[i].itemDiscount || 0)) /
+        100;
     total += amount;
   }
   total = (total / 100) * 19;
@@ -62,8 +78,8 @@ export const convertTimestamp = (timestamp) => {
       : fireBaseTime.getDate();
   const month =
     fireBaseTime.getMonth() < 10
-      ? `0${fireBaseTime.getMonth()}`
-      : fireBaseTime.getMonth();
+      ? `0${fireBaseTime.getMonth() + 1}`
+      : fireBaseTime.getMonth() + 1;
   const year = fireBaseTime.getFullYear();
 
   return `${day}-${month}-${year}`;

@@ -5,25 +5,34 @@
 * {
   margin: 0;
   box-sizing: border-box;
-  font-family: 'Sora', sans-serif;
+  font-family: "Sora", sans-serif;
 }
+body {
+  height: auto !important;
+}
+
 table {
   font-family: arial, sans-serif;
   margin-top: 30px;
   border-collapse: collapse;
   width: 100%;
-  box-shadow: 0 2px 5px 0 rgba(50,50,105,0.15), 0 1px 1px 0 rgba(0,0,0,0.05);
+  box-shadow: 0 2px 5px 0 rgba(50, 50, 105, 0.15),
+    0 1px 1px 0 rgba(0, 0, 0, 0.05);
+}
+thead {
+  background-color: #dddddd;
 }
 
-td, th {
-  border: 1px solid #dddddd;
+td,
+th {
+  /* border: 1px solid #dddddd; */
   text-align: left;
-  padding: 8px;
+  padding: 4px;
 }
 
 tr:nth-child(even) {
-  background-color: #F7F7F7;
+  background-color: #f7f7f7;
 }
 tr:hover {
-  background-color: #F7F5F2;
+  background-color: #f7f5f2;
 }

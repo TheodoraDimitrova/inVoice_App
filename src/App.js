@@ -13,6 +13,7 @@ import PageNotFound from "./pages/PageNotFound";
 
 const Auth = lazy(() => import("./pages/Auth"));
 const CreateInvoice = lazy(() => import("./pages/CreateInvoice"));
+const Products = lazy(() => import("./pages/Products"));
 const Home = lazy(() => import("./pages/Home"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const SetupProfile = lazy(() => import("./pages/SetupProfile"));
@@ -42,6 +43,15 @@ function App() {
             </Route>
             <Route path="/new/invoice" element={<PrivateRoute />}>
               <Route path="/new/invoice" element={<CreateInvoice />} />
+            </Route>
+            <Route path="/new/invoice/:invoiceId" element={<PrivateRoute />}>
+              <Route
+                path="/new/invoice/:invoiceId"
+                element={<CreateInvoice />}
+              />
+            </Route>
+            <Route path="/products" element={<PrivateRoute />}>
+              <Route path="/products" element={<Products />} />
             </Route>
             <Route path="/view/invoice/:id" element={<PrivateRoute />}>
               <Route path="/view/invoice/:id" element={<ViewInvoice />} />

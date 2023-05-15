@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import CreateInvoiceTable from "../components/CreateInvoiceTable";
 import { useDispatch } from "react-redux";
 import { setInvoice } from "../redux/invoice";
+import ProductButton from "../components/ProductButton";
 
 import {
   addDoc,
@@ -11,6 +13,7 @@ import {
   getDocs,
   increment,
   query,
+  getDoc,
   serverTimestamp,
   updateDoc,
   where,
@@ -24,14 +27,22 @@ import { IconButton, Tooltip } from "@mui/material";
 import HomeIcon from "@mui/icons-material/Home";
 
 const CreateInvoice = () => {
+  console.log("CreateInvoice");
   const [customerName, setCustomerName] = useState("");
   const [customerAddress, setCustomerAddress] = useState("");
   const [customerCity, setCustomerCity] = useState("");
   const [customerEmail, setCustomerEmail] = useState("");
-  const [itemName, setItemName] = useState("");
+  const [customerVat, setCustomerVat] = useState("");
   const [currency, setCurrency] = useState("");
+  const [products, setProducts] = useState([]);
+  const { invoiceId } = useParams();
+  const [isEditing, setIsEditing] = useState(false);
+
+  const [itemName, setItemName] = useState("");
   const [itemCost, setItemCost] = useState(0);
   const [itemQuantity, setItemQuantity] = useState(1);
+  const [itemDiscount, setItemDiscount] = useState(0);
+
   const [itemList, setItemList] = useState([]);
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -39,80 +50,161 @@ const CreateInvoice = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (invoiceId) {
+      setIsEditing(true);
+      fetchInvoiceData();
+    }
+    fetchProducts();
     setLoading(false);
-  }, []);
+  }, [invoiceId]);
+
+  const fetchInvoiceData = async () => {
+    try {
+      const invoiceRef = doc(db, "invoices", invoiceId);
+      const invoiceSnapshot = await getDoc(invoiceRef);
+      if (invoiceSnapshot.exists()) {
+        setCustomerName(invoiceSnapshot.data().customerName);
+        setCustomerAddress(invoiceSnapshot.data().customerAddress);
+        setCustomerCity(invoiceSnapshot.data().customerCity);
+        setCustomerEmail(invoiceSnapshot.data().customerEmail);
+        setCustomerVat(invoiceSnapshot.data().vat);
+        setCurrency(invoiceSnapshot.data().currency);
+        setItemList(invoiceSnapshot.data().itemList);
+      }
+    } catch (error) {
+      showToast("error", "Failed to fetch invoice data. Please try again.");
+    }
+  };
+
+  const fetchProducts = async () => {
+    try {
+      const userId = auth.currentUser.uid;
+      const querySnapshot = await getDocs(
+        collection(db, "users", userId, "products")
+      );
+      const fetchedProducts = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setProducts(fetchedProducts);
+    } catch (error) {
+      showToast("error", "Please contact technical support");
+    }
+  };
+
+  const handleAddToRow = (e, id, name, price) => {
+    e.preventDefault();
+    setItemName(name);
+    setItemCost(price);
+    setItemQuantity(1);
+    setItemDiscount(0);
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
     if (itemName.trim() && itemCost > 0 && itemQuantity >= 1) {
       setItemList([
-        ...itemList,
         {
           itemName,
           itemCost,
           itemQuantity,
+          itemDiscount,
         },
+        ...itemList,
       ]);
     }
 
+    clearForm();
+  };
+  const clearForm = () => {
+    // e.preventDefault();
     setItemName("");
-    setItemCost("");
-    setItemQuantity("");
+    setItemCost(0);
+    setItemQuantity(1);
+    setItemDiscount(0);
   };
 
   const saveInvoice = async (e) => {
-    console.log("saveInvoice");
     e.preventDefault();
     if (!itemList.length) return;
 
-    dispatch(
-      setInvoice({
+    // Create a new invoice
+    if (!isEditing) {
+      dispatch(
+        setInvoice({
+          customerName,
+          customerAddress,
+          customerVat,
+          customerCity,
+          customerEmail,
+          itemList,
+          currency,
+        })
+      );
+      const bisnesRef = query(
+        collection(db, "businesses"),
+        where("user_id", "==", auth.currentUser.uid)
+      );
+      const querySnapshot = await getDocs(bisnesRef);
+      let docId = "";
+      let countInvoices = 0;
+      querySnapshot.forEach((doc) => {
+        docId = doc.id;
+        countInvoices = doc.data().invoices;
+      });
+
+      await addDoc(collection(db, "invoices"), {
+        user_id: auth.currentUser.uid,
         customerName,
         customerAddress,
         customerCity,
         customerEmail,
-        itemList,
         currency,
+        itemList,
+        timestamp: serverTimestamp(),
+        id: (countInvoices += 1),
       })
-    );
-    const bisnesRef = query(
-      collection(db, "businesses"),
-      where("user_id", "==", auth.currentUser.uid)
-    );
-    const querySnapshot = await getDocs(bisnesRef);
-    let docId = "";
-    let countInvoices = 0;
-    querySnapshot.forEach((doc) => {
-      docId = doc.id;
-      countInvoices = doc.data().invoices;
-    });
-
-    await addDoc(collection(db, "invoices"), {
-      user_id: auth.currentUser.uid,
-      customerName,
-      customerAddress,
-      customerCity,
-      customerEmail,
-      currency,
-      itemList,
-      timestamp: serverTimestamp(),
-      id: (countInvoices += 1),
-    })
-      .then(() => {
-        showToast("success", "Invoice created!📜");
-      })
-      .then(async () => {
-        const bisnessRef = doc(db, "businesses", docId);
-        await updateDoc(bisnessRef, {
-          invoices: increment(1),
+        .then(() => {
+          showToast("success", "Invoice created!📜");
+        })
+        .then(async () => {
+          const bisnessRef = doc(db, "businesses", docId);
+          await updateDoc(bisnessRef, {
+            invoices: increment(1),
+          });
+        })
+        .then(() => navigate("/dashboard"))
+        .catch((err) => {
+          console.log(err);
+          showToast("error", "Try again! Invoice not created!😭");
         });
+    }
+    // Update an existing invoice
+    else {
+      console.log("update an existing invoice");
+      await updateDoc(doc(db, "invoices", invoiceId), {
+        customerName,
+        customerAddress,
+        customerCity,
+        customerEmail,
+        currency,
+        itemList,
       })
-      .then(() => navigate("/dashboard"))
-      .catch((err) => {
-        console.log(err);
-        showToast("error", "Try again! Invoice not created!😭");
-      });
+        .then(() => {
+          showToast("success", "Invoice updated successfully!");
+          navigate("/dashboard");
+        })
+        .catch((err) => {
+          console.log(err);
+          showToast("error", "Failed to update the invoice. Please try again.");
+        });
+    }
+  };
+
+  const deleteRow = (e, index) => {
+    e.preventDefault();
+    setItemList(itemList.filter((item, i) => i !== index));
   };
 
   return (
@@ -127,10 +219,7 @@ const CreateInvoice = () => {
               Create an invoice
             </h3>
 
-            <form
-              className="w-full mx-auto flex flex-col"
-              onSubmit={saveInvoice}
-            >
+            <form className="w-full mx-auto flex flex-col">
               <label htmlFor="customerName" className="text-sm">
                 Customer's Name
               </label>
@@ -142,6 +231,16 @@ const CreateInvoice = () => {
                 value={customerName}
                 onChange={(e) => setCustomerName(e.target.value)}
               />
+              <label htmlFor="customerVat" className="text-sm">
+                Customer's VAT
+              </label>
+              <input
+                type="text"
+                name="customerVat"
+                className="py-2 px-4 bg-gray-100 w-full mb-6"
+                value={customerVat}
+                onChange={(e) => setCustomerVat(e.target.value ?? "")}
+              />
 
               <div className="flex items-end space-x-3">
                 <div className="flex flex-col w-1/2">
@@ -150,7 +249,6 @@ const CreateInvoice = () => {
                   </label>
                   <input
                     type="text"
-                    required
                     name="customerAddress"
                     className="py-2 px-4 bg-gray-100 w-full mb-6"
                     value={customerAddress}
@@ -160,7 +258,7 @@ const CreateInvoice = () => {
 
                 <div className="flex flex-col w-1/2">
                   <label htmlFor="customerCity" className="text-sm">
-                    Customer's LGA / Country
+                    Customer's Country
                   </label>
                   <input
                     type="text"
@@ -205,11 +303,23 @@ const CreateInvoice = () => {
                 </div>
               </div>
 
-              <div className="w-full flex justify-between flex-col">
-                <h3 className="my-4 font-bold ">Items List</h3>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {products.map((product) => (
+                  <ProductButton
+                    key={product.id}
+                    id={product.id}
+                    name={product.name}
+                    price={product.price}
+                    click={handleAddToRow}
+                  />
+                ))}
+              </div>
 
-                <div className="flex space-x-3">
-                  <div className="flex flex-col w-1/4">
+              <div className="w-full flex justify-between flex-col">
+                <h3 className="my-4 font-bold ">Products List</h3>
+
+                <div className="flex flex-col">
+                  <div className="flex flex-col justify-center md:w-full">
                     <label htmlFor="itemName" className="text-sm">
                       Name
                     </label>
@@ -223,54 +333,88 @@ const CreateInvoice = () => {
                     />
                   </div>
 
-                  <div className="flex flex-col w-1/4">
-                    <label htmlFor="itemCost" className="text-sm">
-                      Cost
-                    </label>
-                    <input
-                      type="number"
-                      name="itemCost"
-                      placeholder="Cost"
-                      className="py-2 px-4 mb-6 bg-gray-100"
-                      value={itemCost}
-                      onChange={(e) => setItemCost(e.target.value)}
-                    />
-                  </div>
+                  <div className="md:flex md:justify-between">
+                    <div className="flex flex-col justify-center md:w-1/5">
+                      <label htmlFor="itemCost" className="text-sm">
+                        Cost
+                      </label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        name="itemCost"
+                        placeholder="Cost"
+                        className="py-2 px-4 mb-6 bg-gray-100"
+                        value={itemCost}
+                        onChange={(e) => setItemCost(e.target.value)}
+                      />
+                    </div>
 
-                  <div className="flex flex-col justify-center w-1/4">
-                    <label htmlFor="itemQuantity" className="text-sm">
-                      Quantity
-                    </label>
-                    <input
-                      type="number"
-                      name="itemQuantity"
-                      placeholder="Quantity"
-                      className="py-2 px-4 mb-6 bg-gray-100"
-                      value={itemQuantity}
-                      onChange={(e) => setItemQuantity(e.target.value)}
-                    />
-                  </div>
+                    <div className="flex flex-col justify-center md:w-1/5">
+                      <label htmlFor="itemQuantity" className="text-sm">
+                        Quantity
+                      </label>
+                      <input
+                        type="number"
+                        name="itemQuantity"
+                        placeholder="Quantity"
+                        className="py-2 px-4 mb-6 bg-gray-100"
+                        value={itemQuantity}
+                        onChange={(e) => setItemQuantity(e.target.value)}
+                      />
+                    </div>
+                    <div className="flex flex-col justify-center md:w-1/5">
+                      <label htmlFor="itemDiscount" className="text-sm">
+                        Discount
+                      </label>
+                      <input
+                        type="number"
+                        name="itemDiscount"
+                        placeholder="Discount"
+                        className="py-2 px-4 mb-6 bg-gray-100"
+                        value={itemDiscount}
+                        onChange={(e) => setItemDiscount(e.target.value)}
+                      />
+                    </div>
 
-                  <div className="flex flex-col justify-center w-1/4">
-                    <p className="text-sm">Price</p>
-                    <p className="py-2 px-4 mb-6 bg-gray-100">
-                      {Number(itemCost * itemQuantity).toLocaleString("en-US")}
-                    </p>
+                    <div className="flex flex-col justify-center md:w-1/5">
+                      <p className="text-sm">Price</p>
+                      <p className="py-2 px-4 mb-6 bg-gray-100">
+                        {Number(
+                          itemCost * itemQuantity -
+                            (itemCost * itemQuantity * (itemDiscount || 0)) /
+                              100
+                        ).toFixed(2)}
+                      </p>
+                    </div>
                   </div>
                 </div>
-                <button
-                  className="bg-blue-500 text-gray-100 w-[150px] p-3 rounded my-2"
-                  onClick={handleSubmit}
-                >
-                  Add Item
-                </button>
+
+                <div className="flex justify-between">
+                  <button
+                    className="bg-blue-500 hover:bg-blue-600 text-gray-100 w-[150px] py-3 px-4 rounded my-2"
+                    onClick={handleSubmit}
+                  >
+                    Add Item
+                  </button>
+                  <button
+                    className="bg-red-500 hover:bg-red-600 text-gray-100 w-[150px] p-3 rounded my-2"
+                    onClick={clearForm}
+                  >
+                    Clear Form
+                  </button>
+                </div>
               </div>
 
-              {itemList[0] && <CreateInvoiceTable itemList={itemList} />}
+              {itemList[0] && (
+                <CreateInvoiceTable
+                  itemList={itemList}
+                  onDeleteRow={deleteRow}
+                />
+              )}
 
               <button
-                className="bg-blue-800 text-gray-100 w-full p-5 rounded my-6"
-                type="submit"
+                className="bg-green-500 bg-opacity-75 hover:bg-opacity-100 text-white font-bold py-2 px-4 rounded w-full mt-6"
+                onClick={saveInvoice}
               >
                 SAVE INVOICE
               </button>
