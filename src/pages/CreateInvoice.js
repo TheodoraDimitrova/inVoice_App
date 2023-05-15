@@ -27,7 +27,6 @@ import { IconButton, Tooltip } from "@mui/material";
 import HomeIcon from "@mui/icons-material/Home";
 
 const CreateInvoice = () => {
-  console.log("CreateInvoice");
   const [customerName, setCustomerName] = useState("");
   const [customerAddress, setCustomerAddress] = useState("");
   const [customerCity, setCustomerCity] = useState("");
