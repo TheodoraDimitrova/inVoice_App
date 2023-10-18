@@ -76,10 +76,16 @@ export const convertTimestamp = (timestamp) => {
     fireBaseTime.getDate() < 10
       ? `0${fireBaseTime.getDate()}`
       : fireBaseTime.getDate();
+  // const month =
+  //   fireBaseTime.getMonth() < 10
+  //     ? `0${fireBaseTime.getMonth() + 1}`
+  //     : fireBaseTime.getMonth() + 1;
+
   const month =
-    fireBaseTime.getMonth() < 10
+    fireBaseTime.getMonth().length === 1
       ? `0${fireBaseTime.getMonth() + 1}`
       : fireBaseTime.getMonth() + 1;
+
   const year = fireBaseTime.getFullYear();
 
   return `${day}-${month}-${year}`;
