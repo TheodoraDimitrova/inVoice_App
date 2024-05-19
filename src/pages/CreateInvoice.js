@@ -49,6 +49,24 @@ const CreateInvoice = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const fetchInvoiceData = async () => {
+      try {
+        const invoiceRef = doc(db, "invoices", invoiceId);
+        const invoiceSnapshot = await getDoc(invoiceRef);
+        if (invoiceSnapshot.exists()) {
+          setCustomerName(invoiceSnapshot.data().customerName);
+          setCustomerAddress(invoiceSnapshot.data().customerAddress);
+          setCustomerCity(invoiceSnapshot.data().customerCity);
+          setCustomerEmail(invoiceSnapshot.data().customerEmail);
+          setCustomerVat(invoiceSnapshot.data().vat);
+          setCurrency(invoiceSnapshot.data().currency);
+          setItemList(invoiceSnapshot.data().itemList);
+        }
+      } catch (error) {
+        showToast("error", "Failed to fetch invoice data. Please try again.");
+      }
+    };
+
     if (invoiceId) {
       setIsEditing(true);
       fetchInvoiceData();
@@ -56,24 +74,6 @@ const CreateInvoice = () => {
     fetchProducts();
     setLoading(false);
   }, [invoiceId]);
-
-  const fetchInvoiceData = async () => {
-    try {
-      const invoiceRef = doc(db, "invoices", invoiceId);
-      const invoiceSnapshot = await getDoc(invoiceRef);
-      if (invoiceSnapshot.exists()) {
-        setCustomerName(invoiceSnapshot.data().customerName);
-        setCustomerAddress(invoiceSnapshot.data().customerAddress);
-        setCustomerCity(invoiceSnapshot.data().customerCity);
-        setCustomerEmail(invoiceSnapshot.data().customerEmail);
-        setCustomerVat(invoiceSnapshot.data().vat);
-        setCurrency(invoiceSnapshot.data().currency);
-        setItemList(invoiceSnapshot.data().itemList);
-      }
-    } catch (error) {
-      showToast("error", "Failed to fetch invoice data. Please try again.");
-    }
-  };
 
   const fetchProducts = async () => {
     try {
@@ -181,7 +181,6 @@ const CreateInvoice = () => {
     }
     // Update an existing invoice
     else {
-      console.log("update an existing invoice");
       await updateDoc(doc(db, "invoices", invoiceId), {
         customerName,
         customerAddress,
@@ -361,7 +360,7 @@ const CreateInvoice = () => {
                         onChange={(e) => setItemQuantity(e.target.value)}
                       />
                     </div>
-                    <div className="flex flex-col justify-center md:w-1/5">
+                    {/* <div className="flex flex-col justify-center md:w-1/5">
                       <label htmlFor="itemDiscount" className="text-sm">
                         Discount
                       </label>
@@ -373,7 +372,7 @@ const CreateInvoice = () => {
                         value={itemDiscount}
                         onChange={(e) => setItemDiscount(e.target.value)}
                       />
-                    </div>
+                    </div> */}
 
                     <div className="flex flex-col justify-center md:w-1/5">
                       <p className="text-sm">Price</p>

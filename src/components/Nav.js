@@ -42,20 +42,17 @@ const Nav = (props) => {
     setMobileMenu(open);
   };
 
-  const sign_Out = () => {
+  const sign_Out = async () => {
     const auth = getAuth();
-    signOut(auth)
-      .then(() => {
-        dispatch(logOut());
-        showToast("success", "Goodbye!👋");
-        navigate("/");
-      })
-      .catch((error) => {
-        console.log(error);
-        console.log(" An error happened.");
-      });
 
-    // window.location.reload(false);
+    try {
+      await signOut(auth);
+      dispatch(logOut());
+      showToast("success", "Goodbye!👋");
+      navigate("/");
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
   };
   const list = (anchor) => (
     <Box
@@ -66,7 +63,7 @@ const Nav = (props) => {
     >
       <List>
         {loggedIn ? (
-          <ListItem onClick={() => sign_Out()}>
+          <ListItem onClick={async () => await sign_Out()}>
             <ListItemText primary="Sign Out" />
           </ListItem>
         ) : (

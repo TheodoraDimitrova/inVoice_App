@@ -21,6 +21,7 @@ import { getAuth } from "firebase/auth";
 const SetupProfile = () => {
   const auth = getAuth();
   const [businessName, setBusinessName] = useState("");
+  const [vatRate, setVatRate] = useState(20);
   const [businessAddress, setBusinessAddress] = useState("");
   const [businessCity, setBusinessCity] = useState("");
   const [tic, setTic] = useState("");
@@ -75,6 +76,7 @@ const SetupProfile = () => {
 
     const docRef = await addDoc(collection(db, "businesses"), {
       user_id: auth.currentUser.uid,
+      vatRate,
       businessName,
       businessAddress,
       businessCity,
@@ -227,17 +229,33 @@ const SetupProfile = () => {
                   />
                 </div>
               </div>
+              <div className="flex flex-col sm:flex-row sm:space-x-4">
+                <div className="flex flex-col sm:w-1/2">
+                  <label htmlFor="bankName" className="text-sm">
+                    Bank Name
+                  </label>
+                  <input
+                    type="text"
+                    className="py-2 px-4 bg-gray-100 w-full mb-6 capitalize rounded"
+                    name="bankName"
+                    value={bankName}
+                    onChange={(e) => setBankName(e.target.value)}
+                  />
+                </div>
 
-              <label htmlFor="bankName" className="text-sm">
-                Bank Name
-              </label>
-              <input
-                type="text"
-                className="py-2 px-4 bg-gray-100 w-full mb-6 capitalize rounded"
-                name="bankName"
-                value={bankName}
-                onChange={(e) => setBankName(e.target.value)}
-              />
+                <div className="flex flex-col sm:w-1/2">
+                  <label htmlFor="vatRate" className="text-sm">
+                    VAT rate
+                  </label>
+                  <input
+                    type="number"
+                    className="py-2 px-4 bg-gray-100 w-full mb-6 capitalize rounded"
+                    name="vatRate"
+                    value={vatRate}
+                    onChange={(e) => setVatRate(e.target.value)}
+                  />
+                </div>
+              </div>
 
               <div className="flex flex-col sm:flex-row sm:space-x-4 ">
                 <div className="flex flex-col sm:w-1/3">

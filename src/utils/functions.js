@@ -23,7 +23,31 @@ export const showToast = (type, message) => {
     });
   }
 };
-export const findGrandTotal = ({ itemList }, currency) => {
+// export const findGrandTotal = ({ itemList }, currency, vatRate) => {
+//   console.log(vatRate);
+//   let total = 0;
+//   for (let i = 0; i < itemList.length; i++) {
+//     const amount =
+//       itemList[i].itemCost * itemList[i].itemQuantity -
+//       (itemList[i].itemCost *
+//         itemList[i].itemQuantity *
+//         (itemList[i].itemDiscount || 0)) /
+//         100;
+//     total += amount;
+//   }
+//   total = total * ((100 + vatRate) / 100);
+//   return `${currency} ${total.toFixed(2).toLocaleString("en-US")}`;
+// };
+export const findGrandTotal = ({ itemList }, currency, vatRate) => {
+  vatRate = parseFloat(vatRate);
+  if (isNaN(vatRate)) {
+    throw new Error("Invalid VAT rate");
+  }
+
+  if (typeof currency !== "string") {
+    throw new Error("Currency must be a string");
+  }
+
   let total = 0;
   for (let i = 0; i < itemList.length; i++) {
     const amount =
@@ -34,8 +58,8 @@ export const findGrandTotal = ({ itemList }, currency) => {
         100;
     total += amount;
   }
-  total = total * ((100 + 19) / 100);
-  return `${currency} ${total.toFixed(2).toLocaleString("en-US")}`;
+  const grandTotal = total * ((100 + vatRate) / 100);
+  return `${currency} ${grandTotal.toFixed(2)}`;
 };
 export const amount = ({ itemList }, currency) => {
   let total = 0;
@@ -52,7 +76,7 @@ export const amount = ({ itemList }, currency) => {
 
   return `${currency} ${total.toFixed(2).toLocaleString("en-US")}`;
 };
-export const checkVat = ({ itemList }, currency) => {
+export const checkVat = ({ itemList }, currency, vatRate) => {
   let total = 0;
   for (let i = 0; i < itemList.length; i++) {
     const amount =
@@ -63,7 +87,7 @@ export const checkVat = ({ itemList }, currency) => {
         100;
     total += amount;
   }
-  total = (total / 100) * 19;
+  total = (total / 100) * vatRate;
 
   return `${currency} ${total.toFixed(2).toLocaleString("en-US")}`;
 };

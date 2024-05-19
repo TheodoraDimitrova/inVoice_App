@@ -1,8 +1,6 @@
 import React, { memo } from "react";
 
 const CreateInvoiceTable = memo(({ itemList, onDeleteRow }) => {
-  console.log("Render CreateInvoiceTable");
-
   return (
     <div className="my-4">
       <table className="w-full table-auto">
