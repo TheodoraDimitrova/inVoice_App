@@ -1,13 +1,19 @@
 import React from "react";
 import Footer from "../components/Footer";
+import FeaturesSection from "../components/FeaturesSection";
 import Hero from "../components/Hero";
 import Nav from "../components/Nav";
+import TrustBar from "../components/TrustBar";
 
 const Home = () => {
   return (
-    <div>
+    <div className="min-h-screen flex flex-col">
       <Nav />
-      <Hero />
+      <main className="flex-1">
+        <Hero />
+        <TrustBar />
+        <FeaturesSection />
+      </main>
       <Footer />
     </div>
   );

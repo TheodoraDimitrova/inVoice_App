@@ -1,12 +1,26 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
-    <footer className="min-h-[10vh] w-full p-8 flex items-center justify-center">
-      <p className="text-sm">
-        TBD All Rights Reserved <span>&copy;</span> {new Date().getFullYear()}
-        {/* <a href="" rel="noopener noreferrer" target="_blank"></a> */}
-      </p>
+    <footer className="w-full border-t border-slate-200 bg-white/90">
+      <div className="page-shell py-4 md:py-8 flex flex-col items-center  md:text-left md:flex-row md:items-center justify-between gap-4 w-full">
+        <p className="text-sm text-slate-600 ">
+          &copy; {new Date().getFullYear()} Invoicer
+        </p>
+
+        <nav className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm md:justify-end">
+          <Link to="/" className="brand-link">
+            Privacy
+          </Link>
+          <Link to="/" className="brand-link">
+            Terms
+          </Link>
+          <Link to="/" className="brand-link">
+            Contact
+          </Link>
+        </nav>
+      </div>
     </footer>
   );
 };
