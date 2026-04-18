@@ -1,18 +1,6 @@
-import {
-  AppBar,
-  Typography,
-  Box,
-  Toolbar,
-  List,
-  ListItem,
-  ListItemText,
-  IconButton,
-  Drawer,
-} from "@mui/material";
-import React, { useState } from "react";
+import { AppBar, Typography, Box, Toolbar } from "@mui/material";
+import React from "react";
 import ElevationScroll from "./ElevationScroll";
-import MenuIcon from "@mui/icons-material/Menu";
-import useStyles from "../utils/muiStyles";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useDispatch } from "react-redux";
@@ -23,24 +11,11 @@ import { useAuthStatus } from "../hooks/useAuthStatus";
 import { logOut } from "../redux/user";
 import { getAuth, signOut } from "firebase/auth";
 const Nav = (props) => {
-  const classes = useStyles();
   const dispatch = useDispatch();
-  const [mobileMenu, setMobileMenu] = useState(false);
-
   const { loggedIn } = useAuthStatus();
-
   const navigate = useNavigate();
-
-  const toggleDrawer = (open) => (event) => {
-    if (
-      event.type === "keydown" &&
-      (event.key === "Tab" || event.key === "Shift")
-    ) {
-      return;
-    }
-
-    setMobileMenu(open);
-  };
+  const theme = useTheme();
+  const matches = useMediaQuery(theme.breakpoints.down("sm"));
 
   const sign_Out = async () => {
     const auth = getAuth();
@@ -54,91 +29,100 @@ const Nav = (props) => {
       console.error("Error signing out:", error);
     }
   };
-  const list = (anchor) => (
-    <Box
-      sx={{ width: 250 }}
-      role="presentation"
-      onClick={toggleDrawer(false)}
-      onKeyDown={toggleDrawer(false)}
-    >
-      <List>
-        {loggedIn ? (
-          <ListItem onClick={async () => await sign_Out()}>
-            <ListItemText primary="Sign Out" />
-          </ListItem>
-        ) : (
-          <Link to="/login">
-            <ListItem>
-              <ListItemText primary="Log in" />
-            </ListItem>
-          </Link>
-        )}
-      </List>
-    </Box>
-  );
-
-  const theme = useTheme();
-  const matches = useMediaQuery(theme.breakpoints.down("sm"));
 
   return (
-    <Box sx={{ marginBottom: "70px" }}>
+    <Box sx={{ marginBottom: { xs: "56px", sm: "64px" } }}>
       <ElevationScroll {...props}>
-        <AppBar>
-          <Toolbar className={classes.toolBar}>
-            <Link to="/dashboard">
-              {matches ? (
-                <Typography variant="h6" className={classes.logo}>
-                  Invoicer
-                </Typography>
-              ) : (
-                <Typography variant="h5" className={classes.logo}>
-                  Invoicer
-                </Typography>
-              )}
-            </Link>
+        <AppBar
+          position="fixed"
+          sx={{
+            backgroundColor: "#ffffff",
+            color: "var(--color-brand-charcoal)",
+          }}
+        >
+          <Toolbar
+            disableGutters
+            sx={{
+              minHeight: { xs: "56px", sm: "64px" },
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              p: 0,
+              width: "100%",
+              backgroundColor: "#ffffff",
+            }}
+          >
+            <Box className="page-shell flex items-center justify-between min-h-[56px] sm:min-h-[64px]">
+              <Link
+                to={loggedIn ? "/dashboard" : "/"}
+                className="inline-flex items-center leading-none no-underline"
+              >
+                {matches ? (
+                  <Typography
+                    variant="h6"
+                    component="span"
+                    sx={{
+                      margin: 0,
+                      lineHeight: 1.15,
+                      color: "var(--color-brand-charcoal)",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Invoicer
+                  </Typography>
+                ) : (
+                  <Typography
+                    variant="h5"
+                    component="span"
+                    sx={{
+                      margin: 0,
+                      lineHeight: 1.15,
+                      color: "var(--color-brand-charcoal)",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Invoicer
+                  </Typography>
+                )}
+              </Link>
 
-            {matches ? (
-              <Box>
-                <IconButton
-                  size="large"
-                  edge="end"
-                  color="inherit"
-                  aria-label="menu"
-                  onClick={toggleDrawer(true)}
-                >
-                  <MenuIcon className={classes.menuIcon} fontSize="large" />
-                </IconButton>
-
-                <Drawer
-                  anchor="right"
-                  open={mobileMenu}
-                  onClose={toggleDrawer(false)}
-                >
-                  {list("right")}
-                </Drawer>
-              </Box>
-            ) : (
               <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  flexGrow: "0.05",
-                }}
+                sx={{ display: "flex", alignItems: "center", flexShrink: 0 }}
               >
                 {loggedIn ? (
                   <Typography
-                    className={classes.link}
                     onClick={() => sign_Out()}
+                    sx={{
+                      fontSize: matches ? "0.95rem" : "1rem",
+                      color: "var(--color-brand-charcoal)",
+                      cursor: "pointer",
+                      transition: "color 0.2s ease",
+                      "&:hover": {
+                        color: "var(--color-brand-primary)",
+                      },
+                    }}
                   >
                     Sign Out
                   </Typography>
                 ) : (
                   <Link to="/login">
-                    <Typography className={classes.link}>Log in</Typography>
+                    <Typography
+                      sx={{
+                        fontSize: matches ? "0.95rem" : "1rem",
+                        color: "var(--color-brand-charcoal)",
+                        cursor: "pointer",
+                        transition: "color 0.2s ease",
+                        "&:hover": {
+                          color: "var(--color-brand-primary)",
+                        },
+                      }}
+                    >
+                      Log in
+                    </Typography>
                   </Link>
                 )}
               </Box>
-            )}
+            </Box>
           </Toolbar>
         </AppBar>
       </ElevationScroll>

@@ -319,29 +319,29 @@ export const ViewInvoice = () => {
         <Tooltip title="Print Invoice">
           <IconButton
             onClick={handlePrint}
-            style={{
+            sx={{
               position: "absolute",
               top: "0",
               right: "20px",
-              zIndex: "1000",
+              zIndex: 1000,
               color: "#F7CCAC",
             }}
           >
-            <LocalPrintshopIcon style={{ fontSize: "40px" }} />
+            <LocalPrintshopIcon sx={{ fontSize: "40px" }} />
           </IconButton>
         </Tooltip>
 
         <Tooltip title="Go Home">
           <IconButton
             onClick={() => navigate("/dashboard")}
-            style={{
+            sx={{
               position: "absolute",
               bottom: "50px",
               right: "20px",
-              zIndex: "1000px",
+              zIndex: 1000,
             }}
           >
-            <HomeIcon style={{ fontSize: "40px" }} />
+            <HomeIcon sx={{ fontSize: "40px" }} />
           </IconButton>
         </Tooltip>
 

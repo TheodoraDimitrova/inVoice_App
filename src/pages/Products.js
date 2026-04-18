@@ -10,9 +10,10 @@ import {
 
 import db, { auth } from "../firebase";
 import { showToast } from "../utils/functions";
-import { IconButton, Tooltip } from "@mui/material";
+import { Box, Button, IconButton, TextField, Tooltip } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import HomeIcon from "@mui/icons-material/Home";
+import { outlinedFieldSx } from "../utils/muiFieldSx";
 
 function Products() {
   const [name, setName] = useState("");
@@ -127,30 +128,41 @@ function Products() {
     <div className="container mx-auto h-screen mt-8">
       <h1 className="text-4xl text-center font-bold mb-8">Products</h1>
 
-      <form onSubmit={addProduct} className="mb-4">
-        <input
-          type="text"
+      <Box
+        component="form"
+        onSubmit={addProduct}
+        sx={{
+          mb: 2,
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 2,
+          alignItems: "flex-start",
+        }}
+      >
+        <TextField
+          label="Name"
           placeholder="Name"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="mr-2 px-2 py-1 border border-gray-300 rounded"
+          variant="outlined"
+          size="small"
+          sx={{ ...outlinedFieldSx, mb: 0, minWidth: 200 }}
         />
-        <input
-          type="number"
+        <TextField
+          label="Price"
           placeholder="Price"
+          type="number"
           value={price}
           onChange={(e) => setPrice(e.target.value)}
-          className="mr-2 px-2 py-1 border border-gray-300 rounded"
+          variant="outlined"
+          size="small"
+          inputProps={{ step: "0.01", min: 0 }}
+          sx={{ ...outlinedFieldSx, mb: 0, minWidth: 120 }}
         />
-        <button
-          type="submit"
-          className={`px-3 py-1 rounded ${
-            editing ? "bg-green-500 text-white" : "bg-blue-500 text-white"
-          }`}
-        >
+        <Button type="submit" variant="contained" color="primary" sx={{ mt: 0.5 }}>
           {editing ? "Update Product" : "Add Product"}
-        </button>
-      </form>
+        </Button>
+      </Box>
 
       {products.length > 0 ? (
         <table className="min-w-full divide-y divide-gray-200">
@@ -201,14 +213,14 @@ function Products() {
       <Tooltip title="Go Home">
         <IconButton
           onClick={() => navigate("/dashboard")}
-          style={{
+          sx={{
             position: "fixed",
             bottom: "50px",
             right: "30px",
-            zIndex: "1000px",
+            zIndex: 1000,
           }}
         >
-          <HomeIcon style={{ fontSize: "30px" }} />
+          <HomeIcon sx={{ fontSize: "30px" }} />
         </IconButton>
       </Tooltip>
     </div>

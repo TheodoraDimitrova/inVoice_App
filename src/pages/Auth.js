@@ -1,18 +1,17 @@
 import { Box, Grid, TextField, Button, Typography } from "@mui/material";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import login from "../images/print.png";
-import invoiceLogo from "../images/invoiceLogo.png";
-import useStyles from "../utils/muiStyles";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { auth } from "../firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 
 import { showToast } from "../utils/functions";
+import { outlinedFieldSx } from "../utils/muiFieldSx";
+
+const AUTH_ILLUSTRATION = "/invoice_auth.jpeg";
 
 const Auth = () => {
-  const classes = useStyles();
   const navigate = useNavigate();
 
   const {
@@ -29,13 +28,12 @@ const Auth = () => {
     createUserWithEmailAndPassword(
       auth,
       data.registerEmail,
-      data.registerPassword
+      data.registerPassword,
     )
-      .then((userCredential) => {
+      .then(() => {
         showToast("success", "Congratulations!🚀");
         navigate("/profile");
       })
-
       .catch((error) => {
         console.log(error.code);
         if (error.code === "auth/email-already-in-use") {
@@ -52,7 +50,6 @@ const Auth = () => {
           navigate("/profile");
         }
       })
-
       .catch((error) => {
         if (error.code === "auth/wrong-password") {
           showToast("error", "Wrong password!");
@@ -68,151 +65,293 @@ const Auth = () => {
     reset();
   };
 
+  const switchLinkClass =
+    "mt-5 w-full text-center text-sm font-medium bg-transparent border-0 cursor-pointer p-0 text-[var(--color-brand-primary)] hover:text-[var(--color-brand-primary-hover)] hover:underline underline-offset-2 transition-colors";
+
   return (
-    <Box sx={{ width: "100%", minHeight: "100vh" }}>
-      <Grid container className={classes.authGridContainer}>
-        <Grid item md={3} className={classes.authGridImage}>
-          <img
-            src={login}
-            alt="Sign in to Invoicer"
-            className={classes.authSvg}
+    <Box sx={{ width: "100%", minHeight: "100vh", bgcolor: "#ffffff" }}>
+      <Grid container sx={{ minHeight: "100vh", m: 0 }}>
+        <Grid
+          item
+          md={5}
+          sx={{
+            display: { xs: "none", md: "block" },
+            position: "relative",
+            minHeight: "100vh",
+            backgroundColor: "#e6faf1",
+            borderRight: "1px solid var(--color-border-soft)",
+            p: 0,
+            overflow: "hidden",
+          }}
+        >
+          <Box
+            component="img"
+            src={AUTH_ILLUSTRATION}
+            alt="Invoicer — invoices and business workflow"
+            sx={{
+              position: "absolute",
+              inset: 0,
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              objectPosition: "center center",
+            }}
           />
         </Grid>
 
-        <Grid item md={9} xs={12} className={classes.authForm}>
-          <img src={invoiceLogo} alt="Invoicer" className="w-[200px]" />
-
-          {createAccount ? (
+        <Grid
+          item
+          xs={12}
+          md={7}
+          sx={{
+            minHeight: "100vh",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            py: { xs: 6, md: 8 },
+            px: 0,
+          }}
+        >
+          <Box
+            className="page-shell w-full flex justify-center"
+            sx={{ maxWidth: "100%" }}
+          >
             <Box
-              className={classes.authFormContainer}
-              component="form"
-              noValidate
-              autoComplete="off"
-              onSubmit={handleSubmit(signUpUser)}
+              sx={{
+                width: "100%",
+                maxWidth: "28rem",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                textAlign: "center",
+              }}
             >
-              {errors?.registerEmail && (
-                <Typography style={{ color: "red" }}>
-                  {errors.registerEmail.message}
+              <Link to="/" className="no-underline mb-6 md:mb-8 block w-full">
+                <Typography
+                  component="span"
+                  sx={{
+                    fontSize: { xs: "1.35rem", sm: "1.5rem" },
+                    fontWeight: 600,
+                    color: "var(--color-brand-charcoal)",
+                    letterSpacing: "-0.02em",
+                  }}
+                >
+                  Invoicer
                 </Typography>
-              )}
-              <TextField
-                label="Email"
-                variant="outlined"
-                fullWidth
-                className={classes.inputField}
-                {...register("registerEmail", {
-                  required: "Please provide a valid email",
-                  pattern: {
-                    value: emailFormat,
-                    message: "Provide valid email",
-                  },
-                })}
-                type="email"
-              />
+              </Link>
 
-              {errors?.registerPassword && (
-                <Typography style={{ color: "red" }}>
-                  {errors.registerPassword.message}
-                </Typography>
-              )}
-              <TextField
-                label="Password"
-                autoComplete="off"
-                type="password"
-                variant="outlined"
-                fullWidth
-                className={classes.inputField}
-                {...register("registerPassword", {
-                  required: "Please enter a password",
-                  minLength: {
-                    value: 8,
-                    message: "Your password must contain at least 8 characters",
-                  },
-                })}
-              />
-
-              <Button
-                variant="contained"
-                type="submit"
-                color="primary"
-                sx={{ width: "200px", fontSize: "16px", marginBottom: "15px" }}
+              <Box
+                sx={{
+                  display: { xs: "block", md: "none" },
+                  width: "100%",
+                  mb: 5,
+                  bgcolor: "#e6faf1",
+                  borderRadius: 2,
+                  overflow: "hidden",
+                  position: "relative",
+                  aspectRatio: "16 / 10",
+                }}
               >
-                REGISTER
-              </Button>
+                <Box
+                  component="img"
+                  src={AUTH_ILLUSTRATION}
+                  alt=""
+                  loading="lazy"
+                  decoding="async"
+                  sx={{
+                    position: "absolute",
+                    inset: 0,
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                    objectPosition: "center 42%",
+                    display: "block",
+                  }}
+                />
+              </Box>
 
-              <Typography
-                onClick={() => switchView(true)}
-                style={{ cursor: "pointer" }}
-              >
-                Already have an account?{" "}
-              </Typography>
+              {createAccount ? (
+                <Box
+                  component="form"
+                  noValidate
+                  autoComplete="off"
+                  onSubmit={handleSubmit(signUpUser)}
+                  sx={{
+                    width: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "stretch",
+                  }}
+                >
+                  {errors?.registerEmail && (
+                    <Typography
+                      sx={{
+                        color: "error.main",
+                        mb: 1,
+                        fontSize: "0.875rem",
+                        width: "100%",
+                        textAlign: "center",
+                      }}
+                    >
+                      {errors.registerEmail.message}
+                    </Typography>
+                  )}
+                  <TextField
+                    label="Email"
+                    variant="outlined"
+                    fullWidth
+                    sx={outlinedFieldSx}
+                    {...register("registerEmail", {
+                      required: "Please provide a valid email",
+                      pattern: {
+                        value: emailFormat,
+                        message: "Provide valid email",
+                      },
+                    })}
+                    type="email"
+                  />
+
+                  {errors?.registerPassword && (
+                    <Typography
+                      sx={{
+                        color: "error.main",
+                        mb: 1,
+                        fontSize: "0.875rem",
+                        width: "100%",
+                        textAlign: "center",
+                      }}
+                    >
+                      {errors.registerPassword.message}
+                    </Typography>
+                  )}
+                  <TextField
+                    label="Password"
+                    autoComplete="new-password"
+                    type="password"
+                    variant="outlined"
+                    fullWidth
+                    sx={outlinedFieldSx}
+                    {...register("registerPassword", {
+                      required: "Please enter a password",
+                      minLength: {
+                        value: 8,
+                        message:
+                          "Your password must contain at least 8 characters",
+                      },
+                    })}
+                  />
+
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    type="submit"
+                    fullWidth
+                    size="large"
+                    sx={{ mt: 1, mb: 0, py: 1.25 }}
+                  >
+                    Register
+                  </Button>
+
+                  <button
+                    type="button"
+                    className={switchLinkClass}
+                    onClick={() => switchView(true)}
+                  >
+                    Already have an account? Login
+                  </button>
+                </Box>
+              ) : (
+                <Box
+                  component="form"
+                  noValidate
+                  autoComplete="off"
+                  onSubmit={handleSubmit(loginUser)}
+                  sx={{
+                    width: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "stretch",
+                  }}
+                >
+                  {errors?.loginEmail && (
+                    <Typography
+                      sx={{
+                        color: "error.main",
+                        mb: 1,
+                        fontSize: "0.875rem",
+                        width: "100%",
+                        textAlign: "center",
+                      }}
+                    >
+                      {errors.loginEmail.message}
+                    </Typography>
+                  )}
+                  <TextField
+                    label="Email"
+                    variant="outlined"
+                    fullWidth
+                    sx={outlinedFieldSx}
+                    {...register("loginEmail", {
+                      required: "Please provide a valid email",
+                      pattern: {
+                        value: emailFormat,
+                        message: "Enter a valid email",
+                      },
+                    })}
+                    type="email"
+                  />
+
+                  {errors?.loginPassword && (
+                    <Typography
+                      sx={{
+                        color: "error.main",
+                        mb: 1,
+                        fontSize: "0.875rem",
+                        width: "100%",
+                        textAlign: "center",
+                      }}
+                    >
+                      {errors.loginPassword.message}
+                    </Typography>
+                  )}
+                  <TextField
+                    label="Password"
+                    type="password"
+                    autoComplete="current-password"
+                    variant="outlined"
+                    fullWidth
+                    sx={outlinedFieldSx}
+                    {...register("loginPassword", {
+                      required: "Please enter a password",
+                      minLength: {
+                        value: 8,
+                        message: "Password must contain at least 8 characters",
+                      },
+                    })}
+                  />
+
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    type="submit"
+                    fullWidth
+                    size="large"
+                    sx={{ mt: 1, mb: 0, py: 1.25 }}
+                  >
+                    Login
+                  </Button>
+
+                  <button
+                    type="button"
+                    className={switchLinkClass}
+                    onClick={() => switchView(false)}
+                  >
+                    Create an account
+                  </button>
+                </Box>
+              )}
             </Box>
-          ) : (
-            <Box
-              className={classes.authFormContainer}
-              component="form"
-              noValidate
-              autoComplete="off"
-              onSubmit={handleSubmit(loginUser)}
-            >
-              {errors?.loginEmail && (
-                <Typography style={{ color: "red" }}>
-                  {errors.loginEmail.message}
-                </Typography>
-              )}
-              <TextField
-                label="Email"
-                variant="outlined"
-                fullWidth
-                className={classes.inputField}
-                {...register("loginEmail", {
-                  required: "Please provide a valid email",
-                  pattern: {
-                    value: emailFormat,
-                    message: "Enter a valid email",
-                  },
-                })}
-                type="email"
-              />
-
-              {errors?.loginPassword && (
-                <Typography style={{ color: "red" }}>
-                  {errors.loginPassword.message}
-                </Typography>
-              )}
-              <TextField
-                label="Password"
-                type="password"
-                autoComplete="off"
-                variant="outlined"
-                fullWidth
-                className={classes.inputField}
-                {...register("loginPassword", {
-                  required: "Please enter a password",
-                  minLength: {
-                    value: 8,
-                    message: "Password must contain at least 8 characters",
-                  },
-                })}
-              />
-
-              <Button
-                variant="contained"
-                type="submit"
-                color="primary"
-                sx={{ width: "200px", fontSize: "16px", marginBottom: "15px" }}
-              >
-                SIGN IN
-              </Button>
-
-              <Typography
-                onClick={() => switchView(false)}
-                style={{ cursor: "pointer" }}
-              >
-                Create an Account?
-              </Typography>
-            </Box>
-          )}
+          </Box>
         </Grid>
       </Grid>
     </Box>

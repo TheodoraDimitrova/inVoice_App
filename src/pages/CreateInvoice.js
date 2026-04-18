@@ -23,8 +23,9 @@ import db, { auth } from "../firebase";
 import Nav from "../components/Nav";
 import { showToast } from "../utils/functions";
 import Loading from "../components/Loading";
-import { IconButton, Tooltip } from "@mui/material";
+import { Button, IconButton, TextField, Tooltip, Typography } from "@mui/material";
 import HomeIcon from "@mui/icons-material/Home";
+import { outlinedFieldSx } from "../utils/muiFieldSx";
 
 const CreateInvoice = () => {
   const [customerName, setCustomerName] = useState("");
@@ -218,85 +219,79 @@ const CreateInvoice = () => {
             </h3>
 
             <form className="w-full mx-auto flex flex-col">
-              <label htmlFor="customerName" className="text-sm">
-                Customer's Name
-              </label>
-              <input
-                type="text"
-                required
+              <TextField
+                label="Customer's Name"
                 name="customerName"
-                className="py-2 px-4 bg-gray-100 w-full mb-6"
                 value={customerName}
                 onChange={(e) => setCustomerName(e.target.value)}
+                required
+                fullWidth
+                variant="outlined"
+                sx={outlinedFieldSx}
               />
-              <label htmlFor="customerVat" className="text-sm">
-                Customer's VAT
-              </label>
-              <input
-                type="text"
+              <TextField
+                label="Customer's VAT"
                 name="customerVat"
-                className="py-2 px-4 bg-gray-100 w-full mb-6"
                 value={customerVat}
                 onChange={(e) => setCustomerVat(e.target.value ?? "")}
+                fullWidth
+                variant="outlined"
+                sx={outlinedFieldSx}
               />
 
               <div className="flex items-end space-x-3">
                 <div className="flex flex-col w-1/2">
-                  <label htmlFor="customerAddress" className="text-sm">
-                    Customer's Address
-                  </label>
-                  <input
-                    type="text"
+                  <TextField
+                    label="Customer's Address"
                     name="customerAddress"
-                    className="py-2 px-4 bg-gray-100 w-full mb-6"
                     value={customerAddress}
                     onChange={(e) => setCustomerAddress(e.target.value)}
+                    fullWidth
+                    variant="outlined"
+                    sx={outlinedFieldSx}
                   />
                 </div>
 
                 <div className="flex flex-col w-1/2">
-                  <label htmlFor="customerCity" className="text-sm">
-                    Customer's Country
-                  </label>
-                  <input
-                    type="text"
-                    required
+                  <TextField
+                    label="Customer's Country"
                     name="customerCity"
-                    className="py-2 px-4 bg-gray-100 w-full mb-6"
                     value={customerCity}
                     onChange={(e) => setCustomerCity(e.target.value)}
+                    required
+                    fullWidth
+                    variant="outlined"
+                    sx={outlinedFieldSx}
                   />
                 </div>
               </div>
 
               <div className="flex items-center space-x-4">
                 <div className="flex flex-col w-2/3">
-                  <label htmlFor="customerEmail" className="text-sm">
-                    Customer's Email
-                  </label>
-                  <input
+                  <TextField
+                    label="Customer's Email"
                     type="email"
-                    required
                     name="customerEmail"
-                    className="py-2 px-4 bg-gray-100 w-full mb-6"
                     value={customerEmail}
                     onChange={(e) => setCustomerEmail(e.target.value)}
+                    required
+                    fullWidth
+                    variant="outlined"
+                    sx={outlinedFieldSx}
                   />
                 </div>
 
                 <div className="flex flex-col w-1/3">
-                  <label htmlFor="currency" className="text-sm">
-                    Currency
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    maxLength={3}
-                    minLength={3}
+                  <TextField
+                    label="Currency"
                     name="currency"
-                    className="py-2 px-4 bg-gray-100 w-full mb-6"
                     value={currency}
                     onChange={(e) => setCurrency(e.target.value)}
+                    required
+                    fullWidth
+                    variant="outlined"
+                    inputProps={{ maxLength: 3, minLength: 3 }}
+                    sx={outlinedFieldSx}
                   />
                 </div>
               </div>
@@ -318,46 +313,46 @@ const CreateInvoice = () => {
 
                 <div className="flex flex-col">
                   <div className="flex flex-col justify-center md:w-full">
-                    <label htmlFor="itemName" className="text-sm">
-                      Name
-                    </label>
-                    <input
-                      type="text"
+                    <TextField
+                      label="Name"
                       name="itemName"
                       placeholder="Name"
-                      className="py-2 px-4 mb-6 bg-gray-100"
                       value={itemName}
                       onChange={(e) => setItemName(e.target.value)}
+                      fullWidth
+                      variant="outlined"
+                      sx={outlinedFieldSx}
                     />
                   </div>
 
                   <div className="md:flex md:justify-between">
                     <div className="flex flex-col justify-center md:w-1/5">
-                      <label htmlFor="itemCost" className="text-sm">
-                        Cost
-                      </label>
-                      <input
+                      <TextField
+                        label="Cost"
                         type="number"
-                        step="0.01"
                         name="itemCost"
                         placeholder="Cost"
-                        className="py-2 px-4 mb-6 bg-gray-100"
                         value={itemCost}
                         onChange={(e) => setItemCost(e.target.value)}
+                        fullWidth
+                        variant="outlined"
+                        inputProps={{ step: "0.01", min: 0 }}
+                        sx={outlinedFieldSx}
                       />
                     </div>
 
                     <div className="flex flex-col justify-center md:w-1/5">
-                      <label htmlFor="itemQuantity" className="text-sm">
-                        Quantity
-                      </label>
-                      <input
+                      <TextField
+                        label="Quantity"
                         type="number"
                         name="itemQuantity"
                         placeholder="Quantity"
-                        className="py-2 px-4 mb-6 bg-gray-100"
                         value={itemQuantity}
                         onChange={(e) => setItemQuantity(e.target.value)}
+                        fullWidth
+                        variant="outlined"
+                        inputProps={{ min: 1 }}
+                        sx={outlinedFieldSx}
                       />
                     </div>
                     {/* <div className="flex flex-col justify-center md:w-1/5">
@@ -375,31 +370,48 @@ const CreateInvoice = () => {
                     </div> */}
 
                     <div className="flex flex-col justify-center md:w-1/5">
-                      <p className="text-sm">Price</p>
-                      <p className="py-2 px-4 mb-6 bg-gray-100">
+                      <Typography variant="body2" sx={{ mb: 0.5 }}>
+                        Price
+                      </Typography>
+                      <Typography
+                        variant="body1"
+                        sx={{
+                          py: 1.5,
+                          px: 2,
+                          mb: 3,
+                          bgcolor: "grey.100",
+                          borderRadius: 1,
+                        }}
+                      >
                         {Number(
                           itemCost * itemQuantity -
                             (itemCost * itemQuantity * (itemDiscount || 0)) /
                               100
                         ).toFixed(2)}
-                      </p>
+                      </Typography>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex justify-between">
-                  <button
-                    className="bg-blue-500 hover:bg-blue-600 text-gray-100 w-[150px] py-3 px-4 rounded my-2"
+                <div className="flex justify-between gap-2">
+                  <Button
+                    type="button"
+                    variant="contained"
+                    color="primary"
                     onClick={handleSubmit}
+                    sx={{ minWidth: 150, my: 1 }}
                   >
                     Add Item
-                  </button>
-                  <button
-                    className="bg-red-500 hover:bg-red-600 text-gray-100 w-[150px] p-3 rounded my-2"
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="contained"
+                    color="error"
                     onClick={clearForm}
+                    sx={{ minWidth: 150, my: 1 }}
                   >
                     Clear Form
-                  </button>
+                  </Button>
                 </div>
               </div>
 
@@ -410,25 +422,30 @@ const CreateInvoice = () => {
                 />
               )}
 
-              <button
-                className="bg-green-500 bg-opacity-75 hover:bg-opacity-100 text-white font-bold py-2 px-4 rounded w-full mt-6"
+              <Button
+                type="button"
+                variant="contained"
+                color="success"
+                fullWidth
+                size="large"
+                sx={{ mt: 3 }}
                 onClick={saveInvoice}
               >
                 SAVE INVOICE
-              </button>
+              </Button>
             </form>
           </div>
           <Tooltip title="Go Home">
             <IconButton
               onClick={() => navigate("/dashboard")}
-              style={{
+              sx={{
                 position: "fixed",
                 bottom: "50px",
                 right: "30px",
-                zIndex: "1000px",
+                zIndex: 1000,
               }}
             >
-              <HomeIcon style={{ fontSize: "30px" }} />
+              <HomeIcon sx={{ fontSize: "30px" }} />
             </IconButton>
           </Tooltip>
         </div>

@@ -5,10 +5,103 @@
 * {
   margin: 0;
   box-sizing: border-box;
-  font-family: "Sora", sans-serif;
 }
 body {
   height: auto !important;
+}
+
+:root {
+  --color-brand-primary: #0f766e;
+  --color-brand-primary-hover: #0d9488;
+  --color-brand-accent: #ccfbf1;
+  --color-brand-charcoal: #1f2937;
+  --color-border-soft: #e2e8f0;
+  --color-border-hover: #cbd5e1;
+  --color-text-muted: #64748b;
+  /* Aligns header, body sections, footer on one vertical rhythm (same as max-w-6xl + px-4 md:px-8) */
+  --page-max-width: 72rem;
+  --page-padding-x: 1rem;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --page-padding-x: 2rem;
+  }
+}
+
+.page-shell {
+  width: 100%;
+  max-width: var(--page-max-width);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--page-padding-x);
+  padding-right: var(--page-padding-x);
+  box-sizing: border-box;
+}
+
+.btn-brand {
+  background-color: var(--color-brand-primary);
+  color: #ffffff;
+  box-shadow:
+    0 4px 20px rgba(15, 118, 110, 0.12),
+    0 2px 8px rgba(15, 23, 42, 0.06);
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.btn-brand:hover {
+  background-color: var(--color-brand-primary-hover);
+  transform: translateY(-1px);
+  box-shadow:
+    0 8px 28px rgba(15, 118, 110, 0.14),
+    0 4px 12px rgba(15, 23, 42, 0.07);
+}
+
+.btn-brand-outline {
+  border: 1px solid var(--color-brand-primary);
+  color: var(--color-brand-primary);
+  background-color: #ffffff;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.btn-brand-outline:hover {
+  background-color: var(--color-brand-accent);
+  transform: translateY(-1px);
+}
+
+.btn-brand:focus-visible,
+.btn-brand-outline:focus-visible {
+  outline: 2px solid var(--color-brand-primary);
+  outline-offset: 2px;
+}
+
+.feature-card {
+  height: 100%;
+  border-radius: 0.9rem;
+  border: 1px solid var(--color-border-soft);
+  background-color: #ffffff;
+  padding: 1.15rem;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.brand-link {
+  color: var(--color-brand-primary);
+  transition: color 0.2s ease;
+}
+
+.brand-link:hover {
+  color: var(--color-brand-primary-hover);
+}
+
+.trust-bar-surface {
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.05),
+    0 4px 12px rgba(15, 23, 42, 0.04);
 }
 
 table {
@@ -16,7 +109,8 @@ table {
   margin-top: 30px;
   border-collapse: collapse;
   width: 100%;
-  box-shadow: 0 2px 5px 0 rgba(50, 50, 105, 0.15),
+  box-shadow:
+    0 2px 5px 0 rgba(50, 50, 105, 0.15),
     0 1px 1px 0 rgba(0, 0, 0, 0.05);
 }
 thead {

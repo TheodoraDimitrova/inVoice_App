@@ -1,5 +1,5 @@
 import CssBaseline from "@mui/material/CssBaseline";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
+import { ThemeProvider } from "@mui/material/styles";
 import React, { lazy, Suspense } from "react";
 import { Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
@@ -10,6 +10,7 @@ import PublicRoute from "./components/PublicRoute";
 
 import { ViewInvoice } from "./pages/ViewInvoice";
 import PageNotFound from "./pages/PageNotFound";
+import { theme } from "./theme";
 
 const Auth = lazy(() => import("./pages/Auth"));
 const CreateInvoice = lazy(() => import("./pages/CreateInvoice"));
@@ -17,12 +18,6 @@ const Products = lazy(() => import("./pages/Products"));
 const Home = lazy(() => import("./pages/Home"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const SetupProfile = lazy(() => import("./pages/SetupProfile"));
-
-const theme = createTheme({
-  typography: {
-    fontFamily: ["Sora", "sans-serif"].join(","),
-  },
-});
 
 function App() {
   return (
