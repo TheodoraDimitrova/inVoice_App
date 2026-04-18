@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
 import { getDownloadURL, ref, uploadString } from "@firebase/storage";
 import { storage } from "../firebase";
@@ -15,58 +17,86 @@ import {
 import db from "../firebase";
 import Nav from "../components/Nav";
 import Loading from "../components/Loading";
+import {
+  AddressSection,
+  BankSection,
+  CompanySection,
+  LogoSection,
+  TaxSection,
+} from "../components/setupProfile";
 import { showToast } from "../utils/functions";
 import { getAuth } from "firebase/auth";
 import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
   Box,
   Button,
   Container,
-  Divider,
   Grid,
-  InputAdornment,
   Paper,
   Stack,
-  TextField,
   Typography,
 } from "@mui/material";
-import BusinessOutlinedIcon from "@mui/icons-material/BusinessOutlined";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import GavelOutlinedIcon from "@mui/icons-material/GavelOutlined";
 import AccountBalanceOutlinedIcon from "@mui/icons-material/AccountBalanceOutlined";
-import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
-import CloudUploadOutlinedIcon from "@mui/icons-material/CloudUploadOutlined";
-import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
-import { outlinedFieldSx } from "../utils/muiFieldSx";
+import { setupProfileSchema } from "../schemas/setupProfileSchema";
+import { LOGO_ACCEPT, LOGO_UPLOAD_HINT, validateLogo } from "../utils/validateLogo";
 
 const DEFAULT_LOGO =
   "https://www.pesmcopt.com/admin-media/images/default-logo.png";
 
-const fieldProps = {
-  fullWidth: true,
-  variant: "outlined",
-  size: "medium",
+const defaultFormValues = {
+  businessName: "",
+  email: "",
+  phone: "",
+  businessAddress: "",
+  postCode: "",
+  city: "",
+  country: "",
+  vat: "",
+  tic: "",
+  vatRate: 20,
+  bankName: "",
+  iban: "",
+  swift: "",
+};
+
+const accordionIconBoxSx = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  width: 40,
+  height: 40,
+  borderRadius: 2,
+  bgcolor: "var(--color-brand-accent)",
+  color: "var(--color-brand-primary)",
+  flexShrink: 0,
+};
+
+const optionalAccordionSx = {
+  bgcolor: "transparent",
+  boxShadow: "none",
+  "&:before": { display: "none" },
 };
 
 const SetupProfile = () => {
   const auth = getAuth();
-  const [businessName, setBusinessName] = useState("");
-  const [vatRate, setVatRate] = useState(20);
-  const [businessAddress, setBusinessAddress] = useState("");
-  const [businessCity, setBusinessCity] = useState("");
-  const [tic, setTic] = useState("");
-  const [vat, setVat] = useState("");
-  const [bankName, setBankName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [email, setEmail] = useState("");
-  const [bankNo, setBankNo] = useState("");
-  const [iban, setIban] = useState("");
-  const [swift, setSwift] = useState("");
   const [logo, setLogo] = useState(DEFAULT_LOGO);
   const [logoFileName, setLogoFileName] = useState("");
   const [logoDragActive, setLogoDragActive] = useState(false);
   const logoInputRef = useRef(null);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
+
+  const form = useForm({
+    resolver: zodResolver(setupProfileSchema),
+    defaultValues: defaultFormValues,
+    mode: "onSubmit",
+  });
+
+  const { handleSubmit, formState: { isSubmitting } } = form;
 
   const hasCustomLogo = logo !== DEFAULT_LOGO;
 
@@ -94,12 +124,9 @@ const SetupProfile = () => {
   }, [auth.currentUser.uid, navigate]);
 
   const applyLogoFile = useCallback((file) => {
-    if (!file || !file.type.startsWith("image/")) {
-      showToast("error", "Please choose a PNG or JPG image.");
-      return;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      showToast("error", "Image must be under 5 MB.");
+    const check = validateLogo(file);
+    if (!check.ok) {
+      showToast("error", check.message);
       return;
     }
     setLogoFileName(file.name);
@@ -143,42 +170,24 @@ const SetupProfile = () => {
     if (logoInputRef.current) logoInputRef.current.value = "";
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const bn = businessName.trim();
-    const em = email.trim();
-    const ph = phone.trim();
-    const ba = businessAddress.trim();
-    const bc = businessCity.trim();
-
-    if (!bn || !em || !ph || !ba || !bc) {
-      showToast("error", "Please fill in all required fields marked with *.");
-      return;
-    }
-
-    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em);
-    if (!emailOk) {
-      showToast("error", "Please enter a valid email address.");
-      return;
-    }
-
-    setSubmitting(true);
+  const onSubmit = async (data) => {
     try {
       const docRef = await addDoc(collection(db, "businesses"), {
         user_id: auth.currentUser.uid,
-        vatRate: Number(vatRate) || 0,
-        businessName: bn,
-        businessAddress: ba,
-        businessCity: bc,
-        phone: ph,
-        tic,
-        vat,
-        email: em,
-        iban,
-        swift,
-        bankNo,
-        bankName,
+        vatRate: Number(data.vatRate) || 0,
+        businessName: data.businessName,
+        businessAddress: data.businessAddress,
+        postCode: data.postCode,
+        city: data.city,
+        country: data.country,
+        businessCity: `${data.postCode} ${data.city}, ${data.country}`,
+        phone: data.phone,
+        tic: data.tic,
+        vat: data.vat,
+        email: data.email,
+        iban: data.iban,
+        swift: data.swift,
+        bankName: data.bankName,
         invoices: 0,
       });
 
@@ -206,49 +215,10 @@ const SetupProfile = () => {
     } catch (err) {
       console.error(err);
       showToast("error", "Could not save profile. Please try again.");
-    } finally {
-      setSubmitting(false);
     }
   };
 
-  const SectionTitle = ({ icon: Icon, title, subtitle }) => (
-    <Stack direction="row" spacing={1.5} alignItems="flex-start" sx={{ mb: 2.5 }}>
-      <Box
-        sx={{
-          mt: 0.25,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          width: 40,
-          height: 40,
-          borderRadius: 2,
-          bgcolor: "var(--color-brand-accent)",
-          color: "var(--color-brand-primary)",
-        }}
-      >
-        <Icon fontSize="small" />
-      </Box>
-      <Box>
-        <Typography
-          variant="h6"
-          component="h2"
-          sx={{
-            fontWeight: 600,
-            color: "var(--color-brand-charcoal)",
-            letterSpacing: "-0.02em",
-            lineHeight: 1.3,
-          }}
-        >
-          {title}
-        </Typography>
-        {subtitle && (
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-            {subtitle}
-          </Typography>
-        )}
-      </Box>
-    </Stack>
-  );
+  const submitForm = () => handleSubmit(onSubmit)();
 
   return (
     <>
@@ -265,7 +235,7 @@ const SetupProfile = () => {
           }}
         >
           <Nav />
-          <Container maxWidth="md" sx={{ pt: { xs: 3, sm: 4 }, px: { xs: 2, sm: 3 } }}>
+          <Container maxWidth="lg" sx={{ pt: { xs: 3, sm: 4 }, px: { xs: 2, sm: 3 } }}>
             <Typography
               variant="overline"
               sx={{
@@ -296,10 +266,10 @@ const SetupProfile = () => {
               variant="body1"
               align="center"
               color="text.secondary"
-              sx={{ maxWidth: 520, mx: "auto", mb: 4 }}
+              sx={{ maxWidth: 560, mx: "auto", mb: 4 }}
             >
-              These details appear on your invoices. You can refine them later;
-              get the essentials in now so your first invoice looks professional.
+              Add your company name, contact details, and address to get started. Tax, bank
+              details, and logo are optional and can be completed later.
             </Typography>
 
             <Paper
@@ -314,389 +284,134 @@ const SetupProfile = () => {
               }}
             >
               <Box
-                sx={{
-                  px: { xs: 2, sm: 3, md: 4 },
-                  py: { xs: 2.5, sm: 3 },
-                  borderBottom: "1px solid",
-                  borderColor: "var(--color-border-soft)",
-                  bgcolor: "rgba(255,255,255,0.7)",
-                }}
-              >
-                <Typography variant="body2" color="text.secondary">
-                  Fields marked with <Box component="span" color="error.main">*</Box> are required to
-                  create your profile.
-                </Typography>
-              </Box>
-
-              <Box
                 component="form"
-                onSubmit={handleSubmit}
+                noValidate
+                onSubmit={handleSubmit(onSubmit)}
                 sx={{ px: { xs: 2, sm: 3, md: 4 }, py: { xs: 3, sm: 4 } }}
               >
-                <SectionTitle
-                  icon={BusinessOutlinedIcon}
-                  title="Company & contact"
-                  subtitle="How clients reach you and where you operate."
-                />
-                <Grid container spacing={2.5}>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      {...fieldProps}
-                      required
-                      label="Company name"
-                      name="businessName"
-                      value={businessName}
-                      onChange={(e) => setBusinessName(e.target.value)}
-                      sx={{
-                        ...outlinedFieldSx,
-                        mb: 0,
-                        "& .MuiInputBase-input": {
-                          py: 1.5,
-                          textTransform: "capitalize",
-                        },
-                      }}
-                    />
+                <Grid container spacing={3} sx={{ alignItems: "stretch" }}>
+                  <Grid item xs={12} md={8} order={{ xs: 1, md: 1 }}>
+                    <CompanySection form={form} />
                   </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      {...fieldProps}
-                      required
-                      label="Company email"
-                      type="email"
-                      name="email"
-                      autoComplete="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      sx={{ ...outlinedFieldSx, mb: 0 }}
-                    />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <TextField
-                      {...fieldProps}
-                      required
-                      label="Phone"
-                      type="tel"
-                      name="phone"
-                      autoComplete="tel"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      sx={{ ...outlinedFieldSx, mb: 0 }}
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      {...fieldProps}
-                      required
-                      label="Street address"
-                      name="businessAddress"
-                      value={businessAddress}
-                      onChange={(e) => setBusinessAddress(e.target.value)}
-                      helperText="Street, number, district"
-                      sx={{ ...outlinedFieldSx, mb: 0 }}
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      {...fieldProps}
-                      required
-                      label="Post code, city, country"
-                      name="businessCity"
-                      value={businessCity}
-                      onChange={(e) => setBusinessCity(e.target.value)}
-                      sx={{ ...outlinedFieldSx, mb: 0 }}
-                    />
-                  </Grid>
-                </Grid>
-
-                <Divider sx={{ my: 4 }} />
-
-                <SectionTitle
-                  icon={GavelOutlinedIcon}
-                  title="Tax & registration"
-                  subtitle="Shown on PDF invoices when applicable."
-                />
-                <Grid container spacing={2.5}>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      {...fieldProps}
-                      label="VAT number"
-                      name="vat"
-                      value={vat}
-                      onChange={(e) => setVat(e.target.value)}
-                      sx={{ ...outlinedFieldSx, mb: 0 }}
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      {...fieldProps}
-                      label="T.I.C. / company ID"
-                      name="tic"
-                      value={tic}
-                      onChange={(e) => setTic(e.target.value)}
-                      sx={{ ...outlinedFieldSx, mb: 0 }}
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      {...fieldProps}
-                      label="Default VAT rate"
-                      type="number"
-                      name="vatRate"
-                      value={vatRate}
-                      onChange={(e) => setVatRate(e.target.value)}
-                      InputProps={{
-                        endAdornment: (
-                          <InputAdornment position="end">%</InputAdornment>
-                        ),
-                      }}
-                      inputProps={{ min: 0, max: 100, step: 0.5 }}
-                      helperText="Applied to new invoice line totals before issuing."
-                      sx={{ ...outlinedFieldSx, mb: 0 }}
-                    />
-                  </Grid>
-                </Grid>
-
-                <Divider sx={{ my: 4 }} />
-
-                <SectionTitle
-                  icon={AccountBalanceOutlinedIcon}
-                  title="Bank details"
-                  subtitle="Payment instructions on your invoices."
-                />
-                <Grid container spacing={2.5}>
-                  <Grid item xs={12}>
-                    <TextField
-                      {...fieldProps}
-                      label="Bank name"
-                      name="bankName"
-                      value={bankName}
-                      onChange={(e) => setBankName(e.target.value)}
-                      sx={{
-                        ...outlinedFieldSx,
-                        mb: 0,
-                        "& .MuiInputBase-input": {
-                          py: 1.5,
-                          textTransform: "capitalize",
-                        },
-                      }}
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={4}>
-                    <TextField
-                      {...fieldProps}
-                      label="Account number"
-                      name="bankNo"
-                      value={bankNo}
-                      onChange={(e) => setBankNo(e.target.value)}
-                      sx={{ ...outlinedFieldSx, mb: 0 }}
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={8}>
-                    <TextField
-                      {...fieldProps}
-                      label="IBAN"
-                      name="iban"
-                      value={iban}
-                      onChange={(e) => setIban(e.target.value.toUpperCase())}
-                      inputProps={{ spellCheck: false }}
-                      sx={{
-                        ...outlinedFieldSx,
-                        mb: 0,
-                        "& .MuiInputBase-input": { py: 1.5, fontFamily: "ui-monospace, monospace" },
-                      }}
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      {...fieldProps}
-                      label="SWIFT / BIC"
-                      name="swift"
-                      value={swift}
-                      onChange={(e) => setSwift(e.target.value.toUpperCase())}
-                      sx={{
-                        ...outlinedFieldSx,
-                        mb: 0,
-                        "& .MuiInputBase-input": { py: 1.5, textTransform: "uppercase" },
-                      }}
-                    />
-                  </Grid>
-                </Grid>
-
-                <Divider sx={{ my: 4 }} />
-
-                <SectionTitle
-                  icon={ImageOutlinedIcon}
-                  title="Logo"
-                  subtitle="Optional but recommended — appears at the top of invoices."
-                />
-                <input
-                  ref={logoInputRef}
-                  id="logo-upload"
-                  type="file"
-                  accept="image/png,image/jpeg,image/webp"
-                  hidden
-                  name="logo"
-                  onChange={handleFileReader}
-                />
-                <Box
-                  onDrop={handleLogoDrop}
-                  onDragOver={handleLogoDragOver}
-                  onDragLeave={handleLogoDragLeave}
-                  sx={{
-                    borderRadius: 2,
-                    overflow: "hidden",
-                    border: "2px dashed",
-                    borderColor: logoDragActive
-                      ? "var(--color-brand-primary)"
-                      : "var(--color-border-soft)",
-                    bgcolor: logoDragActive
-                      ? "rgba(15, 118, 110, 0.06)"
-                      : "rgba(248, 250, 252, 0.9)",
-                    transition:
-                      "border-color 0.2s ease, background-color 0.2s ease",
-                  }}
-                >
-                  <Box
-                    component="label"
-                    htmlFor="logo-upload"
+                  <Grid
+                    item
+                    xs={12}
+                    md={4}
+                    order={{ xs: 3, md: 2 }}
                     sx={{
-                      display: "block",
-                      cursor: "pointer",
-                      p: { xs: 2.5, sm: 3 },
-                      "&:focus-within": {
-                        outline: "2px solid",
-                        outlineColor: "primary.main",
-                        outlineOffset: 2,
-                      },
+                      display: "flex",
+                      flexDirection: "column",
+                      minWidth: 0,
                     }}
                   >
-                    {hasCustomLogo ? (
-                      <Stack
-                        direction={{ xs: "column", sm: "row" }}
-                        spacing={3}
-                        alignItems="center"
-                      >
-                        <Box
-                          sx={{
-                            width: "100%",
-                            maxWidth: 280,
-                            height: 140,
-                            borderRadius: 2,
-                            bgcolor: "#fff",
-                            border: "1px solid",
-                            borderColor: "var(--color-border-soft)",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            p: 2,
-                            flexShrink: 0,
-                          }}
-                        >
-                          <Box
-                            component="img"
-                            src={logo}
-                            alt="Logo preview"
-                            sx={{
-                              maxWidth: "100%",
-                              maxHeight: 108,
-                              objectFit: "contain",
-                            }}
-                          />
+                    <LogoSection
+                      logo={logo}
+                      logoFileName={logoFileName}
+                      logoDragActive={logoDragActive}
+                      logoInputRef={logoInputRef}
+                      hasCustomLogo={hasCustomLogo}
+                      onFileChange={handleFileReader}
+                      onDrop={handleLogoDrop}
+                      onDragOver={handleLogoDragOver}
+                      onDragLeave={handleLogoDragLeave}
+                      onClear={clearLogo}
+                      onChooseClick={() => logoInputRef.current?.click()}
+                      uploadHint={LOGO_UPLOAD_HINT}
+                      accept={LOGO_ACCEPT}
+                      compact
+                    />
+                  </Grid>
+                  <Grid item xs={12} order={{ xs: 2, md: 3 }}>
+                    <AddressSection form={form} />
+                  </Grid>
+                </Grid>
+
+                <Stack alignItems="center" spacing={0.5} sx={{ mt: 3, mb: 2 }}>
+                  <Button
+                    type="button"
+                    variant="text"
+                    color="inherit"
+                    onClick={submitForm}
+                    sx={{
+                      textTransform: "none",
+                      color: "text.secondary",
+                      fontWeight: 500,
+                    }}
+                  >
+                    Skip optional details for now
+                  </Button>
+                  <Typography variant="caption" color="text.secondary" textAlign="center">
+                    Saves your company and address if valid, then opens the dashboard.
+                  </Typography>
+                </Stack>
+
+                <Box
+                  sx={{
+                    mt: 2,
+                    p: { xs: 1.5, sm: 2 },
+                    borderRadius: 2,
+                    bgcolor: "rgba(15, 23, 42, 0.04)",
+                    border: "1px solid",
+                    borderColor: "rgba(15, 23, 42, 0.08)",
+                  }}
+                >
+                  <Accordion defaultExpanded={false} sx={optionalAccordionSx}>
+                    <AccordionSummary
+                      expandIcon={<ExpandMoreIcon />}
+                      aria-controls="setup-tax-content"
+                      id="setup-tax-header"
+                      sx={{ px: 1, opacity: 0.92 }}
+                    >
+                      <Stack direction="row" spacing={1.5} alignItems="flex-start">
+                        <Box sx={accordionIconBoxSx}>
+                          <GavelOutlinedIcon fontSize="small" />
                         </Box>
-                        <Stack spacing={1.25} sx={{ flex: 1, minWidth: 0 }}>
-                          <Stack direction="row" spacing={1} alignItems="center">
-                            <CheckCircleOutlineIcon
-                              color="primary"
-                              sx={{ fontSize: 22 }}
-                            />
-                            <Typography variant="subtitle2" fontWeight={600}>
-                              Image ready
-                            </Typography>
-                          </Stack>
-                          <Typography
-                            variant="body2"
-                            color="text.secondary"
-                            sx={{
-                              wordBreak: "break-all",
-                            }}
-                          >
-                            {logoFileName || "Selected image"}
+                        <Box>
+                          <Typography sx={{ fontWeight: 700, fontSize: "1.05rem", color: "#334155" }}>
+                            Tax & registration (Optional)
                           </Typography>
-                          <Stack direction="row" spacing={1} flexWrap="wrap" sx={{ pt: 0.5 }}>
-                            <Button
-                              type="button"
-                              size="small"
-                              variant="outlined"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                logoInputRef.current?.click();
-                              }}
-                            >
-                              Replace
-                            </Button>
-                            <Button
-                              type="button"
-                              size="small"
-                              color="inherit"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                clearLogo();
-                              }}
-                            >
-                              Remove
-                            </Button>
-                          </Stack>
-                        </Stack>
-                      </Stack>
-                    ) : (
-                      <Stack
-                        alignItems="center"
-                        spacing={1.5}
-                        sx={{ py: { xs: 3, sm: 4 }, px: 1 }}
-                      >
-                        <Box
-                          sx={{
-                            width: 64,
-                            height: 64,
-                            borderRadius: "50%",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            bgcolor: "var(--color-brand-accent)",
-                            color: "var(--color-brand-primary)",
-                          }}
-                        >
-                          <CloudUploadOutlinedIcon sx={{ fontSize: 34 }} />
+                          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.25 }}>
+                            Shown on PDF invoices when applicable.
+                          </Typography>
                         </Box>
-                        <Typography variant="subtitle1" fontWeight={600} textAlign="center">
-                          Drop your logo here or click to browse
-                        </Typography>
-                        <Typography
-                          variant="body2"
-                          color="text.secondary"
-                          textAlign="center"
-                          sx={{ maxWidth: 360 }}
-                        >
-                          PNG, JPG or WebP · up to 5 MB · transparent PNGs work well
-                        </Typography>
-                        <Button
-                          type="button"
-                          variant="contained"
-                          color="primary"
-                          sx={{ mt: 1 }}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            logoInputRef.current?.click();
-                          }}
-                        >
-                          Choose file
-                        </Button>
                       </Stack>
-                    )}
-                  </Box>
+                    </AccordionSummary>
+                    <AccordionDetails sx={{ px: { xs: 1, sm: 2 }, pt: 0, pb: 2 }}>
+                      <TaxSection form={form} showTitle={false} />
+                    </AccordionDetails>
+                  </Accordion>
+
+                  <Accordion
+                    defaultExpanded={false}
+                    sx={{
+                      ...optionalAccordionSx,
+                      borderTop: "1px solid rgba(15, 23, 42, 0.08)",
+                    }}
+                  >
+                    <AccordionSummary
+                      expandIcon={<ExpandMoreIcon />}
+                      aria-controls="setup-bank-content"
+                      id="setup-bank-header"
+                      sx={{ px: 1, opacity: 0.92 }}
+                    >
+                      <Stack direction="row" spacing={1.5} alignItems="flex-start">
+                        <Box sx={accordionIconBoxSx}>
+                          <AccountBalanceOutlinedIcon fontSize="small" />
+                        </Box>
+                        <Box>
+                          <Typography sx={{ fontWeight: 700, fontSize: "1.05rem", color: "#334155" }}>
+                            Bank details (Optional)
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.25 }}>
+                            Payment instructions on your invoices.
+                          </Typography>
+                        </Box>
+                      </Stack>
+                    </AccordionSummary>
+                    <AccordionDetails sx={{ px: { xs: 1, sm: 2 }, pt: 0, pb: 2 }}>
+                      <BankSection form={form} showTitle={false} />
+                    </AccordionDetails>
+                  </Accordion>
                 </Box>
 
                 <Stack spacing={2} sx={{ mt: 4 }}>
@@ -705,7 +420,7 @@ const SetupProfile = () => {
                     variant="contained"
                     color="primary"
                     size="large"
-                    disabled={submitting}
+                    disabled={isSubmitting}
                     sx={{
                       py: 1.35,
                       fontWeight: 600,
@@ -713,10 +428,13 @@ const SetupProfile = () => {
                         "0 4px 20px rgba(15, 118, 110, 0.12), 0 2px 8px rgba(15, 23, 42, 0.06)",
                     }}
                   >
-                    {submitting ? "Saving…" : "Save and continue to dashboard"}
+                    {isSubmitting
+                      ? "Saving…"
+                      : "Complete setup later and go to dashboard"}
                   </Button>
                   <Typography variant="caption" color="text.secondary" textAlign="center">
-                    You can update these details later from your account when editing is available.
+                    You can update tax, bank, and logo anytime from your account when editing is
+                    available.
                   </Typography>
                 </Stack>
               </Box>

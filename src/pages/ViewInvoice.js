@@ -102,11 +102,33 @@ export const ComponentToPrint = React.forwardRef((props, ref) => {
 
               {businessDetails &&
                 businessDetails[0] &&
-                businessDetails[0].data.businessCity && (
-                  <p className="text-sm mb-1">
-                    {businessDetails[0].data.businessCity}
-                  </p>
-                )}
+                (() => {
+                  const d = businessDetails[0].data;
+                  const pc =
+                    d.postCode == null ? "" : String(d.postCode).trim();
+                  const city = d.city == null ? "" : String(d.city).trim();
+                  const country =
+                    d.country == null ? "" : String(d.country).trim();
+                  const line = [pc, city].filter(Boolean).join(" ");
+                  if (line || country) {
+                    return (
+                      <>
+                        {line ? (
+                          <p className="text-sm mb-1">{line}</p>
+                        ) : null}
+                        {country ? (
+                          <p className="text-sm mb-1">{country}</p>
+                        ) : null}
+                      </>
+                    );
+                  }
+                  if (d.businessCity) {
+                    return (
+                      <p className="text-sm mb-1">{d.businessCity}</p>
+                    );
+                  }
+                  return null;
+                })()}
               {businessDetails &&
                 businessDetails[0] &&
                 businessDetails[0].data.phone && (
@@ -279,10 +301,6 @@ export const ComponentToPrint = React.forwardRef((props, ref) => {
                   <span>Bank: </span>
                   {businessDetails[0].data.bankName}
                 </p>
-                {/* <p className="text-sm mb-1 sm:mb-0.5">
-                  <span>Account No.: </span>
-                  {businessDetails[0].data.bankNo}
-                </p> */}
               </div>
               <div>
                 <p className="text-sm mb-1 sm:mb-0.5">

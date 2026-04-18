@@ -8,9 +8,9 @@
   "dependencies": {
     "@emotion/react": "^11.9.0",
     "@emotion/styled": "^11.8.1",
+    "@hookform/resolvers": "^5.2.2",
     "@mui/icons-material": "^5.6.1",
     "@mui/material": "^5.6.1",
-    "@mui/styles": "^5.6.1",
     "@reduxjs/toolkit": "^1.8.1",
     "@testing-library/jest-dom": "^5.16.3",
     "@testing-library/react": "^12.1.4",
@@ -26,7 +26,8 @@
     "react-to-print": "^2.14.6",
     "react-toastify": "^8.2.0",
     "uuid": "^9.0.0",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "zod": "^4.3.6"
   },
   "scripts": {
     "start": "react-scripts start",

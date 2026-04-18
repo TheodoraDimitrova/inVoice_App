@@ -1,4 +1,5 @@
-import { AppBar, Typography, Box, Toolbar } from "@mui/material";
+import { AppBar, Typography, Box, Toolbar, Button } from "@mui/material";
+import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 import React from "react";
 import ElevationScroll from "./ElevationScroll";
 import { useTheme } from "@mui/material/styles";
@@ -90,20 +91,30 @@ const Nav = (props) => {
                 sx={{ display: "flex", alignItems: "center", flexShrink: 0 }}
               >
                 {loggedIn ? (
-                  <Typography
+                  <Button
+                    type="button"
+                    variant="text"
+                    color="inherit"
                     onClick={() => sign_Out()}
+                    startIcon={
+                      <LogoutOutlinedIcon
+                        sx={{ fontSize: matches ? 20 : 22 }}
+                      />
+                    }
                     sx={{
+                      textTransform: "none",
                       fontSize: matches ? "0.95rem" : "1rem",
                       color: "var(--color-brand-charcoal)",
-                      cursor: "pointer",
-                      transition: "color 0.2s ease",
+                      px: 1,
+                      minWidth: 0,
                       "&:hover": {
                         color: "var(--color-brand-primary)",
+                        bgcolor: "rgba(15, 118, 110, 0.06)",
                       },
                     }}
                   >
                     Sign Out
-                  </Typography>
+                  </Button>
                 ) : (
                   <Link to="/login">
                     <Typography

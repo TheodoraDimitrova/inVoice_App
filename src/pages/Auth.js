@@ -7,7 +7,7 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 
 import { showToast } from "../utils/functions";
-import { outlinedFieldSx } from "../utils/muiFieldSx";
+import { outlinedFieldLabelProps, outlinedFieldSx } from "../utils/muiFieldSx";
 
 const AUTH_ILLUSTRATION = "/invoice_auth.jpeg";
 
@@ -200,6 +200,8 @@ const Auth = () => {
                     label="Email"
                     variant="outlined"
                     fullWidth
+                    size="medium"
+                    InputLabelProps={outlinedFieldLabelProps}
                     sx={outlinedFieldSx}
                     {...register("registerEmail", {
                       required: "Please provide a valid email",
@@ -230,6 +232,8 @@ const Auth = () => {
                     type="password"
                     variant="outlined"
                     fullWidth
+                    size="medium"
+                    InputLabelProps={outlinedFieldLabelProps}
                     sx={outlinedFieldSx}
                     {...register("registerPassword", {
                       required: "Please enter a password",
@@ -290,6 +294,8 @@ const Auth = () => {
                     label="Email"
                     variant="outlined"
                     fullWidth
+                    size="medium"
+                    InputLabelProps={outlinedFieldLabelProps}
                     sx={outlinedFieldSx}
                     {...register("loginEmail", {
                       required: "Please provide a valid email",
@@ -320,6 +326,8 @@ const Auth = () => {
                     autoComplete="current-password"
                     variant="outlined"
                     fullWidth
+                    size="medium"
+                    InputLabelProps={outlinedFieldLabelProps}
                     sx={outlinedFieldSx}
                     {...register("loginPassword", {
                       required: "Please enter a password",
