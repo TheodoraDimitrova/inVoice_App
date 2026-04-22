@@ -16,7 +16,7 @@ export const CompanySection = ({ form }) => {
       <SectionTitle
         icon={BusinessOutlinedIcon}
         title="Company & contact"
-        subtitle="Legal name and how clients reach you."
+        subtitle="Trading or legal name, company email, and phone (all required)."
       />
       <Grid container spacing={3} sx={{ alignItems: "flex-start" }}>
         <Grid item xs={12} sm={6} sx={{ minWidth: 0 }}>
@@ -31,7 +31,10 @@ export const CompanySection = ({ form }) => {
                 autoComplete="organization"
                 error={!!fieldState.error}
                 helperText={
-                  <FormFieldHelperText errorMessage={fieldState.error?.message} />
+                  <FormFieldHelperText
+                    errorMessage={fieldState.error?.message}
+                    hint={fieldState.error ? undefined : "Required field."}
+                  />
                 }
                 FormHelperTextProps={{ component: "div" }}
                 sx={{
@@ -58,7 +61,10 @@ export const CompanySection = ({ form }) => {
                 autoComplete="email"
                 error={!!fieldState.error}
                 helperText={
-                  <FormFieldHelperText errorMessage={fieldState.error?.message} />
+                  <FormFieldHelperText
+                    errorMessage={fieldState.error?.message}
+                    hint={fieldState.error ? undefined : "Required field."}
+                  />
                 }
                 FormHelperTextProps={{ component: "div" }}
                 sx={gridFieldSx}
@@ -79,7 +85,14 @@ export const CompanySection = ({ form }) => {
                 autoComplete="tel"
                 error={!!fieldState.error}
                 helperText={
-                  <FormFieldHelperText errorMessage={fieldState.error?.message} />
+                  <FormFieldHelperText
+                    errorMessage={fieldState.error?.message}
+                    hint={
+                      fieldState.error
+                        ? undefined
+                        : "Required. Example: +359 88 123 4567"
+                    }
+                  />
                 }
                 FormHelperTextProps={{ component: "div" }}
                 sx={gridFieldSx}

@@ -10,9 +10,7 @@ import {
 
 import db, { auth } from "../firebase";
 import { showToast } from "../utils/functions";
-import { Box, Button, IconButton, TextField, Tooltip } from "@mui/material";
-import { useNavigate } from "react-router-dom";
-import HomeIcon from "@mui/icons-material/Home";
+import { Box, Button, TextField, Typography } from "@mui/material";
 import { outlinedFieldSx } from "../utils/muiFieldSx";
 
 function Products() {
@@ -21,8 +19,6 @@ function Products() {
   const [products, setProducts] = useState([]);
   const [editing, setEditing] = useState(false); // State variable for tracking editing state
   const [editProductId, setEditProductId] = useState(""); // State variable for storing the ID of the product being edited
-  const navigate = useNavigate();
-
   useEffect(() => {
     fetchProducts();
   }, []);
@@ -125,8 +121,10 @@ function Products() {
   };
 
   return (
-    <div className="container mx-auto h-screen mt-8">
-      <h1 className="text-4xl text-center font-bold mb-8">Products</h1>
+    <Box sx={{ px: { xs: 2, sm: 3 }, py: { xs: 2, sm: 2.5 }, maxWidth: 960, mx: "auto" }}>
+      <Typography variant="h6" component="h1" sx={{ fontWeight: 600, color: "var(--color-brand-charcoal)", mb: 3 }}>
+        Products
+      </Typography>
 
       <Box
         component="form"
@@ -209,21 +207,7 @@ function Products() {
       ) : (
         <p>No products available</p>
       )}
-
-      <Tooltip title="Go Home">
-        <IconButton
-          onClick={() => navigate("/dashboard")}
-          sx={{
-            position: "fixed",
-            bottom: "50px",
-            right: "30px",
-            zIndex: 1000,
-          }}
-        >
-          <HomeIcon sx={{ fontSize: "30px" }} />
-        </IconButton>
-      </Tooltip>
-    </div>
+    </Box>
   );
 }
 

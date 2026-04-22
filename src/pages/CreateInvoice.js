@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
+import { useInvoiceCreationReady } from "../contexts/InvoiceCreationReadyContext";
 import CreateInvoiceTable from "../components/CreateInvoiceTable";
 import { useDispatch } from "react-redux";
 import { setInvoice } from "../redux/invoice";
@@ -20,11 +21,9 @@ import {
 } from "@firebase/firestore";
 
 import db, { auth } from "../firebase";
-import Nav from "../components/Nav";
 import { showToast } from "../utils/functions";
 import Loading from "../components/Loading";
-import { Button, IconButton, TextField, Tooltip, Typography } from "@mui/material";
-import HomeIcon from "@mui/icons-material/Home";
+import { Box, Button, TextField, Typography } from "@mui/material";
 import { outlinedFieldSx } from "../utils/muiFieldSx";
 
 const CreateInvoice = () => {
@@ -48,6 +47,18 @@ const CreateInvoice = () => {
   const dispatch = useDispatch();
 
   const [loading, setLoading] = useState(true);
+  const { ready: invoiceCreationReady, loading: invoiceGateLoading } = useInvoiceCreationReady();
+
+  useEffect(() => {
+    if (invoiceGateLoading) return;
+    if (!invoiceId && !invoiceCreationReady) {
+      showToast(
+        "error",
+        'Add tax registration, company ID, and bank details in Profile settings, or enable "I don\'t need bank details on my invoices".',
+      );
+      navigate("/profile", { replace: true });
+    }
+  }, [invoiceGateLoading, invoiceId, invoiceCreationReady, navigate]);
 
   useEffect(() => {
     const fetchInvoiceData = async () => {
@@ -206,14 +217,15 @@ const CreateInvoice = () => {
     setItemList(itemList.filter((item, i) => i !== index));
   };
 
+  const blockNewInvoice = !invoiceId && !invoiceCreationReady;
+
   return (
     <>
-      {loading ? (
+      {loading || invoiceGateLoading || blockNewInvoice ? (
         <Loading />
       ) : (
-        <div>
-          <Nav />
-          <div className="w-full p-3 md:w-2/3 shadow-xl mx-auto mt-8 rounded  my-8 md:p-8">
+        <Box sx={{ px: { xs: 2, sm: 3 }, py: { xs: 2, sm: 2.5 }, maxWidth: 960, mx: "auto" }}>
+          <div className="w-full p-3 md:w-full shadow-xl rounded md:p-8 bg-white border border-slate-100">
             <h3 className="text-center font-bold text-xl mb-4">
               Create an invoice
             </h3>
@@ -435,20 +447,7 @@ const CreateInvoice = () => {
               </Button>
             </form>
           </div>
-          <Tooltip title="Go Home">
-            <IconButton
-              onClick={() => navigate("/dashboard")}
-              sx={{
-                position: "fixed",
-                bottom: "50px",
-                right: "30px",
-                zIndex: 1000,
-              }}
-            >
-              <HomeIcon sx={{ fontSize: "30px" }} />
-            </IconButton>
-          </Tooltip>
-        </div>
+        </Box>
       )}
     </>
   );

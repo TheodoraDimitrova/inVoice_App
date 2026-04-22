@@ -3,6 +3,7 @@ import { Box, Button, Stack, Typography } from "@mui/material";
 import CloudUploadOutlinedIcon from "@mui/icons-material/CloudUploadOutlined";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
+import { LOGO_FORMATS_LABEL } from "../../utils/validateLogo";
 import { SectionTitle } from "./SectionTitle";
 
 /**
@@ -23,6 +24,7 @@ export const LogoSection = ({
   uploadHint,
   accept,
   compact,
+  showTitle = true,
 }) => (
   <Box
     sx={{
@@ -36,11 +38,13 @@ export const LogoSection = ({
       alignSelf: "stretch",
     }}
   >
-    <SectionTitle
-      icon={ImageOutlinedIcon}
-      title="Logo (Optional)"
-      subtitle="Appears at the top of invoices."
-    />
+    {showTitle ? (
+      <SectionTitle
+        icon={ImageOutlinedIcon}
+        title="Logo"
+        subtitle={`Image file for the header of your invoice PDFs (${LOGO_FORMATS_LABEL}).`}
+      />
+    ) : null}
     <input
       ref={logoInputRef}
       id="logo-upload"
@@ -122,7 +126,12 @@ export const LogoSection = ({
               />
             </Box>
             <Stack spacing={1} sx={{ width: "100%", minWidth: 0 }}>
-              <Stack direction="row" spacing={1} alignItems="center" justifyContent="center">
+              <Stack
+                direction="row"
+                spacing={1}
+                alignItems="center"
+                justifyContent="center"
+              >
                 <CheckCircleOutlineIcon color="primary" sx={{ fontSize: 20 }} />
                 <Typography variant="subtitle2" fontWeight={600}>
                   Image ready
@@ -131,11 +140,20 @@ export const LogoSection = ({
               <Typography
                 variant="caption"
                 color="text.secondary"
-                sx={{ wordBreak: "break-all", textAlign: "center", display: "block" }}
+                sx={{
+                  wordBreak: "break-all",
+                  textAlign: "center",
+                  display: "block",
+                }}
               >
                 {logoFileName || "Selected image"}
               </Typography>
-              <Stack direction="row" spacing={1} justifyContent="center" flexWrap="wrap">
+              <Stack
+                direction="row"
+                spacing={1}
+                justifyContent="center"
+                flexWrap="wrap"
+              >
                 <Button
                   type="button"
                   size="small"

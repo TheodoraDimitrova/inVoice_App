@@ -9,16 +9,18 @@ import { SectionTitle } from "./SectionTitle";
 
 const fieldProps = setupProfileFieldProps;
 
-export const AddressSection = ({ form }) => {
+export const AddressSection = ({ form, showTitle = true, onCountryChange }) => {
   const { control } = form;
 
   return (
     <>
-      <SectionTitle
-        icon={PlaceOutlinedIcon}
-        title="Business address"
-        subtitle="Street and location shown on invoices."
-      />
+      {showTitle ? (
+        <SectionTitle
+          icon={PlaceOutlinedIcon}
+          title="Business address"
+          subtitle="Street, post code, city, and country for invoices and records (all required)."
+        />
+      ) : null}
       <Grid container spacing={3} sx={{ alignItems: "flex-start" }}>
         <Grid item xs={12} sx={{ minWidth: 0 }}>
           <Controller
@@ -31,7 +33,10 @@ export const AddressSection = ({ form }) => {
                 label="Street address"
                 error={!!fieldState.error}
                 helperText={
-                  <FormFieldHelperText errorMessage={fieldState.error?.message} />
+                  <FormFieldHelperText
+                    errorMessage={fieldState.error?.message}
+                    hint={fieldState.error ? undefined : "Required field."}
+                  />
                 }
                 FormHelperTextProps={{ component: "div" }}
                 sx={gridFieldSx}
@@ -51,7 +56,10 @@ export const AddressSection = ({ form }) => {
                 autoComplete="postal-code"
                 error={!!fieldState.error}
                 helperText={
-                  <FormFieldHelperText errorMessage={fieldState.error?.message} />
+                  <FormFieldHelperText
+                    errorMessage={fieldState.error?.message}
+                    hint={fieldState.error ? undefined : "Required field."}
+                  />
                 }
                 FormHelperTextProps={{ component: "div" }}
                 sx={gridFieldSx}
@@ -71,7 +79,10 @@ export const AddressSection = ({ form }) => {
                 autoComplete="address-level2"
                 error={!!fieldState.error}
                 helperText={
-                  <FormFieldHelperText errorMessage={fieldState.error?.message} />
+                  <FormFieldHelperText
+                    errorMessage={fieldState.error?.message}
+                    hint={fieldState.error ? undefined : "Required field."}
+                  />
                 }
                 FormHelperTextProps={{ component: "div" }}
                 sx={gridFieldSx}
@@ -90,12 +101,20 @@ export const AddressSection = ({ form }) => {
                 select
                 label="Country"
                 autoComplete="country-name"
+                value={field.value ?? ""}
                 error={!!fieldState.error}
                 helperText={
-                  <FormFieldHelperText errorMessage={fieldState.error?.message} />
+                  <FormFieldHelperText
+                    errorMessage={fieldState.error?.message}
+                    hint={fieldState.error ? undefined : "Required field."}
+                  />
                 }
                 FormHelperTextProps={{ component: "div" }}
                 sx={gridFieldSx}
+                onChange={(e) => {
+                  field.onChange(e.target.value);
+                  onCountryChange?.(e.target.value);
+                }}
               >
                 <MenuItem value="" disabled>
                   Select country

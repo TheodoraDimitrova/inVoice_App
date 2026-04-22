@@ -1,4 +1,12 @@
-import { Box, Grid, TextField, Button, Typography } from "@mui/material";
+import {
+  Box,
+  Grid,
+  TextField,
+  Button,
+  Typography,
+  IconButton,
+  InputAdornment,
+} from "@mui/material";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
@@ -8,6 +16,8 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 
 import { showToast } from "../utils/functions";
 import { outlinedFieldLabelProps, outlinedFieldSx } from "../utils/muiFieldSx";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
 const AUTH_ILLUSTRATION = "/invoice_auth.jpeg";
 
@@ -21,6 +31,8 @@ const Auth = () => {
     reset,
   } = useForm();
   const [createAccount, setCreateAccount] = useState(false);
+  const [showRegisterPassword, setShowRegisterPassword] = useState(false);
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
   const emailFormat =
     /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
 
@@ -62,6 +74,8 @@ const Auth = () => {
 
   const switchView = (value) => {
     setCreateAccount(!value);
+    setShowRegisterPassword(false);
+    setShowLoginPassword(false);
     reset();
   };
 
@@ -229,11 +243,34 @@ const Auth = () => {
                   <TextField
                     label="Password"
                     autoComplete="new-password"
-                    type="password"
+                    type={showRegisterPassword ? "text" : "password"}
                     variant="outlined"
                     fullWidth
                     size="medium"
                     InputLabelProps={outlinedFieldLabelProps}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            aria-label={
+                              showRegisterPassword
+                                ? "Hide password"
+                                : "Show password"
+                            }
+                            onClick={() =>
+                              setShowRegisterPassword((prev) => !prev)
+                            }
+                            edge="end"
+                          >
+                            {showRegisterPassword ? (
+                              <VisibilityOff />
+                            ) : (
+                              <Visibility />
+                            )}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
                     sx={outlinedFieldSx}
                     {...register("registerPassword", {
                       required: "Please enter a password",
@@ -322,12 +359,27 @@ const Auth = () => {
                   )}
                   <TextField
                     label="Password"
-                    type="password"
+                    type={showLoginPassword ? "text" : "password"}
                     autoComplete="current-password"
                     variant="outlined"
                     fullWidth
                     size="medium"
                     InputLabelProps={outlinedFieldLabelProps}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            aria-label={
+                              showLoginPassword ? "Hide password" : "Show password"
+                            }
+                            onClick={() => setShowLoginPassword((prev) => !prev)}
+                            edge="end"
+                          >
+                            {showLoginPassword ? <VisibilityOff /> : <Visibility />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
                     sx={outlinedFieldSx}
                     {...register("loginPassword", {
                       required: "Please enter a password",

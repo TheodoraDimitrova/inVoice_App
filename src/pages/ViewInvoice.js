@@ -3,12 +3,10 @@ import React, { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { query, collection, where, doc, onSnapshot } from "@firebase/firestore";
 import { useReactToPrint } from "react-to-print";
-import { useNavigate } from "react-router-dom";
 import db from "../firebase";
 import LocalPrintshopIcon from "@mui/icons-material/LocalPrintshop";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
-import HomeIcon from "@mui/icons-material/Home";
 import {
   findGrandTotal,
   convertTimestamp,
@@ -24,7 +22,6 @@ export const ComponentToPrint = React.forwardRef((props, ref) => {
   const [invoiceDetails, setInvoiceDetails] = useState(null);
   const [businessDetails, setBusinessDetails] = useState(null);
 
-  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const auth = getAuth();
 
@@ -51,7 +48,7 @@ export const ComponentToPrint = React.forwardRef((props, ref) => {
     } catch (error) {
       console.error(error);
     }
-  }, [params.id, navigate, auth.currentUser.uid]);
+  }, [params.id, auth.currentUser.uid]);
 
   return (
     <>
@@ -330,7 +327,6 @@ export const ViewInvoice = () => {
   const handlePrint = useReactToPrint({
     content: () => ComponentRef.current,
   });
-  const navigate = useNavigate();
   return (
     <>
       <div className="w-full flex items-center md:justify-start justify-center relative">
@@ -346,20 +342,6 @@ export const ViewInvoice = () => {
             }}
           >
             <LocalPrintshopIcon sx={{ fontSize: "40px" }} />
-          </IconButton>
-        </Tooltip>
-
-        <Tooltip title="Go Home">
-          <IconButton
-            onClick={() => navigate("/dashboard")}
-            sx={{
-              position: "absolute",
-              bottom: "50px",
-              right: "20px",
-              zIndex: 1000,
-            }}
-          >
-            <HomeIcon sx={{ fontSize: "40px" }} />
           </IconButton>
         </Tooltip>
 

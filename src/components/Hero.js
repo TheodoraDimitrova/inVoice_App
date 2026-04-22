@@ -1,6 +1,12 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import * as Flags from "country-flag-icons/react/3x2";
+import { COUNTRIES } from "../data/countries";
+import { getCountryCommercialDefaults } from "../data/countryCommercialRules";
 import invoice from "../images/invoice.png";
+
+const supportedIso2 = COUNTRIES.map((country) => getCountryCommercialDefaults(country).iso2)
+  .filter(Boolean);
 
 const Hero = () => {
   return (
@@ -12,6 +18,10 @@ const Hero = () => {
         <p className="text-slate-600 mb-8 md:mb-12 text-[0.98rem] md:text-[1.12rem] leading-relaxed max-w-[34rem] mx-auto lg:mx-0">
           Built for freelancers and small businesses - generate PDF invoices,
           manage VAT, and keep your client database in one place.
+        </p>
+        <p className="text-slate-700 mb-8 md:mb-10 text-sm md:text-base leading-relaxed max-w-[36rem] mx-auto lg:mx-0 font-medium">
+          No complex accounting suites. Validated company ID and VAT data.
+          Designed for Bulgaria and the EU.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start max-w-md mx-auto lg:mx-0">
@@ -26,6 +36,34 @@ const Hero = () => {
           >
             View Sample Invoice
           </a>
+        </div>
+
+        <div className="mt-6 md:mt-7 max-w-[38rem] mx-auto lg:mx-0">
+          <p className="text-[0.8rem] sm:text-[0.85rem] text-slate-400 mb-2.5">
+            Supporting businesses across <strong>27 EU nations</strong> & more.
+          </p>
+          <div className="flex flex-wrap gap-2.5 justify-center lg:justify-start">
+            {supportedIso2.map((iso2) => {
+              const Flag = Flags[iso2];
+              if (!Flag) return null;
+              return (
+                <span
+                  key={iso2}
+                  className="w-9 h-6 rounded-[4px] overflow-hidden border border-slate-200 shadow-sm grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition duration-200"
+                  title={iso2}
+                >
+                  <Flag
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                      display: "block",
+                    }}
+                  />
+                </span>
+              );
+            })}
+          </div>
         </div>
       </div>
 
