@@ -1,10 +1,11 @@
 import React, { useCallback, useMemo, useRef, useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import { useInvoiceCreationReady } from "../contexts/InvoiceCreationReadyContext";
 import { useDispatch } from "react-redux";
 import { setInvoice } from "../redux/invoice";
-import ProductButton from "../components/ProductButton";
 
 import {
   addDoc,
@@ -26,42 +27,51 @@ import {
   Box,
   Button,
   Container,
-  Grid,
-  InputAdornment,
-  MenuItem,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   Paper,
   Stack,
-  TextField,
-  ToggleButton,
-  ToggleButtonGroup,
   Typography,
 } from "@mui/material";
-import { FormFieldHelperText } from "../components/FormFieldHelperText";
-import { gridFieldSx, setupProfileFieldProps } from "../utils/muiFieldSx";
+import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import { COUNTRIES } from "../data/countries";
 import { getPrimaryCompanyIdentityRule } from "../data/companyIdentityRules";
-import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
-import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
-import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
+import { createInvoiceSchema } from "../schemas/createInvoiceSchema";
+import { DocumentSection } from "../components/createInvoice/DocumentSection";
+import { CustomerSection } from "../components/createInvoice/CustomerSection";
+import { ProductsSection } from "../components/createInvoice/ProductsSection";
+import { TotalsSection } from "../components/createInvoice/TotalsSection";
+import { ComponentToPrint as InvoicePreviewContent } from "./ViewInvoice";
 
 const CURRENCY_SYMBOLS = {
   EUR: "\u20ac",
   BGN: "\u043b\u0432",
-  PLN: "z\u0142",
-  CZK: "K\u010d",
-  DKK: "kr",
-  HUF: "Ft",
-  RON: "lei",
-  SEK: "kr",
+  USD: "$",
+  GBP: "\u00a3",
 };
+const INVOICE_CURRENCY_OPTIONS = ["EUR", "BGN", "USD", "GBP"];
 
 const currencySymbol = (code) => CURRENCY_SYMBOLS[(code || "").toUpperCase()] || (code || "").toUpperCase() || "\u20ac";
 const toDateInput = (d) => new Date(d).toISOString().slice(0, 10);
-const plusDays = (d, days) => {
-  const next = new Date(d);
-  next.setDate(next.getDate() + days);
-  return next;
+const DEFAULT_FORM_VALUES = {
+  customerType: "business",
+  issueDate: toDateInput(new Date()),
+  dueDate: toDateInput(new Date()),
+  currency: "EUR",
+  customerName: "",
+  customerCountry: "Bulgaria",
+  companyIdentifier: "",
+  customerVatRegistered: false,
+  customerVatNumber: "",
+  customerAddress: "",
+  customerPostCode: "",
+  customerCity: "",
+  customerEmail: "",
 };
+
 
 const sectionIconBoxSx = {
   display: "flex",
@@ -83,7 +93,6 @@ const sectionShellSx = {
   borderColor: "rgba(15, 23, 42, 0.08)",
 };
 
-const fieldProps = setupProfileFieldProps;
 const VAT_RATE_OPTIONS = [20, 9, 0];
 const UNIFIED_FIELD_RADIUS = 1; // same radius as SetupProfile fields
 const INLINE_CELL_SX = {
@@ -127,20 +136,13 @@ const isMeaningfulRow = (row) =>
   String(row?.itemName || "").trim() !== "" ||
   Number(row?.itemCost || 0) > 0 ||
   Number(row?.itemQuantity || 0) > 0;
+const getValidInvoiceNumber = (value) => {
+  const n = Number(value);
+  return Number.isFinite(n) && n > 0 ? n : null;
+};
 
 const CreateInvoice = () => {
-  const [customerName, setCustomerName] = useState("");
-  const [customerType, setCustomerType] = useState("business");
-  const [customerAddress, setCustomerAddress] = useState("");
-  const [customerPostCode, setCustomerPostCode] = useState("");
-  const [customerCity, setCustomerCity] = useState("");
-  const [customerCountry, setCustomerCountry] = useState("");
-  const [customerEmail, setCustomerEmail] = useState("");
-  const [customerVat, setCustomerVat] = useState("");
-  const [currency, setCurrency] = useState("");
   const [invoiceNumberPreview, setInvoiceNumberPreview] = useState("");
-  const [issueDate, setIssueDate] = useState(toDateInput(new Date()));
-  const [dueDate, setDueDate] = useState(toDateInput(plusDays(new Date(), 14)));
   const [products, setProducts] = useState([]);
   const { invoiceId } = useParams();
   const [isEditing, setIsEditing] = useState(false);
@@ -164,7 +166,38 @@ const CreateInvoice = () => {
   const dispatch = useDispatch();
 
   const [loading, setLoading] = useState(true);
+  const [saveDialogOpen, setSaveDialogOpen] = useState(false);
+  const [saveInProgress, setSaveInProgress] = useState(false);
+  const [previewModalOpen, setPreviewModalOpen] = useState(false);
+  const [productsRequiredError, setProductsRequiredError] = useState(false);
   const { ready: invoiceCreationReady, loading: invoiceGateLoading } = useInvoiceCreationReady();
+  const form = useForm({
+    resolver: zodResolver(createInvoiceSchema),
+    defaultValues: DEFAULT_FORM_VALUES,
+    mode: "onSubmit",
+  });
+  const {
+    setValue,
+    trigger,
+    getValues,
+    watch,
+    reset,
+    formState: { errors: formErrors },
+  } = form;
+
+  const customerName = watch("customerName");
+  const customerType = watch("customerType");
+  const customerAddress = watch("customerAddress");
+  const customerPostCode = watch("customerPostCode");
+  const customerCity = watch("customerCity");
+  const customerCountry = watch("customerCountry");
+  const customerEmail = watch("customerEmail");
+  const companyIdentifier = watch("companyIdentifier");
+  const customerVatRegistered = watch("customerVatRegistered");
+  const customerVatNumber = watch("customerVatNumber");
+  const currency = watch("currency");
+  const issueDate = watch("issueDate");
+  const dueDate = watch("dueDate");
 
   const customerIdRule = getPrimaryCompanyIdentityRule(customerCountry || "");
   const customerIdLabel =
@@ -214,15 +247,22 @@ const CreateInvoice = () => {
         const invoiceSnapshot = await getDoc(invoiceRef);
         if (invoiceSnapshot.exists()) {
           const inv = invoiceSnapshot.data();
-          setCustomerName(invoiceSnapshot.data().customerName);
-          setCustomerType(inv.customerType || "business");
-          setCustomerAddress(invoiceSnapshot.data().customerAddress);
-          setCustomerPostCode(inv.customerPostCode || "");
-          setCustomerCity(inv.customerCity || "");
-          setCustomerCountry(inv.customerCountry || inv.customerCity || "");
-          setCustomerEmail(inv.customerEmail);
-          setCustomerVat(inv.vat ?? "");
-          setCurrency(inv.currency);
+          reset({
+            ...DEFAULT_FORM_VALUES,
+            customerName: inv.customerName || "",
+            customerType: inv.customerType || "business",
+            customerAddress: inv.customerAddress || "",
+            customerPostCode: inv.customerPostCode || "",
+            customerCity: inv.customerCity || "",
+            customerCountry: inv.customerCountry || "Bulgaria",
+            customerEmail: inv.customerEmail || "",
+            companyIdentifier: inv.companyIdentifier ?? inv.vat ?? "",
+            customerVatRegistered: Boolean(inv.customerVatRegistered),
+            customerVatNumber: inv.customerVatNumber ?? "",
+            currency: (inv.currency || "EUR").toUpperCase(),
+            issueDate: inv.issueDate || toDateInput(new Date()),
+            dueDate: inv.dueDate || inv.issueDate || toDateInput(new Date()),
+          });
           const existingRows = Array.isArray(inv.itemList)
             ? inv.itemList.map((item) => ({
                 _rowId: ++rowIdRef.current,
@@ -237,9 +277,8 @@ const CreateInvoice = () => {
               }))
             : [];
           setItemList([...existingRows, createEmptyRow(defaultBusinessVatRate)]);
-          setIssueDate(inv.issueDate || toDateInput(new Date()));
-          setDueDate(inv.dueDate || toDateInput(plusDays(new Date(), 14)));
-          setInvoiceNumberPreview(String(inv.id ?? ""));
+          const validNumber = getValidInvoiceNumber(inv.id);
+          setInvoiceNumberPreview(validNumber ? String(validNumber) : "Чернова");
         }
       } catch (error) {
         showToast("error", "Грешка при зареждане на фактурата. Опитайте отново.");
@@ -256,7 +295,7 @@ const CreateInvoice = () => {
         querySnapshot.forEach((d) => {
           const data = d.data();
           if (!invoiceId) {
-            setCurrency((data.currency ?? "").toString());
+            setValue("currency", ((data.currency ?? "").toString() || "EUR").toUpperCase());
             setInvoiceNumberPreview(String((Number(data.invoices) || 0) + 1));
             const businessVatRate = Number(data.vatRate);
             const normalizedVatRate =
@@ -291,7 +330,7 @@ const CreateInvoice = () => {
     fetchBusinessMeta();
     fetchProducts();
     setLoading(false);
-  }, [invoiceId, createEmptyRow, defaultBusinessVatRate]);
+  }, [invoiceId, createEmptyRow, defaultBusinessVatRate, reset, setValue]);
 
   const fetchProducts = async () => {
     try {
@@ -340,95 +379,179 @@ const CreateInvoice = () => {
     });
   };
 
-  const saveInvoice = async (e) => {
-    e.preventDefault();
-    if (!invoiceItems.length) return;
+  const persistInvoice = async (action) => {
+    const hasInvoiceItems = invoiceItems.length > 0;
+    setProductsRequiredError(!hasInvoiceItems);
+    const isValid = await trigger();
+    if (!isValid) {
+      setSaveDialogOpen(false);
+      return;
+    }
+    if (!hasInvoiceItems) {
+      setSaveDialogOpen(false);
+      showToast("error", "Добавете поне един артикул.");
+      return;
+    }
+    setSaveInProgress(true);
+    const formData = getValues();
+    const isIssued = action === "issued";
+    const issueDateToPersist = isIssued ? toDateInput(new Date()) : formData.issueDate;
+    const dueDateToPersist = (formData.dueDate || "").trim() || issueDateToPersist;
 
-    // Create a new invoice
-    if (!isEditing) {
-      dispatch(
-        setInvoice({
-          customerName,
-          customerType,
-          customerAddress,
-          customerPostCode,
-          customerVat,
-          customerCity,
-          customerCountry,
-          customerEmail,
-          itemList: invoiceItems,
-          currency,
-        })
-      );
-      const bisnesRef = query(
-        collection(db, "businesses"),
-        where("user_id", "==", auth.currentUser.uid)
-      );
-      const querySnapshot = await getDocs(bisnesRef);
-      let docId = "";
-      let countInvoices = 0;
-      querySnapshot.forEach((doc) => {
-        docId = doc.id;
-        countInvoices = doc.data().invoices;
-      });
+    const basePayload = {
+      user_id: auth.currentUser.uid,
+      customerName: formData.customerName,
+      customerType: formData.customerType,
+      customerAddress: formData.customerAddress,
+      customerPostCode: formData.customerPostCode,
+      customerCity: formData.customerCity,
+      customerCountry: formData.customerCountry,
+      customerEmail: formData.customerEmail,
+      companyIdentifier: formData.companyIdentifier || "",
+      customerVatRegistered: formData.customerVatRegistered,
+      customerVatNumber: formData.customerVatNumber || "",
+      currency: formData.currency,
+      itemList: invoiceItems,
+      issueDate: issueDateToPersist,
+      dueDate: dueDateToPersist,
+      status: isIssued ? "issued" : "draft",
+      finalizedAt: isIssued ? serverTimestamp() : null,
+      timestamp: serverTimestamp(),
+    };
 
-      await addDoc(collection(db, "invoices"), {
-        user_id: auth.currentUser.uid,
-        customerName,
-        customerType,
-        customerAddress,
-        customerPostCode,
-        customerCity,
-        customerCountry,
-        customerEmail,
-        vat: customerVat,
-        currency,
-        itemList: invoiceItems,
-        issueDate,
-        dueDate,
-        timestamp: serverTimestamp(),
-        id: (countInvoices += 1),
-      })
-        .then(() => {
-          showToast("success", "Фактурата е създадена!📜");
-        })
-        .then(async () => {
-          const bisnessRef = doc(db, "businesses", docId);
-          await updateDoc(bisnessRef, {
+    try {
+      // Create a new invoice
+      if (!isEditing) {
+        let generatedInvoiceNumber = null;
+        let businessDocId = "";
+        if (isIssued) {
+          const businessRef = query(
+            collection(db, "businesses"),
+            where("user_id", "==", auth.currentUser.uid)
+          );
+          const businessSnapshot = await getDocs(businessRef);
+          businessSnapshot.forEach((businessDoc) => {
+            businessDocId = businessDoc.id;
+            generatedInvoiceNumber = (Number(businessDoc.data().invoices) || 0) + 1;
+          });
+        }
+
+        dispatch(
+          setInvoice({
+            customerName: formData.customerName,
+            customerType: formData.customerType,
+            customerAddress: formData.customerAddress,
+            customerPostCode: formData.customerPostCode,
+            companyIdentifier: formData.companyIdentifier || "",
+            customerCity: formData.customerCity,
+            customerCountry: formData.customerCountry,
+            customerEmail: formData.customerEmail,
+            itemList: invoiceItems,
+            currency: formData.currency,
+            status: isIssued ? "issued" : "draft",
+            id: generatedInvoiceNumber,
+            customerVatRegistered: formData.customerVatRegistered,
+            customerVatNumber: formData.customerVatNumber || "",
+          })
+        );
+
+        await addDoc(collection(db, "invoices"), {
+          ...basePayload,
+          id: generatedInvoiceNumber,
+        });
+
+        if (isIssued && businessDocId) {
+          await updateDoc(doc(db, "businesses", businessDocId), {
             invoices: increment(1),
           });
-        })
-        .then(() => navigate("/dashboard"))
-        .catch((err) => {
-          console.log(err);
-          showToast("error", "Опитайте отново! Фактурата не е създадена!😭");
+        }
+
+        showToast(
+          "success",
+          isIssued ? "Фактурата е издадена успешно!📜" : "Черновата е запазена успешно."
+        );
+      } else {
+        // Update an existing invoice
+        const invoiceRef = doc(db, "invoices", invoiceId);
+        const currentInvoice = await getDoc(invoiceRef);
+        const currentInvoiceData = currentInvoice.exists() ? currentInvoice.data() : {};
+        const existingInvoiceNumber = getValidInvoiceNumber(currentInvoiceData?.id);
+        const hasInvoiceNumber = existingInvoiceNumber != null;
+        let generatedInvoiceNumber = existingInvoiceNumber;
+        let businessDocId = "";
+
+        if (isIssued && !hasInvoiceNumber) {
+          const businessRef = query(
+            collection(db, "businesses"),
+            where("user_id", "==", auth.currentUser.uid)
+          );
+          const businessSnapshot = await getDocs(businessRef);
+          businessSnapshot.forEach((businessDoc) => {
+            businessDocId = businessDoc.id;
+            generatedInvoiceNumber = (Number(businessDoc.data().invoices) || 0) + 1;
+          });
+        }
+
+        await updateDoc(invoiceRef, {
+          ...basePayload,
+          id: generatedInvoiceNumber,
         });
+
+        if (isIssued && !hasInvoiceNumber && businessDocId) {
+          await updateDoc(doc(db, "businesses", businessDocId), {
+            invoices: increment(1),
+          });
+        }
+
+        showToast(
+          "success",
+          isIssued ? "Фактурата е издадена успешно!📜" : "Черновата е запазена успешно."
+        );
+      }
+
+      setSaveDialogOpen(false);
+      navigate("/dashboard");
+    } catch (err) {
+      console.log(err);
+      showToast("error", "Грешка при запазване. Опитайте отново.");
+    } finally {
+      setSaveInProgress(false);
     }
-    // Update an existing invoice
-    else {
-      await updateDoc(doc(db, "invoices", invoiceId), {
-        customerName,
-        customerType,
-        customerAddress,
-        customerPostCode,
-        customerCity,
-        customerCountry,
-        customerEmail,
-        vat: customerVat,
-        currency,
-        issueDate,
-        dueDate,
-        itemList: invoiceItems,
-      })
-        .then(() => {
-          showToast("success", "Фактурата е обновена успешно!");
-          navigate("/dashboard");
-        })
-        .catch((err) => {
-          console.log(err);
-          showToast("error", "Грешка при обновяване на фактурата. Опитайте отново.");
-        });
-    }
+  };
+
+  const openSaveDialog = async (e) => {
+    e.preventDefault();
+    setSaveDialogOpen(true);
+  };
+  const buildPreviewData = () => {
+    const formData = getValues();
+    const previewInvoiceNumber = getValidInvoiceNumber(invoiceNumberPreview);
+    const nowMs = Date.now();
+    return {
+      id: previewInvoiceNumber,
+      status: previewInvoiceNumber ? "issued" : "draft",
+      customerName: formData.customerName,
+      customerType: formData.customerType,
+      customerAddress: formData.customerAddress,
+      customerPostCode: formData.customerPostCode,
+      customerCity: formData.customerCity,
+      customerCountry: formData.customerCountry,
+      customerEmail: formData.customerEmail,
+      companyIdentifier: formData.companyIdentifier || "",
+      customerVatRegistered: Boolean(formData.customerVatRegistered),
+      customerVatNumber: formData.customerVatNumber || "",
+      currency: (formData.currency || "EUR").toUpperCase(),
+      issueDate: formData.issueDate,
+      dueDate: (formData.dueDate || "").trim() || formData.issueDate,
+      itemList: invoiceItems,
+      timestamp: {
+        seconds: Math.floor(nowMs / 1000),
+        nanoseconds: (nowMs % 1000) * 1000000,
+      },
+    };
+  };
+  const handlePreviewInvoice = () => {
+    setPreviewModalOpen(true);
   };
 
   const deleteRow = (e, rowId) => {
@@ -454,6 +577,18 @@ const CreateInvoice = () => {
       }
       return next;
     });
+    if (productsRequiredError) {
+      setProductsRequiredError(false);
+    }
+  };
+  const handleCustomerTypeChange = (_, next) => {
+    if (!next) return;
+    setValue("customerType", next, { shouldDirty: true, shouldValidate: true });
+    if (next === "individual") {
+      setValue("companyIdentifier", "", { shouldDirty: true, shouldValidate: true });
+      setValue("customerVatRegistered", false, { shouldDirty: true, shouldValidate: true });
+      setValue("customerVatNumber", "", { shouldDirty: true, shouldValidate: true });
+    }
   };
 
   const blockNewInvoice = !invoiceId && !invoiceCreationReady;
@@ -499,504 +634,223 @@ const CreateInvoice = () => {
             </Typography>
 
             <Box component="form" sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
-              <Paper variant="outlined" sx={sectionShellSx}>
-                <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 1.5 }}>
-                  <Box sx={sectionIconBoxSx}>
-                    <DescriptionOutlinedIcon fontSize="small" />
-                  </Box>
-                  <Box>
-                    <Typography sx={{ fontWeight: 700, color: "var(--color-brand-primary)" }}>
-                      Данни за документа
-                    </Typography>
-                    <Typography variant="caption" sx={{ color: "text.secondary" }}>
-                      Номер и дати на фактурата.
-                    </Typography>
-                  </Box>
-                </Stack>
-                <Grid container spacing={2}>
-                  <Grid item xs={12}>
-                    <Stack spacing={0.75}>
-                      <Typography variant="body2" sx={{ fontWeight: 600, color: "text.secondary" }}>
-                        Тип клиент
-                      </Typography>
-                      <ToggleButtonGroup
-                        value={customerType}
-                        exclusive
-                        onChange={(_, next) => {
-                          if (!next) return;
-                          setCustomerType(next);
-                          if (next === "individual") {
-                            setCustomerVat("");
-                            setItemList((prev) =>
-                              prev.map((row) => ({
-                                ...row,
-                                itemVatRate: Number(defaultBusinessVatRate) || 0,
-                              }))
-                            );
-                          }
-                        }}
-                        size="small"
-                        sx={{
-                          width: "fit-content",
-                          "& .MuiToggleButton-root": {
-                            px: 2,
-                            textTransform: "none",
-                            fontWeight: 600,
-                          },
-                        }}
-                      >
-                        <ToggleButton value="business">Фирма (B2B)</ToggleButton>
-                        <ToggleButton value="individual">Физическо лице (B2C)</ToggleButton>
-                      </ToggleButtonGroup>
-                      <Typography variant="caption" color="text.secondary">
-                        Изберете категорията на клиента за тази фактура.
-                      </Typography>
-                    </Stack>
-                  </Grid>
-                  <Grid item xs={12} md={4}>
-                    <TextField
-                      {...fieldProps}
-                      label="Номер на фактура"
-                      value={invoiceNumberPreview || "-"}
-                      placeholder="Генерира се автоматично"
-                      disabled
-                      helperText={<FormFieldHelperText hint="Автоматично генериран пореден номер." />}
-                      FormHelperTextProps={{ component: "div" }}
-                      sx={gridFieldSx}
-                    />
-                  </Grid>
-                  <Grid item xs={12} md={4}>
-                    <TextField
-                      {...fieldProps}
-                      label="Дата на издаване"
-                      type="date"
-                      value={issueDate}
-                      onChange={(e) => setIssueDate(e.target.value)}
-                      required
-                      helperText={
-                        <FormFieldHelperText hint="Задължително поле. Дата на издаване." />
-                      }
-                      FormHelperTextProps={{ component: "div" }}
-                      sx={gridFieldSx}
-                    />
-                  </Grid>
-                  <Grid item xs={12} md={4}>
-                    <TextField
-                      {...fieldProps}
-                      label="Падеж"
-                      type="date"
-                      value={dueDate}
-                      onChange={(e) => setDueDate(e.target.value)}
-                      helperText={<FormFieldHelperText hint="Срок за плащане." />}
-                      FormHelperTextProps={{ component: "div" }}
-                      sx={gridFieldSx}
-                    />
-                  </Grid>
-                </Grid>
-              </Paper>
+              <DocumentSection
+                sectionShellSx={sectionShellSx}
+                sectionIconBoxSx={sectionIconBoxSx}
+                customerType={customerType}
+                onCustomerTypeChange={handleCustomerTypeChange}
+                invoiceNumberPreview={invoiceNumberPreview}
+                issueDate={issueDate}
+                onIssueDateChange={(e) =>
+                  setValue("issueDate", e.target.value, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  })
+                }
+                dueDate={dueDate}
+                onDueDateChange={(e) =>
+                  setValue("dueDate", e.target.value, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  })
+                }
+                currency={currency}
+                onCurrencyChange={(e) =>
+                  setValue("currency", (e.target.value || "EUR").toUpperCase(), {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  })
+                }
+                currencyOptions={INVOICE_CURRENCY_OPTIONS}
+                errors={formErrors}
+              />
 
-              <Paper variant="outlined" sx={sectionShellSx}>
-                <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 1.5 }}>
-                  <Box sx={sectionIconBoxSx}>
-                    <PersonOutlineOutlinedIcon fontSize="small" />
-                  </Box>
-                  <Box>
-                    <Typography sx={{ fontWeight: 700, color: "var(--color-brand-primary)" }}>
-                      Клиент
-                    </Typography>
-                    <Typography variant="caption" sx={{ color: "text.secondary" }}>
-                      Данни за идентификация и контакт за фактуриране.
-                    </Typography>
-                  </Box>
-                </Stack>
-                <Grid container spacing={2}>
-                  <Grid item xs={12} md={4}>
-                    <TextField
-                      {...fieldProps}
-                      label="Име на клиент"
-                      name="customerName"
-                      placeholder="напр. Acme Solutions Ltd"
-                      value={customerName}
-                      onChange={(e) => setCustomerName(e.target.value)}
-                      required
-                      helperText={<FormFieldHelperText hint="Задължително поле." />}
-                      FormHelperTextProps={{ component: "div" }}
-                      sx={gridFieldSx}
-                    />
-                  </Grid>
-                  <Grid item xs={12} md={4}>
-                    <TextField
-                      {...fieldProps}
-                      select
-                      label="Държава на клиента"
-                      name="customerCountry"
-                      value={customerCountry}
-                      onChange={(e) => setCustomerCountry(e.target.value)}
-                      required
-                      helperText={<FormFieldHelperText hint="Задължително поле." />}
-                      FormHelperTextProps={{ component: "div" }}
-                      sx={gridFieldSx}
-                    >
-                      <MenuItem value="" disabled>
-                        Изберете държава
-                      </MenuItem>
-                      {COUNTRIES.map((c) => (
-                        <MenuItem key={c} value={c}>
-                          {c}
-                        </MenuItem>
-                      ))}
-                    </TextField>
-                  </Grid>
-                  {customerType === "business" ? (
-                    <Grid item xs={12} md={4}>
-                      <TextField
-                        {...fieldProps}
-                        label={customerIdLabel}
-                        name="customerVat"
-                        placeholder={`напр. ${customerIdRule?.hint || "ЕИК / ДДС номер"}`}
-                        value={customerVat}
-                        onChange={(e) => setCustomerVat(e.target.value ?? "")}
-                        helperText={<FormFieldHelperText hint="Фирмен идентификатор за избраната държава." />}
-                        FormHelperTextProps={{ component: "div" }}
-                        sx={gridFieldSx}
-                      />
-                    </Grid>
-                  ) : (
-                    <Grid item xs={12} md={4}>
-                      <TextField
-                        {...fieldProps}
-                        label="Личен идентификатор (по избор)"
-                        name="customerPersonalId"
-                        value=""
-                        disabled
-                        helperText={<FormFieldHelperText hint="Не е задължително за физически лица." />}
-                        FormHelperTextProps={{ component: "div" }}
-                        sx={gridFieldSx}
-                      />
-                    </Grid>
-                  )}
-                  <Grid item xs={12} md={6}>
-                    <TextField
-                      {...fieldProps}
-                      label="Адрес на клиента"
-                      name="customerAddress"
-                      placeholder="напр. бул. Витоша 24"
-                      value={customerAddress}
-                      onChange={(e) => setCustomerAddress(e.target.value)}
-                      helperText={<FormFieldHelperText hint="Улица и номер." />}
-                      FormHelperTextProps={{ component: "div" }}
-                      sx={gridFieldSx}
-                    />
-                  </Grid>
-                  <Grid item xs={12} md={3}>
-                    <TextField
-                      {...fieldProps}
-                      label="Пощенски код"
-                      name="customerPostCode"
-                      placeholder="напр. 1000"
-                      value={customerPostCode}
-                      onChange={(e) => setCustomerPostCode(e.target.value)}
-                      helperText={<FormFieldHelperText hint="Пощенски код." />}
-                      FormHelperTextProps={{ component: "div" }}
-                      sx={gridFieldSx}
-                    />
-                  </Grid>
-                  <Grid item xs={12} md={3}>
-                    <TextField
-                      {...fieldProps}
-                      label="Град"
-                      name="customerCity"
-                      placeholder="напр. София"
-                      value={customerCity}
-                      onChange={(e) => setCustomerCity(e.target.value)}
-                      helperText={<FormFieldHelperText hint="Град." />}
-                      FormHelperTextProps={{ component: "div" }}
-                      sx={gridFieldSx}
-                    />
-                  </Grid>
-                  <Grid item xs={12} md={6}>
-                    <TextField
-                      {...fieldProps}
-                      label="Имейл на клиента"
-                      type="email"
-                      name="customerEmail"
-                      placeholder="напр. billing@client.com"
-                      value={customerEmail}
-                      onChange={(e) => setCustomerEmail(e.target.value)}
-                      helperText={<FormFieldHelperText hint="Имейл за фактуриране." />}
-                      FormHelperTextProps={{ component: "div" }}
-                      sx={gridFieldSx}
-                    />
-                  </Grid>
-                </Grid>
-              </Paper>
+              <CustomerSection
+                sectionShellSx={sectionShellSx}
+                sectionIconBoxSx={sectionIconBoxSx}
+                countries={COUNTRIES}
+                customerType={customerType}
+                customerIdLabel={customerIdLabel}
+                customerIdRule={customerIdRule}
+                customerName={customerName}
+                onCustomerNameChange={(e) =>
+                  setValue("customerName", e.target.value, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  })
+                }
+                customerCountry={customerCountry}
+                onCustomerCountryChange={(e) =>
+                  setValue("customerCountry", e.target.value, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  })
+                }
+                companyIdentifier={companyIdentifier}
+                onCompanyIdentifierChange={(e) =>
+                  setValue("companyIdentifier", e.target.value ?? "", {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  })
+                }
+                customerVatRegistered={customerVatRegistered}
+                onCustomerVatRegisteredChange={(e) =>
+                  {
+                    const nextChecked = e.target.checked;
+                    setValue("customerVatRegistered", nextChecked, {
+                      shouldDirty: true,
+                      shouldValidate: true,
+                    });
+                    if (!nextChecked) {
+                      setValue("customerVatNumber", "", {
+                        shouldDirty: true,
+                        shouldValidate: true,
+                      });
+                    }
+                  }
+                }
+                customerVatNumber={customerVatNumber}
+                onCustomerVatNumberChange={(e) =>
+                  setValue("customerVatNumber", e.target.value, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  })
+                }
+                customerAddress={customerAddress}
+                onCustomerAddressChange={(e) =>
+                  setValue("customerAddress", e.target.value, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  })
+                }
+                customerPostCode={customerPostCode}
+                onCustomerPostCodeChange={(e) =>
+                  setValue("customerPostCode", e.target.value, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  })
+                }
+                customerCity={customerCity}
+                onCustomerCityChange={(e) =>
+                  setValue("customerCity", e.target.value, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  })
+                }
+                customerEmail={customerEmail}
+                onCustomerEmailChange={(e) =>
+                  setValue("customerEmail", e.target.value, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  })
+                }
+                errors={formErrors}
+              />
 
-              <Paper variant="outlined" sx={sectionShellSx}>
-                <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 1.5 }}>
-                  <Box sx={sectionIconBoxSx}>
-                    <Inventory2OutlinedIcon fontSize="small" />
-                  </Box>
-                  <Box>
-                    <Typography sx={{ fontWeight: 700, color: "var(--color-brand-primary)" }}>
-                      Продукти
-                    </Typography>
-                    <Typography variant="caption" sx={{ color: "text.secondary" }}>
-                      Добавяйте по един ред с артикул.
-                    </Typography>
-                  </Box>
-                </Stack>
-
-                <Box
-                  sx={{
-                    display: "grid",
-                    gridTemplateColumns: {
-                      xs: "1fr",
-                      sm: "repeat(2, minmax(0, 1fr))",
-                      lg: "repeat(4, minmax(0, 1fr))",
-                    },
-                    gap: 1,
-                    mb: 2,
-                  }}
-                >
-                  {products.map((product) => (
-                    <ProductButton
-                      key={product.id}
-                      id={product.id}
-                      name={product.name}
-                      price={product.price}
-                      currencySymbol={currencySign}
-                      click={handleAddToRow}
-                    />
-                  ))}
-                </Box>
-
-                <Box sx={{ border: "1px solid rgba(15, 23, 42, 0.08)", borderRadius: 2, overflow: "hidden" }}>
-                  <Box
-                    sx={{
-                      display: { xs: "none", md: "grid" },
-                      gridTemplateColumns: "5fr 2fr 2fr 2fr 1.6fr 56px",
-                      px: 1.25,
-                      py: 1,
-                      bgcolor: "rgba(15, 23, 42, 0.04)",
-                      borderBottom: "1px solid rgba(15, 23, 42, 0.08)",
-                    }}
-                  >
-                    {[
-                      { label: "Артикул", align: "left" },
-                      { label: "Ед. цена", align: "right" },
-                      { label: "ДДС %", align: "right" },
-                      { label: "Количество", align: "right" },
-                      { label: "Общо", align: "right" },
-                    ].map((h) => (
-                      <Typography
-                        key={h.label}
-                        variant="caption"
-                        sx={{
-                          color: "#64748b",
-                          fontWeight: 700,
-                          fontSize: "0.73rem",
-                          letterSpacing: "0.06em",
-                          textTransform: "uppercase",
-                          textAlign: h.align,
-                          ...(h.align === "right" ? { pr: 1.5 } : {}),
-                        }}
-                      >
-                        {h.label}
-                      </Typography>
-                    ))}
-                    <Typography
-                      variant="caption"
-                      sx={{
-                        color: "#64748b",
-                        fontWeight: 700,
-                        fontSize: "0.73rem",
-                        letterSpacing: "0.06em",
-                        textTransform: "uppercase",
-                        textAlign: "center",
-                      }}
-                    >
-                      Изтрий
-                    </Typography>
-                  </Box>
-
-                  {itemList.map((row, idx) => {
-                    const rowTotal =
-                      (Number(row.itemCost) || 0) *
-                      (Number(row.itemQuantity) || 0) *
-                      (1 + (Number(row.itemVatRate) || 0) / 100);
-                    const isEmpty = !isMeaningfulRow(row);
-                    return (
-                      <Box
-                        key={row._rowId}
-                        sx={{
-                          display: "grid",
-                          gridTemplateColumns: {
-                            xs: "1fr",
-                            md: "5fr 2fr 2fr 2fr 1.6fr 56px",
-                          },
-                          gap: 1,
-                          alignItems: "center",
-                          px: 1.25,
-                          py: 0.75,
-                          borderTop: idx === 0 ? "none" : "1px solid rgba(15, 23, 42, 0.06)",
-                        }}
-                      >
-                        <TextField
-                          {...fieldProps}
-                          placeholder="Име на артикул"
-                          value={row.itemName}
-                          onChange={(e) => updateRow(row._rowId, "itemName", e.target.value)}
-                          sx={{ ...INLINE_CELL_SX, mb: 0 }}
-                        />
-                        <TextField
-                          {...fieldProps}
-                          type="number"
-                          placeholder="0.00"
-                          value={row.itemCost}
-                          onChange={(e) => updateRow(row._rowId, "itemCost", e.target.value)}
-                          inputProps={{ step: "0.01", min: 0 }}
-                          InputProps={{
-                            startAdornment: (
-                              <InputAdornment position="start">{currencySign}</InputAdornment>
-                            ),
-                          }}
-                          sx={{
-                            ...INLINE_CELL_SX,
-                            mb: 0,
-                            "& .MuiOutlinedInput-input": {
-                              py: "10px",
-                              textAlign: "right",
-                              fontVariantNumeric: "tabular-nums",
-                            },
-                          }}
-                        />
-                        <TextField
-                          {...fieldProps}
-                          select
-                          value={row.itemVatRate}
-                          onChange={(e) =>
-                            updateRow(row._rowId, "itemVatRate", Number(e.target.value))
-                          }
-                          disabled={customerType === "individual"}
-                          sx={{ ...INLINE_CELL_SX, mb: 0 }}
-                        >
-                          {vatRateOptions.map((rate) => (
-                            <MenuItem key={rate} value={rate}>
-                              {rate}%
-                            </MenuItem>
-                          ))}
-                        </TextField>
-                        <TextField
-                          {...fieldProps}
-                          type="number"
-                          placeholder="Кол."
-                          value={row.itemQuantity}
-                          onChange={(e) => updateRow(row._rowId, "itemQuantity", e.target.value)}
-                          inputProps={{ min: 1 }}
-                          sx={{
-                            ...INLINE_CELL_SX,
-                            mb: 0,
-                            "& .MuiOutlinedInput-input": {
-                              py: "10px",
-                              textAlign: "right",
-                              fontVariantNumeric: "tabular-nums",
-                            },
-                          }}
-                        />
-                        <Typography
-                          variant="body1"
-                          sx={{
-                            pr: 1,
-                            textAlign: "right",
-                            fontWeight: 700,
-                            whiteSpace: "nowrap",
-                            color: isEmpty ? "text.disabled" : "text.primary",
-                            fontVariantNumeric: "tabular-nums",
-                          }}
-                        >
-                          {currencySign} {rowTotal.toFixed(2)}
-                        </Typography>
-                        <Box sx={{ display: "flex", justifyContent: "center" }}>
-                          {!isEmpty ? (
-                            <Button
-                              type="button"
-                              size="small"
-                              color="error"
-                              onClick={(e) => deleteRow(e, row._rowId)}
-                              sx={{ minWidth: 32, px: 0.5 }}
-                            >
-                              X
-                            </Button>
-                          ) : (
-                            <Box sx={{ width: 32 }} />
-                          )}
-                        </Box>
-                      </Box>
-                    );
-                  })}
-                </Box>
-
-              </Paper>
+              <ProductsSection
+                sectionShellSx={sectionShellSx}
+                sectionIconBoxSx={sectionIconBoxSx}
+                inlineCellSx={INLINE_CELL_SX}
+                products={products}
+                currencySign={currencySign}
+                handleAddToRow={handleAddToRow}
+                itemList={itemList}
+                isMeaningfulRow={isMeaningfulRow}
+                updateRow={updateRow}
+                vatRateOptions={vatRateOptions}
+                deleteRow={deleteRow}
+                showRequiredError={productsRequiredError}
+              />
 
               {invoiceItems.length > 0 && (
-                <Paper
-                  variant="outlined"
-                  sx={{
-                    p: 2,
-                    mt: 0.5,
-                    borderRadius: 2,
-                    borderColor: "rgba(15, 23, 42, 0.08)",
-                    bgcolor: "rgba(15, 23, 42, 0.02)",
-                  }}
-                >
-                  <Stack spacing={0.75} sx={{ maxWidth: 360, ml: "auto" }}>
-                    <Stack direction="row" justifyContent="space-between">
-                      <Typography variant="body2" color="text.secondary">
-                        Междинна сума
-                      </Typography>
-                      <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                        {currencySign} {subtotal.toFixed(2)}
-                      </Typography>
-                    </Stack>
-                    <Stack direction="row" justifyContent="space-between">
-                      <Typography variant="body2" color="text.secondary">
-                        {vatLabel}
-                      </Typography>
-                      <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                        {currencySign} {vatTotal.toFixed(2)}
-                      </Typography>
-                    </Stack>
-                    <Stack
-                      direction="row"
-                      justifyContent="space-between"
-                      sx={{ pt: 0.5, borderTop: "1px solid rgba(15, 23, 42, 0.08)" }}
-                    >
-                      <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>
-                        Крайна сума
-                      </Typography>
-                      <Typography variant="h6" sx={{ fontWeight: 900 }}>
-                        {currencySign} {grandTotal.toFixed(2)}
-                      </Typography>
-                    </Stack>
-                  </Stack>
-                </Paper>
+                <TotalsSection
+                  currencySign={currencySign}
+                  subtotal={subtotal}
+                  vatLabel={vatLabel}
+                  vatTotal={vatTotal}
+                  grandTotal={grandTotal}
+                />
               )}
 
-              <Button
-                type="button"
-                variant="contained"
-                color="primary"
-                fullWidth
-                size="large"
-                sx={{ mt: 1, height: 48, fontWeight: 700 }}
-                onClick={saveInvoice}
-              >
-                ЗАПАЗИ ФАКТУРА
-              </Button>
+              <Stack direction={{ xs: "column", sm: "row" }} spacing={1.25} sx={{ mt: 1 }}>
+                <Button
+                  type="button"
+                  variant="outlined"
+                  color="primary"
+                  size="large"
+                  onClick={handlePreviewInvoice}
+                  startIcon={<VisibilityOutlinedIcon />}
+                  sx={{ height: 48, fontWeight: 700, minWidth: { sm: 180 } }}
+                >
+                  Преглед
+                </Button>
+                <Button
+                  type="button"
+                  variant="contained"
+                  color="primary"
+                  fullWidth
+                  size="large"
+                  sx={{ height: 48, fontWeight: 700 }}
+                  onClick={openSaveDialog}
+                >
+                  ЗАПАЗИ ФАКТУРА
+                </Button>
+              </Stack>
             </Box>
           </Paper>
         </Container>
       )}
+      <Dialog open={saveDialogOpen} onClose={() => !saveInProgress && setSaveDialogOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Как искате да запазите фактурата?</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Изберете дали да издадете официална фактура с пореден номер, или да запазите като чернова за по-късно.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2.5, pt: 0.5, gap: 1 }}>
+          <Button onClick={() => setSaveDialogOpen(false)} disabled={saveInProgress}>
+            Отказ
+          </Button>
+          <Button
+            variant="outlined"
+            onClick={() => persistInvoice("draft")}
+            disabled={saveInProgress}
+          >
+            Запази като чернова
+          </Button>
+          <Button
+            variant="contained"
+            onClick={() => persistInvoice("issued")}
+            disabled={saveInProgress}
+          >
+            Издай фактурата
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog
+        open={previewModalOpen}
+        onClose={() => setPreviewModalOpen(false)}
+        maxWidth="lg"
+        fullWidth
+      >
+        <DialogTitle>Преглед на фактура</DialogTitle>
+        <DialogContent sx={{ pt: 1 }}>
+          <Box
+            sx={{
+              maxHeight: "72vh",
+              overflow: "auto",
+              bgcolor: "#f8fafc",
+              borderRadius: 1.5,
+              p: { xs: 0.5, sm: 1 },
+            }}
+          >
+            <InvoicePreviewContent previewData={buildPreviewData()} />
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2.5, pt: 0.5, gap: 1 }}>
+          <Button onClick={() => setPreviewModalOpen(false)}>Затвори</Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };

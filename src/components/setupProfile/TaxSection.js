@@ -5,6 +5,7 @@ import {
   FormControlLabel,
   Grid,
   InputAdornment,
+  MenuItem,
   Switch,
   TextField,
   Typography,
@@ -20,6 +21,7 @@ import { gridFieldSx, setupProfileFieldProps } from "../../utils/muiFieldSx";
 import { SectionTitle } from "./SectionTitle";
 
 const fieldProps = setupProfileFieldProps;
+const CURRENCY_OPTIONS = ["EUR", "BGN", "USD", "GBP"];
 
 export const TaxSection = ({ form, showTitle = true }) => {
   const { control, setValue } = form;
@@ -66,7 +68,10 @@ export const TaxSection = ({ form, showTitle = true }) => {
                 " — задайте собствена ДДС ставка по-долу при нужда"}
             </>
           ) : (
-            <>Изберете държава в секция „Адрес“, за да се приложат ДДС и валутни правила.</>
+            <>
+              Изберете държава в секция „Адрес“, за да се приложат ДДС и валутни
+              правила.
+            </>
           )}
         </Typography>
       </Box>
@@ -180,23 +185,40 @@ export const TaxSection = ({ form, showTitle = true }) => {
           />
         </Grid>
         <Grid item xs={12} sm={6} sx={{ minWidth: 0 }}>
-          <TextField
-            {...fieldProps}
-            label="Валута на фактуриране"
-            value={country ? rules.currency : ""}
-            disabled={!country}
-            InputProps={country ? { readOnly: true } : undefined}
-            helperText={
-              <FormFieldHelperText
-                hint={
-                  country
-                    ? "По държавни правила; запазва се в профила."
-                    : "Първо изберете държава в секция „Адрес“."
+          <Controller
+            name="currency"
+            control={control}
+            render={({ field, fieldState }) => (
+              <TextField
+                {...fieldProps}
+                {...field}
+                select
+                label="Валута на фактуриране"
+                value={field.value ?? "EUR"}
+                onChange={(e) =>
+                  field.onChange((e.target.value || "EUR").toUpperCase())
                 }
-              />
-            }
-            FormHelperTextProps={{ component: "div" }}
-            sx={gridFieldSx}
+                error={!!fieldState.error}
+                helperText={
+                  <FormFieldHelperText
+                    errorMessage={fieldState.error?.message}
+                    hint={
+                      fieldState.error
+                        ? undefined
+                        : "Изберете валутата за новите фактури (по подразбиране EUR)."
+                    }
+                  />
+                }
+                FormHelperTextProps={{ component: "div" }}
+                sx={gridFieldSx}
+              >
+                {CURRENCY_OPTIONS.map((code) => (
+                  <MenuItem key={code} value={code}>
+                    {code}
+                  </MenuItem>
+                ))}
+              </TextField>
+            )}
           />
         </Grid>
         <Grid item xs={12} sm={6} sx={{ minWidth: 0 }}>

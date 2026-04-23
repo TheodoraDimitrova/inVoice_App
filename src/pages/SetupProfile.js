@@ -81,6 +81,7 @@ const SETUP_FIELD_TO_PANEL = {
   isVatRegistered: "tax",
   vat: "tax",
   tic: "tax",
+  currency: "tax",
   vatRate: "tax",
   bankName: "bank",
   iban: "bank",
@@ -109,6 +110,7 @@ const SETUP_FIELD_SCROLL_ORDER = [
   "isVatRegistered",
   "vat",
   "tic",
+  "currency",
   "vatRate",
   "bankName",
   "iban",
@@ -127,6 +129,7 @@ const defaultFormValues = {
   isVatRegistered: false,
   vat: "",
   tic: "",
+  currency: "EUR",
   vatRate: 20,
   bankName: "",
   iban: "",
@@ -309,6 +312,7 @@ const SetupProfile = () => {
                   : Boolean((b.vat ?? "").toString().trim()),
               vat: b.vat ?? "",
               tic: b.tic ?? "",
+              currency: b.currency ?? "EUR",
               vatRate: Number.isNaN(vr) ? 20 : vr,
               bankName: b.bankName ?? "",
               iban: (b.iban ?? "").toString(),
@@ -384,7 +388,6 @@ const SetupProfile = () => {
   const onSubmit = async (data) => {
     try {
       // console.log("[SetupProfile] submit payload (raw form data):", data);
-      const commercial = getCountryCommercialDefaults(data.country);
       const logoIsNewUpload =
         typeof logo === "string" && logo.startsWith("data:");
       const logoCleared = logo === DEFAULT_LOGO;
@@ -404,7 +407,7 @@ const SetupProfile = () => {
         tic: data.tic,
         isVatRegistered: data.isVatRegistered,
         vat: data.isVatRegistered ? normaliseVatInput(data.vat) : "",
-        currency: commercial.currency,
+        currency: (data.currency ?? "EUR").trim().toUpperCase(),
         email: data.email,
         iban: data.iban,
         swift: data.swift,
@@ -542,13 +545,8 @@ const SetupProfile = () => {
                     color="text.secondary"
                     sx={{ maxWidth: 640 }}
                   >
-                    Започнете с фирма и контакт, след това отворете всеки блок
-                    за адрес, данъци, банка и лого. Полетата за фирма + адрес
-                    са задължителни. ДДС номерът е задължителен само при
-                    регистрация по ДДС. Фирменият идентификатор е
-                    задължителен. Банковите данни са опционални като група
-                    (попълват се и трите), освен ако включите „Не ми трябват
-                    банкови данни във фактурите“.
+                    Попълнете основните данни за вашия бизнес. След това ще
+                    можете да издавате фактури веднага.
                   </Typography>
                 </Box>
 
@@ -573,7 +571,9 @@ const SetupProfile = () => {
                       <Box ref={validationBannerRef} sx={{ mb: 2 }}>
                         <Alert severity="error">
                           <Typography variant="body2" component="div">
-                            <strong>Някои полета все още изискват внимание.</strong>
+                            <strong>
+                              Някои полета все още изискват внимание.
+                            </strong>
                             {erroredPanels.length > 0 ? (
                               <>
                                 {" "}
@@ -727,8 +727,8 @@ const SetupProfile = () => {
                               >
                                 ДДС номерът е задължителен само при регистрация
                                 по ДДС. Фирменият/търговският идентификатор е
-                                задължителен. Валутата следва избраната
-                                държава (показана в тази секция).
+                                задължителен. Валутата следва избраната държава
+                                (показана в тази секция).
                               </Typography>
                             </Box>
                           </Stack>
@@ -930,9 +930,9 @@ const SetupProfile = () => {
                     color="text.secondary"
                     sx={{ mb: 2, lineHeight: 1.55 }}
                   >
-                    <strong>Лого:</strong> Не е задължително за отключване, но
-                    е важно за доверие. Ясното лого прави фактурите
-                    професионални и разпознаваеми.
+                    <strong>Лого:</strong> Не е задължително за отключване, но е
+                    важно за доверие. Ясното лого прави фактурите професионални
+                    и разпознаваеми.
                   </Typography>
                   <Typography
                     variant="body2"
@@ -943,7 +943,8 @@ const SetupProfile = () => {
                     <strong>Адрес</strong>. <strong>ДДС номер</strong> само при
                     регистрация по ДДС.
                     <br />
-                    <strong>Задължително:</strong> <strong>Фирмен ID (TIC)</strong>
+                    <strong>Задължително:</strong>{" "}
+                    <strong>Фирмен идентификатор ЕИК / BULSTAT</strong>
                     .
                     <br />
                     <strong>По избор:</strong> <strong>Лого</strong>.
@@ -951,7 +952,8 @@ const SetupProfile = () => {
                     <strong>Банка:</strong> въведете заедно{" "}
                     <strong>Име на банка</strong>, <strong>IBAN</strong> и{" "}
                     <strong>SWIFT/BIC</strong>, или включете{" "}
-                    <strong>"Не ми трябват банкови данни във фактурите"</strong>.
+                    <strong>"Не ми трябват банкови данни във фактурите"</strong>
+                    .
                   </Typography>
                   <Typography
                     variant="caption"

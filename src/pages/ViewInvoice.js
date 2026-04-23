@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { query, collection, where, doc, onSnapshot } from "@firebase/firestore";
 import { useReactToPrint } from "react-to-print";
 import db from "../firebase";
@@ -12,7 +12,15 @@ import { convertTimestamp } from "../utils/functions";
 import Loading from "../components/Loading";
 import { getAuth } from "firebase/auth";
 
+const formatInvoiceBadge = (invoiceData) => {
+  const n = Number(invoiceData?.id);
+  const hasNumber = Number.isFinite(n) && n > 0;
+  if (!hasNumber || invoiceData?.status === "draft") return "Чернова";
+  return String(n).padStart(10, "0");
+};
+
 export const ComponentToPrint = React.forwardRef((props, ref) => {
+  const { previewData } = props;
   let params = useParams();
   const [invoiceDetails, setInvoiceDetails] = useState(null);
   const [businessDetails, setBusinessDetails] = useState(null);
@@ -46,6 +54,11 @@ export const ComponentToPrint = React.forwardRef((props, ref) => {
         });
         setBusinessDetails(firebaseBusinesses);
       });
+      if (previewData) {
+        setInvoiceDetails({ data: previewData, id: "preview" });
+        setLoading(false);
+        return;
+      }
       if (params.id) {
         const unsub = onSnapshot(doc(db, "invoices", params.id), (doc) => {
           setInvoiceDetails({ data: doc.data(), id: doc.id });
@@ -56,7 +69,7 @@ export const ComponentToPrint = React.forwardRef((props, ref) => {
     } catch (error) {
       console.error(error);
     }
-  }, [params.id, auth.currentUser.uid]);
+  }, [params.id, auth.currentUser.uid, previewData]);
 
   return (
     <>
@@ -184,17 +197,28 @@ export const ComponentToPrint = React.forwardRef((props, ref) => {
                 <p className="text-sm mb-1">
                   {invoiceDetails.data.customerEmail}
                 </p>
+                {invoiceDetails.data.customerVatRegistered &&
+                invoiceDetails.data.customerVatNumber ? (
+                  <p className="text-sm mb-1">
+                    ДДС номер: {invoiceDetails.data.customerVatNumber}
+                  </p>
+                ) : null}
               </div>
             )}
 
             {businessDetails && (
               <div className="  py-2 text-right">
+                {previewData ? (
+                  <p className="inline-flex items-center rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800 mb-3">
+                    ПРЕГЛЕД (НЕЗАПИСАНО)
+                  </p>
+                ) : null}
                 <h3 className="text-6xl text-gray-700 mb-4">Фактура</h3>
                 <p className="text-sm font-medium">
                   №:{" "}
                   {invoiceDetails ? (
                     <span className="ml-2 text-sm">
-                      {String(invoiceDetails.data.id).padStart(10, "0")}
+                      {formatInvoiceBadge(invoiceDetails.data)}
                     </span>
                   ) : null}
                 </p>
@@ -326,6 +350,8 @@ export const ComponentToPrint = React.forwardRef((props, ref) => {
 });
 
 export const ViewInvoice = () => {
+  const location = useLocation();
+  const previewData = location.state?.previewData || null;
   const ComponentRef = useRef();
   const handlePrint = useReactToPrint({
     content: () => ComponentRef.current,
@@ -348,7 +374,7 @@ export const ViewInvoice = () => {
           </IconButton>
         </Tooltip>
 
-        <ComponentToPrint ref={ComponentRef} />
+        <ComponentToPrint ref={ComponentRef} previewData={previewData} />
       </div>
     </>
   );

@@ -2,6 +2,13 @@ import React from "react";
 import DashboardActionsSvg from "./DashboardActionsSvg";
 import { convertTimestamp } from "../utils/functions";
 
+const formatInvoiceBadge = (invoiceData) => {
+  const n = Number(invoiceData?.id);
+  const hasNumber = Number.isFinite(n) && n > 0;
+  if (!hasNumber || invoiceData?.status === "draft") return "Чернова";
+  return String(n).padStart(10, "0");
+};
+
 const Table = ({ invoices }) => {
   return (
     <div className="w-full">
@@ -19,7 +26,7 @@ const Table = ({ invoices }) => {
             <tr key={invoice.id}>
               <td className="text-sm text-gray-400">
                 {convertTimestamp(invoice.data.timestamp)} -{" "}
-                {String(invoice.data.id).padStart(10, "0")}
+                {formatInvoiceBadge(invoice.data)}
               </td>
               <td className="text-sm">{invoice.data.customerName}</td>
               <td>

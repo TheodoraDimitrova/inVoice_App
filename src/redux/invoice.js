@@ -7,7 +7,7 @@ export const invoiceSlice = createSlice({
       customerName: "",
       customerAddress: "",
       customerCity: "",
-      customerVat: "",
+      companyIdentifier: "",
       customerEmail: "",
       itemList: [],
       currency: "",

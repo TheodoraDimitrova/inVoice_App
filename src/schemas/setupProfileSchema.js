@@ -39,6 +39,11 @@ export const setupProfileSchema = z
 
     vat: z.string(),
     tic: z.string(),
+    currency: z
+      .string()
+      .trim()
+      .min(1, "Валутата е задължителна")
+      .max(3, "Валутният код трябва да е до 3 символа"),
 
     vatRate: z.preprocess((val) => {
       if (val === "" || val === undefined || val === null) return 20;
