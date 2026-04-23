@@ -5,13 +5,13 @@ import { convertTimestamp } from "../utils/functions";
 const Table = ({ invoices }) => {
   return (
     <div className="w-full">
-      <h3 className="text-xl text-blue-700 font-semibold">Recent Invoices </h3>
+      <h3 className="text-xl text-blue-700 font-semibold">Последни фактури</h3>
       <table>
         <thead>
           <tr>
-            <th className="text-blue-600">Date</th>
-            <th className="text-blue-600">Customer</th>
-            <th className="text-blue-600">Actions</th>
+            <th className="text-blue-600">Дата</th>
+            <th className="text-blue-600">Клиент</th>
+            <th className="text-blue-600">Действия</th>
           </tr>
         </thead>
         <tbody>

@@ -128,15 +128,16 @@ const Dashboard = () => {
               sx={{ mb: 2.5, alignItems: "center" }}
               action={
                 <Button color="inherit" size="small" onClick={() => navigate("/profile")}>
-                  Profile settings
+                  Настройки на профила
                 </Button>
               }
             >
-              To create invoices, add <strong>tax registration</strong> (VAT settings),{" "}
-              <strong>company ID</strong>, and <strong>bank details</strong> in
-              Profile settings, or enable the option{" "}
-              <strong>"I don't need bank details on my invoices"</strong>. Company and
-              address alone unlock the dashboard.
+              За да създавате фактури, добавете{" "}
+              <strong>данъчни настройки</strong> (ДДС),{" "}
+              <strong>фирмен идентификатор</strong> и{" "}
+              <strong>банкови данни</strong> в „Профил“, или включете опцията{" "}
+              <strong>"Не ми трябват банкови данни във фактурите"</strong>.
+              Данните за фирма и адрес са достатъчни за достъп до таблото.
             </Alert>
           ) : null}
           <Stack
@@ -158,18 +159,18 @@ const Dashboard = () => {
                   lineHeight: 1.3,
                 }}
               >
-                {isInvoicesRoute ? "Invoices" : "Dashboard"}
+                {isInvoicesRoute ? "Фактури" : "Табло"}
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mt: 0.25 }}>
                 {isInvoicesRoute
-                  ? "Issued invoices and shortcuts."
+                  ? "Издадени фактури и бързи действия."
                   : businessName
                     ? businessName
-                    : "Overview and recent activity."}
+                    : "Преглед и последна активност."}
               </Typography>
               {companyEmail ? (
                 <Typography variant="caption" color="text.secondary" sx={{ mt: 0.75, display: "block" }}>
-                  Company email: {companyEmail}
+                  Фирмен имейл: {companyEmail}
                 </Typography>
               ) : null}
             </Box>
@@ -189,7 +190,7 @@ const Dashboard = () => {
                   color: "var(--color-brand-primary)",
                 }}
               >
-                Products
+                Продукти
               </Button>
             </Stack>
           </Stack>
@@ -216,13 +217,13 @@ const Dashboard = () => {
                     </Box>
                     <Box sx={{ minWidth: 0 }}>
                       <Typography variant="caption" color="text.secondary" fontWeight={600}>
-                        Total revenue
+                        Общи приходи
                       </Typography>
                       <Typography variant="h6" sx={{ fontWeight: 700, color: "#0f172a", mt: 0.25 }}>
                         {revenueLabel}
                       </Typography>
                       <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 0.5 }}>
-                        Sum of invoice totals (incl. VAT)
+                        Сбор от крайните суми по фактури (с ДДС)
                       </Typography>
                     </Box>
                   </Stack>
@@ -248,13 +249,13 @@ const Dashboard = () => {
                     </Box>
                     <Box>
                       <Typography variant="caption" color="text.secondary" fontWeight={600}>
-                        Pending
+                        Чакащи
                       </Typography>
                       <Typography variant="h6" sx={{ fontWeight: 700, color: "#0f172a", mt: 0.25 }}>
                         {metrics.pendingCount}
                       </Typography>
                       <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 0.5 }}>
-                        Mark payment status on invoices to track
+                        Обновявайте статуса на плащане за проследяване
                       </Typography>
                     </Box>
                   </Stack>
@@ -280,13 +281,13 @@ const Dashboard = () => {
                     </Box>
                     <Box>
                       <Typography variant="caption" color="text.secondary" fontWeight={600}>
-                        Drafts
+                        Чернови
                       </Typography>
                       <Typography variant="h6" sx={{ fontWeight: 700, color: "#0f172a", mt: 0.25 }}>
                         {metrics.draftsCount}
                       </Typography>
                       <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 0.5 }}>
-                        Draft workflow when added
+                        Брой фактури в чернова
                       </Typography>
                     </Box>
                   </Stack>
@@ -304,7 +305,7 @@ const Dashboard = () => {
                 mb: 1.5,
               }}
             >
-              Recent invoices
+              Последни фактури
             </Typography>
             <Table invoices={invoices} />
           </Box>
