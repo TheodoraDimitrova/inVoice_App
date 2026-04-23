@@ -9,30 +9,30 @@ const isSupportedCountry = (value) => COUNTRIES.includes(value);
 
 export const setupProfileSchema = z
   .object({
-    businessName: z.string().trim().min(1, "Company name is required"),
+    businessName: z.string().trim().min(1, "Името на фирмата е задължително"),
 
     email: z
       .string()
       .trim()
-      .min(1, "Email is required")
-      .pipe(z.email("Please enter a valid email address.")),
+      .min(1, "Имейлът е задължителен")
+      .pipe(z.email("Моля, въведете валиден имейл адрес.")),
 
     phone: z
       .string()
       .trim()
-      .min(1, "Phone is required")
+      .min(1, "Телефонът е задължителен")
       .regex(
         PHONE_REGEX,
-        "Invalid phone format. Use digits with optional +, spaces, or -.",
+        "Невалиден формат на телефон. Използвайте цифри с опционални +, интервали или -.",
       ),
-    businessAddress: z.string().trim().min(1, "Street address is required"),
-    postCode: z.string().trim().min(1, "Post code is required"),
-    city: z.string().trim().min(1, "City is required"),
+    businessAddress: z.string().trim().min(1, "Адресът е задължителен"),
+    postCode: z.string().trim().min(1, "Пощенският код е задължителен"),
+    city: z.string().trim().min(1, "Градът е задължителен"),
     country: z
       .string()
       .trim()
-      .min(1, "Country is required")
-      .refine(isSupportedCountry, "Unsupported country."),
+      .min(1, "Държавата е задължителна")
+      .refine(isSupportedCountry, "Неподдържана държава."),
 
     /** VAT-registered business (VAT ID required and format-checked). */
     isVatRegistered: z.boolean(),
@@ -58,7 +58,7 @@ export const setupProfileSchema = z
     if (!data.country?.trim()) {
       ctx.addIssue({
         code: "custom",
-        message: "Select your business country before entering a VAT number.",
+        message: "Изберете държава на фирмата, преди да въведете ДДС номер.",
         path: ["country"],
       });
       return;
@@ -67,7 +67,7 @@ export const setupProfileSchema = z
     if (!r.ok) {
       ctx.addIssue({
         code: "custom",
-        message: r.message ?? "Invalid VAT number.",
+        message: r.message ?? "Невалиден ДДС номер.",
         path: ["vat"],
       });
     }
@@ -77,7 +77,7 @@ export const setupProfileSchema = z
     if (!r.ok) {
       ctx.addIssue({
         code: "custom",
-        message: r.message ?? "Invalid company identifier.",
+        message: r.message ?? "Невалиден фирмен идентификатор.",
         path: ["tic"],
       });
     }
@@ -97,27 +97,27 @@ export const setupProfileSchema = z
     if (!bankName) {
       ctx.addIssue({
         code: "custom",
-        message: "Bank name is required when bank details are provided.",
+        message: "Името на банка е задължително, когато има банкови данни.",
         path: ["bankName"],
       });
     }
     if (!iban) {
       ctx.addIssue({
         code: "custom",
-        message: "IBAN is required when bank details are provided.",
+        message: "IBAN е задължителен, когато има банкови данни.",
         path: ["iban"],
       });
     } else if (!isValidIBAN(iban)) {
       ctx.addIssue({
         code: "custom",
-        message: "Invalid IBAN format or checksum.",
+        message: "Невалиден формат или контролна сума на IBAN.",
         path: ["iban"],
       });
     }
     if (!swift) {
       ctx.addIssue({
         code: "custom",
-        message: "SWIFT / BIC is required when bank details are provided.",
+        message: "SWIFT / BIC е задължителен, когато има банкови данни.",
         path: ["swift"],
       });
     }

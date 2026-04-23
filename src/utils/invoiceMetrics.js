@@ -5,19 +5,23 @@
 function lineNet(item) {
   const cost = Number(item.itemCost) || 0;
   const qty = Number(item.itemQuantity) || 0;
-  const disc = Number(item.itemDiscount) || 0;
-  return cost * qty - (cost * qty * disc) / 100;
+  return cost * qty;
+}
+
+function lineVatRate(item, fallbackVatRate) {
+  if (item?.itemVatRate == null) return Number(fallbackVatRate) || 0;
+  return Number(item.itemVatRate) || 0;
 }
 
 export function computeInvoiceGrandTotalNumber(itemList, vatRate) {
   if (!Array.isArray(itemList) || itemList.length === 0) return 0;
-  let net = 0;
+  let total = 0;
   for (let i = 0; i < itemList.length; i++) {
-    net += lineNet(itemList[i]);
+    const net = lineNet(itemList[i]);
+    const rate = lineVatRate(itemList[i], vatRate);
+    total += net + (net * rate) / 100;
   }
-  const v = parseFloat(vatRate);
-  const rate = Number.isNaN(v) ? 20 : v;
-  return net * ((100 + rate) / 100);
+  return total;
 }
 
 /**

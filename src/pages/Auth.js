@@ -43,13 +43,13 @@ const Auth = () => {
       data.registerPassword,
     )
       .then(() => {
-        showToast("success", "Congratulations!🚀");
+        showToast("success", "Регистрацията е успешна!🚀");
         navigate("/profile");
       })
       .catch((error) => {
         console.log(error.code);
         if (error.code === "auth/email-already-in-use") {
-          showToast("error", "Email already in use");
+          showToast("error", "Имейлът вече се използва");
         }
       });
   };
@@ -58,16 +58,16 @@ const Auth = () => {
     signInWithEmailAndPassword(auth, data.loginEmail, data.loginPassword)
       .then((userCredential) => {
         if (userCredential) {
-          showToast("success", "Login successful!🚀");
+          showToast("success", "Входът е успешен!🚀");
           navigate("/profile");
         }
       })
       .catch((error) => {
         if (error.code === "auth/wrong-password") {
-          showToast("error", "Wrong password!");
+          showToast("error", "Грешна парола!");
         }
         if (error.code === "auth/user-not-found") {
-          showToast("error", "You are not registrated!");
+          showToast("error", "Няма потребител с този имейл!");
         }
       });
   };
@@ -101,7 +101,7 @@ const Auth = () => {
           <Box
             component="img"
             src={AUTH_ILLUSTRATION}
-            alt="Invoicer — invoices and business workflow"
+            alt="Invoicer — фактуриране и бизнес процеси"
             sx={{
               position: "absolute",
               inset: 0,
@@ -211,17 +211,17 @@ const Auth = () => {
                     </Typography>
                   )}
                   <TextField
-                    label="Email"
+                    label="Имейл"
                     variant="outlined"
                     fullWidth
                     size="medium"
                     InputLabelProps={outlinedFieldLabelProps}
                     sx={outlinedFieldSx}
                     {...register("registerEmail", {
-                      required: "Please provide a valid email",
+                      required: "Моля, въведете валиден имейл",
                       pattern: {
                         value: emailFormat,
-                        message: "Provide valid email",
+                        message: "Въведете валиден имейл",
                       },
                     })}
                     type="email"
@@ -241,7 +241,7 @@ const Auth = () => {
                     </Typography>
                   )}
                   <TextField
-                    label="Password"
+                    label="Парола"
                     autoComplete="new-password"
                     type={showRegisterPassword ? "text" : "password"}
                     variant="outlined"
@@ -254,8 +254,8 @@ const Auth = () => {
                           <IconButton
                             aria-label={
                               showRegisterPassword
-                                ? "Hide password"
-                                : "Show password"
+                                ? "Скрий парола"
+                                : "Покажи парола"
                             }
                             onClick={() =>
                               setShowRegisterPassword((prev) => !prev)
@@ -273,11 +273,10 @@ const Auth = () => {
                     }}
                     sx={outlinedFieldSx}
                     {...register("registerPassword", {
-                      required: "Please enter a password",
+                      required: "Моля, въведете парола",
                       minLength: {
                         value: 8,
-                        message:
-                          "Your password must contain at least 8 characters",
+                        message: "Паролата трябва да е поне 8 символа",
                       },
                     })}
                   />
@@ -290,7 +289,7 @@ const Auth = () => {
                     size="large"
                     sx={{ mt: 1, mb: 0, py: 1.25 }}
                   >
-                    Register
+                    Регистрация
                   </Button>
 
                   <button
@@ -298,7 +297,7 @@ const Auth = () => {
                     className={switchLinkClass}
                     onClick={() => switchView(true)}
                   >
-                    Already have an account? Login
+                    Вече имате акаунт? Влезте
                   </button>
                 </Box>
               ) : (
@@ -328,17 +327,17 @@ const Auth = () => {
                     </Typography>
                   )}
                   <TextField
-                    label="Email"
+                    label="Имейл"
                     variant="outlined"
                     fullWidth
                     size="medium"
                     InputLabelProps={outlinedFieldLabelProps}
                     sx={outlinedFieldSx}
                     {...register("loginEmail", {
-                      required: "Please provide a valid email",
+                      required: "Моля, въведете валиден имейл",
                       pattern: {
                         value: emailFormat,
-                        message: "Enter a valid email",
+                        message: "Въведете валиден имейл",
                       },
                     })}
                     type="email"
@@ -358,7 +357,7 @@ const Auth = () => {
                     </Typography>
                   )}
                   <TextField
-                    label="Password"
+                    label="Парола"
                     type={showLoginPassword ? "text" : "password"}
                     autoComplete="current-password"
                     variant="outlined"
@@ -370,7 +369,7 @@ const Auth = () => {
                         <InputAdornment position="end">
                           <IconButton
                             aria-label={
-                              showLoginPassword ? "Hide password" : "Show password"
+                              showLoginPassword ? "Скрий парола" : "Покажи парола"
                             }
                             onClick={() => setShowLoginPassword((prev) => !prev)}
                             edge="end"
@@ -382,10 +381,10 @@ const Auth = () => {
                     }}
                     sx={outlinedFieldSx}
                     {...register("loginPassword", {
-                      required: "Please enter a password",
+                      required: "Моля, въведете парола",
                       minLength: {
                         value: 8,
-                        message: "Password must contain at least 8 characters",
+                        message: "Паролата трябва да е поне 8 символа",
                       },
                     })}
                   />
@@ -398,7 +397,7 @@ const Auth = () => {
                     size="large"
                     sx={{ mt: 1, mb: 0, py: 1.25 }}
                   >
-                    Login
+                    Вход
                   </Button>
 
                   <button
@@ -406,7 +405,7 @@ const Auth = () => {
                     className={switchLinkClass}
                     onClick={() => switchView(false)}
                   >
-                    Create an account
+                    Създай акаунт
                   </button>
                 </Box>
               )}

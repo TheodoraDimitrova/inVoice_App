@@ -37,8 +37,8 @@ export const TaxSection = ({ form, showTitle = true }) => {
       {showTitle && (
         <SectionTitle
           icon={GavelOutlinedIcon}
-          title="Tax & registration"
-          subtitle="VAT status, VAT ID (required only if VAT-registered), required company / trade ID, and read-only tax defaults by country."
+          title="Данъци и регистрация"
+          subtitle="ДДС статус, ДДС номер (задължителен само при регистрация по ДДС), задължителен фирмен/търговски идентификатор и данъчни стойности по държава."
         />
       )}
       <Box
@@ -54,19 +54,19 @@ export const TaxSection = ({ form, showTitle = true }) => {
         <Typography variant="caption" color="text.secondary" component="div">
           {country ? (
             <>
-              From system rules for <strong>{country}</strong>
+              По системни правила за <strong>{country}</strong>
               {rules.standardVatRate != null && (
                 <>
-                  : suggested standard VAT{" "}
-                  <strong>{rules.standardVatRate}%</strong> (applied when you
-                  change country in Address)
+                  : предложена стандартна ДДС ставка{" "}
+                  <strong>{rules.standardVatRate}%</strong> (прилага се при
+                  смяна на държавата в секция „Адрес“)
                 </>
               )}
               {rules.standardVatRate == null &&
-                " — set your own VAT % below if applicable"}
+                " — задайте собствена ДДС ставка по-долу при нужда"}
             </>
           ) : (
-            <>Choose a country in Address to apply VAT and currency rules.</>
+            <>Изберете държава в секция „Адрес“, за да се приложат ДДС и валутни правила.</>
           )}
         </Typography>
       </Box>
@@ -96,16 +96,16 @@ export const TaxSection = ({ form, showTitle = true }) => {
               label={
                 <Box>
                   <Typography variant="body2" fontWeight={600}>
-                    Registered for VAT
+                    Регистриран по ДДС
                   </Typography>
                   <Typography
                     variant="caption"
                     color="text.secondary"
                     display="block"
                   >
-                    If on, VAT number is required and checked for format. If
-                    off, VAT number is optional. Company ID may still be required
-                    depending on country rules.
+                    Ако е включено, ДДС номерът е задължителен и се валидира.
+                    Ако е изключено, ДДС номерът е по избор. Фирменият
+                    идентификатор може да остане задължителен според правилата.
                   </Typography>
                 </Box>
               }
@@ -123,9 +123,9 @@ export const TaxSection = ({ form, showTitle = true }) => {
               <TextField
                 {...fieldProps}
                 {...field}
-                label="VAT number"
+                label="ДДС номер"
                 disabled={!isVatRegistered}
-                placeholder={isVatRegistered ? "e.g. DE123456789" : ""}
+                placeholder={isVatRegistered ? "напр. BG123456789" : ""}
                 error={!!fieldState.error}
                 helperText={
                   <FormFieldHelperText
@@ -133,7 +133,7 @@ export const TaxSection = ({ form, showTitle = true }) => {
                     hint={
                       fieldState.error || !isVatRegistered
                         ? undefined
-                        : "Include country prefix."
+                        : "Добавете префикс на държавата."
                     }
                   />
                 }
@@ -152,7 +152,7 @@ export const TaxSection = ({ form, showTitle = true }) => {
                 {...fieldProps}
                 {...field}
                 label={
-                  identityPrimary?.label ?? "Company / trade registration ID"
+                  identityPrimary?.label ?? "Фирмен / търговски идентификатор"
                 }
                 error={!!fieldState.error}
                 helperText={
@@ -163,9 +163,9 @@ export const TaxSection = ({ form, showTitle = true }) => {
                         ? undefined
                         : [
                             identityPrimary?.hint,
-                            "Required for all invoices.",
+                            "Задължително за всички фактури.",
                             secondaryIdentityLabels.length
-                              ? `Other local IDs (not stored in this field yet): ${secondaryIdentityLabels.join(", ")}.`
+                              ? `Други локални идентификатори (все още не се съхраняват в това поле): ${secondaryIdentityLabels.join(", ")}.`
                               : null,
                           ]
                             .filter(Boolean)
@@ -182,7 +182,7 @@ export const TaxSection = ({ form, showTitle = true }) => {
         <Grid item xs={12} sm={6} sx={{ minWidth: 0 }}>
           <TextField
             {...fieldProps}
-            label="Invoice currency"
+            label="Валута на фактуриране"
             value={country ? rules.currency : ""}
             disabled={!country}
             InputProps={country ? { readOnly: true } : undefined}
@@ -190,8 +190,8 @@ export const TaxSection = ({ form, showTitle = true }) => {
               <FormFieldHelperText
                 hint={
                   country
-                    ? "From country rules; saved with your profile."
-                    : "Choose a country in Address first."
+                    ? "По държавни правила; запазва се в профила."
+                    : "Първо изберете държава в секция „Адрес“."
                 }
               />
             }
@@ -207,7 +207,7 @@ export const TaxSection = ({ form, showTitle = true }) => {
               <TextField
                 {...fieldProps}
                 {...field}
-                label="Default VAT rate"
+                label="Стандартна ДДС ставка"
                 type="number"
                 disabled
                 InputProps={{
@@ -232,7 +232,7 @@ export const TaxSection = ({ form, showTitle = true }) => {
                     hint={
                       fieldState.error
                         ? undefined
-                        : "Set from country rules when you pick a country in Address; not editable here."
+                        : "Задава се по държавни правила при избор на държава в „Адрес“; не се редактира тук."
                     }
                   />
                 }

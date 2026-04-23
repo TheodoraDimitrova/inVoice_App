@@ -10,59 +10,59 @@ import TaskAltOutlinedIcon from "@mui/icons-material/TaskAltOutlined";
 
 const features = [
   {
-    title: "Create invoices",
+    title: "Създаване на фактури",
     description:
-      "Create professional invoices in minutes with smart defaults and a clean layout.",
+      "Създавайте професионални фактури за минути със смислени настройки по подразбиране и изчистен дизайн.",
     icon: ReceiptLongOutlinedIcon,
   },
   {
-    title: "Manage clients",
+    title: "Управление на клиенти",
     description:
-      "Keep your entire client database in one place and reduce repetitive data entry.",
+      "Поддържайте цялата си клиентска база на едно място и намалете повтарящото се въвеждане.",
     icon: GroupsOutlinedIcon,
   },
   {
-    title: "Track payments",
+    title: "Проследяване на плащания",
     description:
-      "Monitor sent invoices and received payments so your cash flow is always clear.",
+      "Следете изпратените фактури и получените плащания, за да имате ясен паричен поток.",
     icon: InsightsOutlinedIcon,
   },
 ];
 
 const userTypes = [
   {
-    type: "Registered companies",
+    type: "Регистрирани фирми",
     value:
-      "Full VAT support, including compliant VAT handling and automatic company ID validation.",
+      "Пълна ДДС поддръжка, включително съобразена обработка и автоматична валидация на фирмени идентификатори.",
     icon: ApartmentOutlinedIcon,
   },
   {
-    type: "Freelancers",
+    type: "Фрийлансъри",
     value:
-      "Simple invoice creation with company/trade identifiers only, ideal for self-employed professionals.",
+      "Лесно създаване на фактури само с фирмен/търговски идентификатор – идеално за самоосигуряващи се.",
     icon: PaletteOutlinedIcon,
-    badge: "Issue invoices with BULSTAT in seconds.",
+    badge: "Издавайте фактури с Булстат за секунди.",
   },
   {
-    type: "Digital nomads",
+    type: "Дигитални номади",
     value:
-      "Support for international banking details (IBAN/SWIFT), including providers like Revolut and Wise.",
+      "Поддръжка на международни банкови данни (IBAN/SWIFT), включително доставчици като Revolut и Wise.",
     icon: PublicOutlinedIcon,
-    badge: "Get paid via Wise, Revolut, and Payoneer.",
+    badge: "Получавайте плащания чрез Wise, Revolut и Payoneer.",
   },
   {
-    type: "Small businesses",
+    type: "Малък бизнес",
     value:
-      "Flexible invoicing for bank transfers or cash payments, including a no-bank-details workflow.",
+      "Гъвкаво фактуриране за банкови преводи или плащане в брой, включително сценарий без банкови данни.",
     icon: StorefrontOutlinedIcon,
   },
 ];
 
 const valuePoints = [
-  "Full compliance by design: company/trade ID and VAT number validation aligned with EU invoicing expectations.",
-  "Flexible payment workflows: issue invoices for bank transfer or cash payments in one flow.",
-  "Built for cross-border business: international address and banking formats are supported out of the box.",
-  "Automated tax handling: configure VAT rates (0%, 9%, 20%) and let calculations run automatically.",
+  "Пълно съответствие по дизайн: валидация на фирмен/търговски идентификатор и ДДС номер според българската практика.",
+  "Гъвкав процес на плащане: издавайте фактури за банков превод или плащане в брой в един и същ поток.",
+  "Поддръжка на реални бизнес казуси: формати за адреси и банкови данни, използвани в практиката.",
+  "Без грешки в сметките: Автоматично изчисляване на ДДС (20%, 9%, 0%) според българското законодателство",
 ];
 
 const FeaturesSection = () => {
@@ -70,11 +70,11 @@ const FeaturesSection = () => {
     <section id="features" className="page-shell pt-12 md:pt-14 pb-14 md:pb-16">
       <div className="mb-8 text-center">
         <h2 className="text-[1.55rem] md:text-[1.95rem] font-semibold text-slate-900 tracking-[-0.01em]">
-          Who can use Invoicer?
+          Кой може да използва Invoicer?
         </h2>
         <p className="text-slate-600 mt-3 max-w-3xl mx-auto text-sm sm:text-base">
-          Invoicer is designed for modern teams and independent professionals
-          who need compliant, practical invoicing.
+          Invoicer е създаден за модерни екипи и независими професионалисти,
+          които имат нужда от практично и съобразено фактуриране.
         </p>
       </div>
 
@@ -108,11 +108,11 @@ const FeaturesSection = () => {
 
       <div className="mt-14 md:mt-16 mb-10 md:mb-12 text-center">
         <h2 className="text-[1.75rem] md:text-3xl font-semibold text-slate-900 tracking-[-0.01em]">
-          Everything you need for invoicing
+          Всичко необходимо за фактуриране
         </h2>
         <p className="text-slate-600 mt-4 md:mt-5 max-w-2xl mx-auto text-sm sm:text-base">
-          Tools that save time and help you present your business professionally
-          to every client.
+          Инструменти, които спестяват време и представят бизнеса ви
+          професионално пред всеки клиент.
         </p>
       </div>
 
@@ -143,19 +143,19 @@ const FeaturesSection = () => {
       <div className="mt-10 md:mt-12">
         <div className="feature-card border-l-4 border-l-[var(--color-brand-primary)] py-5 px-5 md:px-6">
           <h3 className="text-base sm:text-lg font-semibold text-slate-900">
-            Built on regulatory trust
+            Създадено с регулаторно доверие
           </h3>
 
           <p className="text-slate-700 text-sm sm:text-[0.95rem] leading-relaxed mt-2">
-            Smart validation for 40+ business identifiers. From EIK to SIREN and
-            NIF, we ensure your invoices stay compliant across the EU.
+            Умна валидация на български бизнес идентификатори. От ЕИК до
+            Булстат, помагаме фактурите ви да са съобразени за България.
           </p>
         </div>
       </div>
 
       <div className="mt-14 md:mt-16">
         <h2 className="text-[1.55rem] md:text-[1.95rem] font-semibold text-slate-900 tracking-[-0.01em] text-center">
-          Everything your business needs in one tool
+          Всичко, от което бизнесът ви има нужда, в един инструмент
         </h2>
         <div className="mt-6 grid gap-3">
           {valuePoints.map((point) => (

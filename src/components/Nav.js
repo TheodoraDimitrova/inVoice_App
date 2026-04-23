@@ -24,7 +24,7 @@ const Nav = (props) => {
     try {
       await signOut(auth);
       dispatch(logOut());
-      showToast("success", "Goodbye!👋");
+      showToast("success", "Довиждане!👋");
       navigate("/");
     } catch (error) {
       console.error("Error signing out:", error);
@@ -113,7 +113,7 @@ const Nav = (props) => {
                       },
                     }}
                   >
-                    Sign Out
+                    Изход
                   </Button>
                 ) : (
                   <Link to="/login">
@@ -128,7 +128,7 @@ const Nav = (props) => {
                         },
                       }}
                     >
-                      Log in
+                      Вход
                     </Typography>
                   </Link>
                 )}

@@ -20,8 +20,8 @@ export const BankSection = ({ form, showTitle = true }) => {
       {showTitle && (
         <SectionTitle
           icon={AccountBalanceOutlinedIcon}
-          title="Bank details"
-          subtitle="Optional block: either provide bank name + IBAN + SWIFT, or explicitly mark that you do not need bank details on invoices."
+          title="Банкови данни"
+          subtitle="Опционален блок: въведете банка + IBAN + SWIFT, или изрично отбележете, че не са нужни банкови данни във фактурите."
         />
       )}
       <Box sx={{ mb: 2 }}>
@@ -48,10 +48,10 @@ export const BankSection = ({ form, showTitle = true }) => {
               label={
                 <Box>
                   <Typography variant="body2" fontWeight={600}>
-                    I don't need bank details on my invoices
+                    Не ми трябват банкови данни във фактурите
                   </Typography>
                   <Typography variant="caption" color="text.secondary" display="block">
-                    When enabled, invoice creation does not require bank name, IBAN, or SWIFT.
+                    При включване създаването на фактура не изисква банка, IBAN или SWIFT.
                   </Typography>
                 </Box>
               }
@@ -68,7 +68,7 @@ export const BankSection = ({ form, showTitle = true }) => {
               <TextField
                 {...fieldProps}
                 {...field}
-                label="Bank name"
+                label="Име на банка"
                 disabled={Boolean(noBankDetailsOnInvoices)}
                 error={!!fieldState.error}
                 helperText={
@@ -77,7 +77,7 @@ export const BankSection = ({ form, showTitle = true }) => {
                     hint={
                       fieldState.error
                         ? undefined
-                        : "Optional as a group: if one bank field is filled, all 3 are required."
+                        : "Опционално като група: ако попълните едно поле, и трите стават задължителни."
                     }
                   />
                 }
@@ -109,7 +109,7 @@ export const BankSection = ({ form, showTitle = true }) => {
                     hint={
                       fieldState.error
                         ? undefined
-                        : "Optional as a group. Validates IBAN format and checksum."
+                        : "Опционално като група. Валидира формат и контролна сума на IBAN."
                     }
                   />
                 }
@@ -146,7 +146,7 @@ export const BankSection = ({ form, showTitle = true }) => {
                     hint={
                       fieldState.error
                         ? undefined
-                        : "Optional as a group: required only if bank details are provided."
+                        : "Опционално като група: задължително само ако има въведени банкови данни."
                     }
                   />
                 }

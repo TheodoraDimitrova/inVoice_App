@@ -8,7 +8,12 @@ import React, {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
-import { deleteObject, getDownloadURL, ref, uploadString } from "@firebase/storage";
+import {
+  deleteObject,
+  getDownloadURL,
+  ref,
+  uploadString,
+} from "@firebase/storage";
 import { storage } from "../firebase";
 import {
   addDoc,
@@ -85,10 +90,10 @@ const SETUP_FIELD_TO_PANEL = {
 };
 
 const SETUP_PANEL_LABELS = {
-  address: "Business address",
-  tax: "Tax & registration",
-  bank: "Bank details",
-  logo: "Logo",
+  address: "Адрес на фирмата",
+  tax: "Данъци и регистрация",
+  bank: "Банкови данни",
+  logo: "Лого",
 };
 
 const SETUP_PANEL_ORDER = ["address", "tax", "bank", "logo"];
@@ -378,7 +383,7 @@ const SetupProfile = () => {
 
   const onSubmit = async (data) => {
     try {
-      console.log("[SetupProfile] submit payload (raw form data):", data);
+      // console.log("[SetupProfile] submit payload (raw form data):", data);
       const commercial = getCountryCommercialDefaults(data.country);
       const logoIsNewUpload =
         typeof logo === "string" && logo.startsWith("data:");
@@ -434,11 +439,11 @@ const SetupProfile = () => {
 
         await updateDoc(doc(db, "businesses", businessDocId), payload);
         if (logoIsNewUpload) {
-          showToast("success", "Profile updated and logo replaced.");
+          showToast("success", "Профилът е обновен и логото е заменено.");
         } else if (logoCleared && hasStoredLogo) {
-          showToast("success", "Profile updated and logo removed.");
+          showToast("success", "Профилът е обновен и логото е премахнато.");
         } else {
-          showToast("success", "Profile updated.");
+          showToast("success", "Профилът е обновен.");
         }
         navigate("/dashboard");
         return;
@@ -458,12 +463,12 @@ const SetupProfile = () => {
           await updateDoc(doc(db, "businesses", docRef.id), {
             logo: downloadURL,
           });
-          showToast("success", "Your business profile is ready.");
+          showToast("success", "Вашият бизнес профил е готов.");
         } catch (uploadErr) {
           if (uploadErr?.code === "storage/quota-exceeded") {
             showToast(
               "error",
-              "Your business profile was created, but the logo could not be uploaded: Firebase Storage quota is full. Free space in Firebase Console → Storage or upgrade, then add a logo from Profile settings.",
+              "Бизнес профилът е създаден, но логото не можа да се качи: квотата във Firebase Storage е изчерпана. Освободете място във Firebase Console → Storage или надградете плана, след което добавете лого от „Профил“.",
             );
             navigate("/dashboard");
             return;
@@ -473,7 +478,7 @@ const SetupProfile = () => {
       } else {
         showToast(
           "success",
-          "Profile saved. You can add a logo later from settings when available.",
+          "Профилът е запазен. Можете да добавите лого по-късно от настройките.",
         );
       }
       navigate("/dashboard");
@@ -482,7 +487,7 @@ const SetupProfile = () => {
       const storageMsg = messageForFirebaseStorageError(err);
       showToast(
         "error",
-        storageMsg ?? "Could not save profile. Please try again.",
+        storageMsg ?? "Профилът не можа да се запази. Опитайте отново.",
       );
     }
   };
@@ -518,7 +523,7 @@ const SetupProfile = () => {
                       mb: 1,
                     }}
                   >
-                    One last step
+                    Още една стъпка
                   </Typography>
                   <Typography
                     variant="h4"
@@ -530,19 +535,20 @@ const SetupProfile = () => {
                       mb: 1,
                     }}
                   >
-                    Set up your business
+                    Настройте бизнеса си
                   </Typography>
                   <Typography
                     variant="body1"
                     color="text.secondary"
                     sx={{ maxWidth: 640 }}
                   >
-                    Start with company and contact, then open each block for
-                    address, tax, bank, and logo. Company + address fields are
-                    required. VAT number is required only if VAT-registered.
-                    Company ID is required. Bank details are optional as a group
-                    (fill all 3), unless you enable "I don't need bank details
-                    on my invoices".
+                    Започнете с фирма и контакт, след това отворете всеки блок
+                    за адрес, данъци, банка и лого. Полетата за фирма + адрес
+                    са задължителни. ДДС номерът е задължителен само при
+                    регистрация по ДДС. Фирменият идентификатор е
+                    задължителен. Банковите данни са опционални като група
+                    (попълват се и трите), освен ако включите „Не ми трябват
+                    банкови данни във фактурите“.
                   </Typography>
                 </Box>
 
@@ -567,11 +573,11 @@ const SetupProfile = () => {
                       <Box ref={validationBannerRef} sx={{ mb: 2 }}>
                         <Alert severity="error">
                           <Typography variant="body2" component="div">
-                            <strong>Some fields still need attention.</strong>
+                            <strong>Някои полета все още изискват внимание.</strong>
                             {erroredPanels.length > 0 ? (
                               <>
                                 {" "}
-                                These sections were opened for you:{" "}
+                                За вас бяха отворени следните секции:{" "}
                                 {erroredPanels
                                   .map((p) => SETUP_PANEL_LABELS[p])
                                   .join(", ")}
@@ -582,10 +588,10 @@ const SetupProfile = () => {
                               <>
                                 {" "}
                                 {erroredPanels.length > 0
-                                  ? "Also check "
-                                  : "Check "}
-                                <strong>company name and contact</strong> at the top
-                                of the form.
+                                  ? "Проверете и "
+                                  : "Проверете "}
+                                <strong>име на фирма и контакт</strong> в
+                                началото на формата.
                               </>
                             ) : null}
                           </Typography>
@@ -627,11 +633,11 @@ const SetupProfile = () => {
                                 <Typography
                                   sx={accordionHeadingSx(openPanels.address)}
                                 >
-                                  Business address
+                                  Адрес на фирмата
                                 </Typography>
                                 {panelHasError("address") ? (
                                   <Chip
-                                    label="Needs fix"
+                                    label="Поправка"
                                     size="small"
                                     color="error"
                                     variant="outlined"
@@ -644,7 +650,7 @@ const SetupProfile = () => {
                                 color="text.secondary"
                                 sx={{ mt: 0.25 }}
                               >
-                                All fields in this section are required.
+                                Всички полета в тази секция са задължителни.
                               </Typography>
                             </Box>
                           </Stack>
@@ -658,7 +664,8 @@ const SetupProfile = () => {
                             onCountryChange={(c) => {
                               const d = getCountryCommercialDefaults(c);
                               const rate =
-                                d.standardVatRate != null && !Number.isNaN(Number(d.standardVatRate))
+                                d.standardVatRate != null &&
+                                !Number.isNaN(Number(d.standardVatRate))
                                   ? Number(d.standardVatRate)
                                   : 0;
                               form.setValue("vatRate", rate, {
@@ -701,11 +708,11 @@ const SetupProfile = () => {
                                 <Typography
                                   sx={accordionHeadingSx(openPanels.tax)}
                                 >
-                                  Tax & registration
+                                  Данъци и регистрация
                                 </Typography>
                                 {panelHasError("tax") ? (
                                   <Chip
-                                    label="Needs fix"
+                                    label="Поправка"
                                     size="small"
                                     color="error"
                                     variant="outlined"
@@ -718,9 +725,10 @@ const SetupProfile = () => {
                                 color="text.secondary"
                                 sx={{ mt: 0.25 }}
                               >
-                                VAT ID is required only when VAT-registered.
-                                Company / trade ID is required.
-                                Currency follows your country (shown in this section).
+                                ДДС номерът е задължителен само при регистрация
+                                по ДДС. Фирменият/търговският идентификатор е
+                                задължителен. Валутата следва избраната
+                                държава (показана в тази секция).
                               </Typography>
                             </Box>
                           </Stack>
@@ -763,11 +771,11 @@ const SetupProfile = () => {
                                 <Typography
                                   sx={accordionHeadingSx(openPanels.bank)}
                                 >
-                                  Bank details
+                                  Банкови данни
                                 </Typography>
                                 {panelHasError("bank") ? (
                                   <Chip
-                                    label="Needs fix"
+                                    label="Поправка"
                                     size="small"
                                     color="error"
                                     variant="outlined"
@@ -780,9 +788,10 @@ const SetupProfile = () => {
                                 color="text.secondary"
                                 sx={{ mt: 0.25 }}
                               >
-                                Optional block: leave all fields empty, or fill
-                                bank name, IBAN, and SWIFT/BIC together. You can
-                                also mark that bank details are not needed.
+                                Опционален блок: оставете всички полета празни,
+                                или попълнете заедно име на банка, IBAN и
+                                SWIFT/BIC. Може и да отбележите, че банкови
+                                данни не са нужни.
                               </Typography>
                             </Box>
                           </Stack>
@@ -825,11 +834,11 @@ const SetupProfile = () => {
                                 <Typography
                                   sx={accordionHeadingSx(openPanels.logo)}
                                 >
-                                  Logo
+                                  Лого
                                 </Typography>
                                 {panelHasError("logo") ? (
                                   <Chip
-                                    label="Needs fix"
+                                    label="Поправка"
                                     size="small"
                                     color="error"
                                     variant="outlined"
@@ -842,7 +851,7 @@ const SetupProfile = () => {
                                 color="text.secondary"
                                 sx={{ mt: 0.25 }}
                               >
-                                {`Image file for the header of your invoice PDFs (${LOGO_FORMATS_LABEL}).`}
+                                {`Изображение за хедъра на вашите PDF фактури (${LOGO_FORMATS_LABEL}).`}
                               </Typography>
                             </Box>
                           </Stack>
@@ -887,10 +896,10 @@ const SetupProfile = () => {
                         }}
                       >
                         {isSubmitting
-                          ? "Saving…"
+                          ? "Запазване…"
                           : businessDocId
-                            ? "Save changes"
-                            : "Complete setup later and go to dashboard"}
+                            ? "Запази промените"
+                            : "Завърши настройката и отиди в таблото"}
                       </Button>
                     </Box>
                   </Box>
@@ -914,42 +923,44 @@ const SetupProfile = () => {
                     variant="subtitle2"
                     sx={{ fontWeight: 700, mb: 1.5, color: "#0f172a" }}
                   >
-                    Tips
+                    Съвети
                   </Typography>
                   <Typography
                     variant="body2"
                     color="text.secondary"
                     sx={{ mb: 2, lineHeight: 1.55 }}
                   >
-                    <strong>Logo:</strong> Optional for unlock, but valuable for
-                    trust. A clear logo makes invoices look professional and
-                    recognizable.
+                    <strong>Лого:</strong> Не е задължително за отключване, но
+                    е важно за доверие. Ясното лого прави фактурите
+                    професионални и разпознаваеми.
                   </Typography>
                   <Typography
                     variant="body2"
                     color="text.secondary"
                     sx={{ mb: 2, lineHeight: 1.55 }}
                   >
-                    <strong>Required:</strong> <strong>Company</strong> +{" "}
-                    <strong>Address</strong>. <strong>VAT ID</strong> only when
-                    VAT-registered.
+                    <strong>Задължително:</strong> <strong>Фирма</strong> +{" "}
+                    <strong>Адрес</strong>. <strong>ДДС номер</strong> само при
+                    регистрация по ДДС.
                     <br />
-                    <strong>Required:</strong> <strong>Company ID (TIC)</strong>.
+                    <strong>Задължително:</strong> <strong>Фирмен ID (TIC)</strong>
+                    .
                     <br />
-                    <strong>Optional:</strong> <strong>Logo</strong>.
+                    <strong>По избор:</strong> <strong>Лого</strong>.
                     <br />
-                    <strong>Bank:</strong> provide <strong>Bank name</strong>,{" "}
-                    <strong>IBAN</strong>, <strong>SWIFT/BIC</strong> together,
-                    or enable <strong>"I don't need bank details on my invoices"</strong>.
+                    <strong>Банка:</strong> въведете заедно{" "}
+                    <strong>Име на банка</strong>, <strong>IBAN</strong> и{" "}
+                    <strong>SWIFT/BIC</strong>, или включете{" "}
+                    <strong>"Не ми трябват банкови данни във фактурите"</strong>.
                   </Typography>
                   <Typography
                     variant="caption"
                     color="text.secondary"
                     sx={{ display: "block", lineHeight: 1.5 }}
                   >
-                    <strong>Unlock New invoice:</strong> complete{" "}
-                    <strong>VAT settings</strong> +{" "}
-                    <strong>bank details (or no-bank option)</strong>.
+                    <strong>Отключване на „Нова фактура“:</strong> попълнете{" "}
+                    <strong>ДДС настройки</strong> +{" "}
+                    <strong>банкови данни (или опцията без банка)</strong>.
                   </Typography>
                 </Paper>
               </Grid>

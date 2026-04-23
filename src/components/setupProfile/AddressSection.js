@@ -17,8 +17,8 @@ export const AddressSection = ({ form, showTitle = true, onCountryChange }) => {
       {showTitle ? (
         <SectionTitle
           icon={PlaceOutlinedIcon}
-          title="Business address"
-          subtitle="Street, post code, city, and country for invoices and records (all required)."
+          title="Адрес на фирмата"
+          subtitle="Улица, пощенски код, град и държава за фактури и записи (всички са задължителни)."
         />
       ) : null}
       <Grid container spacing={3} sx={{ alignItems: "flex-start" }}>
@@ -30,12 +30,12 @@ export const AddressSection = ({ form, showTitle = true, onCountryChange }) => {
               <TextField
                 {...fieldProps}
                 {...field}
-                label="Street address"
+                label="Адрес (улица и номер)"
                 error={!!fieldState.error}
                 helperText={
                   <FormFieldHelperText
                     errorMessage={fieldState.error?.message}
-                    hint={fieldState.error ? undefined : "Required field."}
+                    hint={fieldState.error ? undefined : "Задължително поле."}
                   />
                 }
                 FormHelperTextProps={{ component: "div" }}
@@ -52,13 +52,13 @@ export const AddressSection = ({ form, showTitle = true, onCountryChange }) => {
               <TextField
                 {...fieldProps}
                 {...field}
-                label="Post code"
+                label="Пощенски код"
                 autoComplete="postal-code"
                 error={!!fieldState.error}
                 helperText={
                   <FormFieldHelperText
                     errorMessage={fieldState.error?.message}
-                    hint={fieldState.error ? undefined : "Required field."}
+                    hint={fieldState.error ? undefined : "Задължително поле."}
                   />
                 }
                 FormHelperTextProps={{ component: "div" }}
@@ -75,13 +75,13 @@ export const AddressSection = ({ form, showTitle = true, onCountryChange }) => {
               <TextField
                 {...fieldProps}
                 {...field}
-                label="City"
+                label="Град"
                 autoComplete="address-level2"
                 error={!!fieldState.error}
                 helperText={
                   <FormFieldHelperText
                     errorMessage={fieldState.error?.message}
-                    hint={fieldState.error ? undefined : "Required field."}
+                    hint={fieldState.error ? undefined : "Задължително поле."}
                   />
                 }
                 FormHelperTextProps={{ component: "div" }}
@@ -99,14 +99,14 @@ export const AddressSection = ({ form, showTitle = true, onCountryChange }) => {
                 {...fieldProps}
                 {...field}
                 select
-                label="Country"
+                label="Държава"
                 autoComplete="country-name"
                 value={field.value ?? ""}
                 error={!!fieldState.error}
                 helperText={
                   <FormFieldHelperText
                     errorMessage={fieldState.error?.message}
-                    hint={fieldState.error ? undefined : "Required field."}
+                    hint={fieldState.error ? undefined : "Задължително поле."}
                   />
                 }
                 FormHelperTextProps={{ component: "div" }}
@@ -117,7 +117,7 @@ export const AddressSection = ({ form, showTitle = true, onCountryChange }) => {
                 }}
               >
                 <MenuItem value="" disabled>
-                  Select country
+                  Изберете държава
                 </MenuItem>
                 {COUNTRIES.map((c) => (
                   <MenuItem key={c} value={c}>

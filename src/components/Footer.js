@@ -11,13 +11,13 @@ const Footer = () => {
 
         <nav className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm md:justify-end">
           <Link to="/" className="brand-link">
-            Privacy
+            Поверителност
           </Link>
           <Link to="/" className="brand-link">
-            Terms
+            Условия
           </Link>
           <Link to="/" className="brand-link">
-            Contact
+            Контакт
           </Link>
         </nav>
       </div>

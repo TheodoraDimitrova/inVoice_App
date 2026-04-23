@@ -38,40 +38,30 @@ export const showToast = (type, message) => {
 //   total = total * ((100 + vatRate) / 100);
 //   return `${currency} ${total.toFixed(2).toLocaleString("en-US")}`;
 // };
-export const findGrandTotal = ({ itemList }, currency, vatRate) => {
-  vatRate = parseFloat(vatRate);
-  if (isNaN(vatRate)) {
-    throw new Error("Invalid VAT rate");
-  }
+const lineNet = (item) =>
+  (Number(item?.itemCost) || 0) * (Number(item?.itemQuantity) || 0);
 
+const lineVatRate = (item, fallbackVatRate = 0) => {
+  if (item?.itemVatRate == null) return Number(fallbackVatRate) || 0;
+  return Number(item.itemVatRate) || 0;
+};
+
+export const findGrandTotal = ({ itemList }, currency, vatRate) => {
   if (typeof currency !== "string") {
     throw new Error("Currency must be a string");
   }
-
   let total = 0;
   for (let i = 0; i < itemList.length; i++) {
-    const amount =
-      itemList[i].itemCost * itemList[i].itemQuantity -
-      (itemList[i].itemCost *
-        itemList[i].itemQuantity *
-        (itemList[i].itemDiscount || 0)) /
-        100;
-    total += amount;
+    const net = lineNet(itemList[i]);
+    const rate = lineVatRate(itemList[i], vatRate);
+    total += net + (net * rate) / 100;
   }
-  const grandTotal = total * ((100 + vatRate) / 100);
-  return `${currency} ${grandTotal.toFixed(2)}`;
+  return `${currency} ${total.toFixed(2)}`;
 };
 export const amount = ({ itemList }, currency) => {
   let total = 0;
   for (let i = 0; i < itemList.length; i++) {
-    const amount =
-      itemList[i].itemCost * itemList[i].itemQuantity -
-      (itemList[i].itemCost *
-        itemList[i].itemQuantity *
-        (itemList[i].itemDiscount || 0)) /
-        100;
-
-    total += amount;
+    total += lineNet(itemList[i]);
   }
 
   return `${currency} ${total.toFixed(2).toLocaleString("en-US")}`;
@@ -79,15 +69,10 @@ export const amount = ({ itemList }, currency) => {
 export const checkVat = ({ itemList }, currency, vatRate) => {
   let total = 0;
   for (let i = 0; i < itemList.length; i++) {
-    const amount =
-      itemList[i].itemCost * itemList[i].itemQuantity -
-      (itemList[i].itemCost *
-        itemList[i].itemQuantity *
-        (itemList[i].itemDiscount || 0)) /
-        100;
-    total += amount;
+    const net = lineNet(itemList[i]);
+    const rate = lineVatRate(itemList[i], vatRate);
+    total += (net * rate) / 100;
   }
-  total = (total / 100) * vatRate;
 
   return `${currency} ${total.toFixed(2).toLocaleString("en-US")}`;
 };

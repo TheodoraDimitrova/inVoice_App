@@ -7,12 +7,7 @@ import db from "../firebase";
 import LocalPrintshopIcon from "@mui/icons-material/LocalPrintshop";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
-import {
-  findGrandTotal,
-  convertTimestamp,
-  checkVat,
-  amount,
-} from "../utils/functions";
+import { convertTimestamp } from "../utils/functions";
 
 import Loading from "../components/Loading";
 import { getAuth } from "firebase/auth";
@@ -24,6 +19,19 @@ export const ComponentToPrint = React.forwardRef((props, ref) => {
 
   const [loading, setLoading] = useState(true);
   const auth = getAuth();
+  const invoiceItems = invoiceDetails?.data?.itemList ?? [];
+  const fallbackVatRate = Number(businessDetails?.[0]?.data?.vatRate || 0);
+  const taxBaseAmount = invoiceItems.reduce((sum, item) => {
+    const net = Number(item.itemCost || 0) * Number(item.itemQuantity || 0);
+    return sum + net;
+  }, 0);
+  const vatAmount = invoiceItems.reduce((sum, item) => {
+    const net = Number(item.itemCost || 0) * Number(item.itemQuantity || 0);
+    const lineVatRate =
+      item.itemVatRate == null ? fallbackVatRate : Number(item.itemVatRate);
+    return sum + net * ((Number(lineVatRate) || 0) / 100);
+  }, 0);
+  const grandTotal = taxBaseAmount + vatAmount;
 
   useEffect(() => {
     try {
@@ -158,7 +166,7 @@ export const ComponentToPrint = React.forwardRef((props, ref) => {
           <div className="w-full  flex  justify-between">
             {invoiceDetails && (
               <div className=" py-2">
-                <h3 className="font-medium mb-2 text-gray-700">Customer :</h3>
+                <h3 className="font-medium mb-2 text-gray-700">Клиент:</h3>
                 <p className="text-sm mb-1">
                   {invoiceDetails.data.customerName}
                 </p>
@@ -166,7 +174,12 @@ export const ComponentToPrint = React.forwardRef((props, ref) => {
                   {invoiceDetails.data.customerAddress}
                 </p>
                 <p className="text-sm mb-1">
-                  {invoiceDetails.data.customerCity}
+                  {[invoiceDetails.data.customerPostCode, invoiceDetails.data.customerCity]
+                    .filter(Boolean)
+                    .join(" ")}
+                </p>
+                <p className="text-sm mb-1">
+                  {invoiceDetails.data.customerCountry || ""}
                 </p>
                 <p className="text-sm mb-1">
                   {invoiceDetails.data.customerEmail}
@@ -176,9 +189,9 @@ export const ComponentToPrint = React.forwardRef((props, ref) => {
 
             {businessDetails && (
               <div className="  py-2 text-right">
-                <h3 className="text-6xl text-gray-700 mb-4">Invoice</h3>
+                <h3 className="text-6xl text-gray-700 mb-4">Фактура</h3>
                 <p className="text-sm font-medium">
-                  ID:{" "}
+                  №:{" "}
                   {invoiceDetails ? (
                     <span className="ml-2 text-sm">
                       {String(invoiceDetails.data.id).padStart(10, "0")}
@@ -187,7 +200,7 @@ export const ComponentToPrint = React.forwardRef((props, ref) => {
                 </p>
 
                 <p className="text-sm font-medium">
-                  Date:{" "}
+                  Дата:{" "}
                   {invoiceDetails && (
                     <span className="ml-2 text-sm">
                       {convertTimestamp(invoiceDetails.data.timestamp)}
@@ -202,10 +215,11 @@ export const ComponentToPrint = React.forwardRef((props, ref) => {
             <table className="table-auto mt-2 max-w-full text-xs md:text-sm ">
               <thead>
                 <tr className="bg-gray-200">
-                  <th className="px-2 py-1">Product</th>
-                  <th className="px-2 py-1">Cost</th>
-                  <th className="px-2 py-1">Qty</th>
-                  <th className="px-2 py-1">Price</th>
+                  <th className="px-2 py-1">Артикул</th>
+                  <th className="px-2 py-1">Ед. цена</th>
+                  <th className="px-2 py-1">Кол.</th>
+                  <th className="px-2 py-1">ДДС %</th>
+                  <th className="px-2 py-1">Общо</th>
                 </tr>
               </thead>
               <tbody>
@@ -225,12 +239,22 @@ export const ComponentToPrint = React.forwardRef((props, ref) => {
                         {Number(item.itemQuantity).toLocaleString("en-US")}
                       </td>
                       <td className="border px-2 py-1">
+                        {Number(
+                          item.itemVatRate == null ? fallbackVatRate : item.itemVatRate
+                        ).toFixed(0)}
+                        %
+                      </td>
+                      <td className="border px-2 py-1">
                         {(
-                          item.itemCost * item.itemQuantity -
-                          (item.itemCost *
-                            item.itemQuantity *
-                            (parseFloat(item.itemDiscount) || 0)) /
-                            100
+                          item.itemCost *
+                          item.itemQuantity *
+                          (1 +
+                            Number(
+                              item.itemVatRate == null
+                                ? fallbackVatRate
+                                : item.itemVatRate
+                            ) /
+                              100)
                         ).toFixed(2)}
                       </td>
                     </tr>
@@ -238,49 +262,28 @@ export const ComponentToPrint = React.forwardRef((props, ref) => {
                 {invoiceDetails && (
                   <>
                     <tr className="bg-gray-200">
-                      <td colSpan="3" className="text-right font-bold py-1">
-                        Tax base amount
+                      <td colSpan="4" className="text-right font-bold py-1">
+                        Данъчна основа
                       </td>
                       <td className="font-bold uppercase py-1">
-                        {amount(
-                          invoiceDetails.data,
-                          invoiceDetails.data.currency
-                        )}
+                        {taxBaseAmount.toFixed(2)} {invoiceDetails.data.currency}
                       </td>
                     </tr>
                     <tr className="bg-gray-200">
-                      <td colSpan="3" className="text-right font-bold py-1">
-                        {businessDetails &&
-                          businessDetails[0] &&
-                          businessDetails[0].data.vatRate && (
-                            <span>
-                              VAT rate {businessDetails[0].data.vatRate}%
-                            </span>
-                          )}
+                      <td colSpan="4" className="text-right font-bold py-1">
+                        Сума ДДС
                       </td>
-                      {businessDetails && businessDetails.length > 0 && (
-                        <td className="font-bold uppercase py-1">
-                          {checkVat(
-                            invoiceDetails.data,
-                            invoiceDetails.data.currency,
-                            businessDetails[0].data.vatRate
-                          )}
-                        </td>
-                      )}
+                      <td className="font-bold uppercase py-1">
+                        {vatAmount.toFixed(2)} {invoiceDetails.data.currency}
+                      </td>
                     </tr>
                     <tr className="bg-gray-200">
-                      <td colSpan="3" className="text-right font-bold py-1">
-                        Total amount
+                      <td colSpan="4" className="text-right font-bold py-1">
+                        Крайна сума
                       </td>
-                      {businessDetails && businessDetails.length > 0 && (
-                        <td className="font-bold uppercase py-1">
-                          {findGrandTotal(
-                            invoiceDetails.data,
-                            invoiceDetails.data.currency,
-                            businessDetails[0].data.vatRate
-                          )}
-                        </td>
-                      )}
+                      <td className="font-bold uppercase py-1">
+                        {grandTotal.toFixed(2)} {invoiceDetails.data.currency}
+                      </td>
                     </tr>
                   </>
                 )}
@@ -291,11 +294,11 @@ export const ComponentToPrint = React.forwardRef((props, ref) => {
           {businessDetails && (
             <div className="mt-2 sm:mt-8 flex flex-col">
               <h3 className="mb-1 sm:mb-0.5 text-gray-700 w-full">
-                Payment Details
+                Данни за плащане
               </h3>
               <div>
                 <p className="text-sm mb-1 capitalize">
-                  <span>Bank: </span>
+                  <span>Банка: </span>
                   {businessDetails[0].data.bankName}
                 </p>
               </div>
@@ -330,7 +333,7 @@ export const ViewInvoice = () => {
   return (
     <>
       <div className="w-full flex items-center md:justify-start justify-center relative">
-        <Tooltip title="Print Invoice">
+        <Tooltip title="Печат на фактура">
           <IconButton
             onClick={handlePrint}
             sx={{

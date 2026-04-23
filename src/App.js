@@ -41,9 +41,9 @@ function App() {
                 <Route path="/invoices" element={<Dashboard />} />
                 <Route path="/products" element={<Products />} />
                 <Route path="/customers" element={<Customers />} />
-                <Route path="/new/invoice" element={<CreateInvoice />} />
+                <Route path="/invoices/new" element={<CreateInvoice />} />
                 <Route path="/new/invoice/:invoiceId" element={<CreateInvoice />} />
-                <Route path="/view/invoice/:id" element={<ViewInvoice />} />
+                <Route path="/invoices/:id" element={<ViewInvoice />} />
                 <Route path="/profile" element={<SetupProfile />} />
               </Route>
             </Route>

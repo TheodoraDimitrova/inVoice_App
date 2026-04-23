@@ -5,10 +5,10 @@ import ShieldOutlinedIcon from "@mui/icons-material/ShieldOutlined";
 import PictureAsPdfOutlinedIcon from "@mui/icons-material/PictureAsPdfOutlined";
 
 const trustItems = [
-  { icon: BoltOutlinedIcon, label: "Free" },
-  { icon: CreditCardOffOutlinedIcon, label: "No credit card required" },
-  { icon: ShieldOutlinedIcon, label: "GDPR-ready" },
-  { icon: PictureAsPdfOutlinedIcon, label: "PDF export" },
+  { icon: BoltOutlinedIcon, label: "Безплатно" },
+  { icon: CreditCardOffOutlinedIcon, label: "Без кредитна карта" },
+  { icon: ShieldOutlinedIcon, label: "GDPR съвместимост" },
+  { icon: PictureAsPdfOutlinedIcon, label: "Експорт в PDF" },
 ];
 
 const TrustBar = () => {

@@ -15,8 +15,8 @@ export const CompanySection = ({ form }) => {
     <>
       <SectionTitle
         icon={BusinessOutlinedIcon}
-        title="Company & contact"
-        subtitle="Trading or legal name, company email, and phone (all required)."
+        title="Фирма и контакт"
+        subtitle="Търговско/юридическо име, фирмен имейл и телефон (всички са задължителни)."
       />
       <Grid container spacing={3} sx={{ alignItems: "flex-start" }}>
         <Grid item xs={12} sm={6} sx={{ minWidth: 0 }}>
@@ -27,13 +27,13 @@ export const CompanySection = ({ form }) => {
               <TextField
                 {...fieldProps}
                 {...field}
-                label="Company name"
+                label="Име на фирма"
                 autoComplete="organization"
                 error={!!fieldState.error}
                 helperText={
                   <FormFieldHelperText
                     errorMessage={fieldState.error?.message}
-                    hint={fieldState.error ? undefined : "Required field."}
+                    hint={fieldState.error ? undefined : "Задължително поле."}
                   />
                 }
                 FormHelperTextProps={{ component: "div" }}
@@ -56,14 +56,14 @@ export const CompanySection = ({ form }) => {
               <TextField
                 {...fieldProps}
                 {...field}
-                label="Company email"
+                label="Фирмен имейл"
                 type="email"
                 autoComplete="email"
                 error={!!fieldState.error}
                 helperText={
                   <FormFieldHelperText
                     errorMessage={fieldState.error?.message}
-                    hint={fieldState.error ? undefined : "Required field."}
+                    hint={fieldState.error ? undefined : "Задължително поле."}
                   />
                 }
                 FormHelperTextProps={{ component: "div" }}
@@ -80,7 +80,7 @@ export const CompanySection = ({ form }) => {
               <TextField
                 {...fieldProps}
                 {...field}
-                label="Phone"
+                label="Телефон"
                 type="tel"
                 autoComplete="tel"
                 error={!!fieldState.error}
@@ -90,7 +90,7 @@ export const CompanySection = ({ form }) => {
                     hint={
                       fieldState.error
                         ? undefined
-                        : "Required. Example: +359 88 123 4567"
+                        : "Задължително. Пример: +359 88 123 4567"
                     }
                   />
                 }

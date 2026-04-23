@@ -89,7 +89,7 @@ const AppShellContent = () => {
     try {
       await signOut(auth);
       dispatch(logOut());
-      showToast("success", "Goodbye!👋");
+      showToast("success", "Довиждане!👋");
       navigate("/");
     } catch (e) {
       console.error(e);
@@ -127,7 +127,7 @@ const AppShellContent = () => {
           <ListItemIcon sx={{ minWidth: 40 }}>
             <DashboardOutlinedIcon fontSize="small" />
           </ListItemIcon>
-          <ListItemText primary="Dashboard" primaryTypographyProps={{ fontSize: "0.9375rem" }} />
+          <ListItemText primary="Табло" primaryTypographyProps={{ fontSize: "0.9375rem" }} />
         </ListItemButton>
         <ListItemButton
           selected={pathname === "/invoices"}
@@ -137,7 +137,7 @@ const AppShellContent = () => {
           <ListItemIcon sx={{ minWidth: 40 }}>
             <ReceiptLongOutlinedIcon fontSize="small" />
           </ListItemIcon>
-          <ListItemText primary="Invoices" primaryTypographyProps={{ fontSize: "0.9375rem" }} />
+          <ListItemText primary="Фактури" primaryTypographyProps={{ fontSize: "0.9375rem" }} />
         </ListItemButton>
         <ListItemButton
           selected={pathname === "/products"}
@@ -147,7 +147,7 @@ const AppShellContent = () => {
           <ListItemIcon sx={{ minWidth: 40 }}>
             <Inventory2OutlinedIcon fontSize="small" />
           </ListItemIcon>
-          <ListItemText primary="Products" primaryTypographyProps={{ fontSize: "0.9375rem" }} />
+          <ListItemText primary="Продукти" primaryTypographyProps={{ fontSize: "0.9375rem" }} />
         </ListItemButton>
         <ListItemButton
           selected={pathname === "/customers"}
@@ -157,15 +157,15 @@ const AppShellContent = () => {
           <ListItemIcon sx={{ minWidth: 40 }}>
             <PeopleOutlineOutlinedIcon fontSize="small" />
           </ListItemIcon>
-          <ListItemText primary="Customers" primaryTypographyProps={{ fontSize: "0.9375rem" }} />
+          <ListItemText primary="Клиенти" primaryTypographyProps={{ fontSize: "0.9375rem" }} />
         </ListItemButton>
         <ListItemButton disabled sx={{ mx: 1, borderRadius: 2, opacity: 0.55 }}>
           <ListItemIcon sx={{ minWidth: 40 }}>
             <AssessmentOutlinedIcon fontSize="small" />
           </ListItemIcon>
           <ListItemText
-            primary="Reports"
-            secondary="Coming soon"
+            primary="Отчети"
+            secondary="Очаквайте скоро"
             primaryTypographyProps={{ fontSize: "0.9375rem" }}
             secondaryTypographyProps={{ fontSize: "0.7rem" }}
           />
@@ -181,7 +181,7 @@ const AppShellContent = () => {
           <ListItemIcon sx={{ minWidth: 40 }}>
             <SettingsOutlinedIcon fontSize="small" />
           </ListItemIcon>
-          <ListItemText primary="Profile settings" primaryTypographyProps={{ fontSize: "0.9375rem" }} />
+          <ListItemText primary="Настройки на профила" primaryTypographyProps={{ fontSize: "0.9375rem" }} />
         </ListItemButton>
       </List>
       {userEmail ? (
@@ -195,7 +195,7 @@ const AppShellContent = () => {
           }}
         >
           <Typography variant="caption" color="text.secondary" sx={{ display: "block", fontWeight: 600 }}>
-            Signed in
+            Вписан
           </Typography>
           <Typography
             variant="body2"
@@ -219,7 +219,7 @@ const AppShellContent = () => {
       <Box
         component="nav"
         sx={{ width: { md: DRAWER_WIDTH }, flexShrink: { md: 0 } }}
-        aria-label="main navigation"
+        aria-label="основна навигация"
       >
         {isSmDown ? (
           <Drawer
@@ -279,7 +279,7 @@ const AppShellContent = () => {
           {isSmDown && (
             <IconButton
               color="inherit"
-              aria-label="open menu"
+              aria-label="отвори меню"
               edge="start"
               onClick={handleDrawerToggle}
               sx={{ color: "var(--color-brand-charcoal)" }}
@@ -311,7 +311,7 @@ const AppShellContent = () => {
           ) : null}
           <Tooltip
             disableHoverListener={invoiceGateLoading || canCreateInvoice}
-            title={'Add tax registration (VAT settings), company ID, and bank details in Profile settings, or enable "I don\'t need bank details on my invoices".'}
+            title={'Добавете данъчни настройки (ДДС), фирмен идентификатор и банкови данни в "Профил", или включете "Не ми трябват банкови данни във фактурите".'}
           >
             <span>
               <Button
@@ -320,7 +320,7 @@ const AppShellContent = () => {
                 size="small"
                 startIcon={<AddIcon />}
                 disabled={invoiceGateLoading || !canCreateInvoice}
-                onClick={() => navigate("/new/invoice")}
+                onClick={() => navigate("/invoices/new")}
                 sx={{
                   minHeight: 40,
                   px: 1.75,
@@ -330,7 +330,7 @@ const AppShellContent = () => {
                     "0 2px 12px rgba(15, 118, 110, 0.12), 0 1px 4px rgba(15, 23, 42, 0.06)",
                 }}
               >
-                New invoice
+                Нова фактура
               </Button>
             </span>
           </Tooltip>
@@ -347,7 +347,7 @@ const AppShellContent = () => {
               "&:hover": { color: "var(--color-brand-primary)", bgcolor: "rgba(15, 118, 110, 0.06)" },
             }}
           >
-            Sign out
+            Изход
           </Button>
         </Toolbar>
         <Box

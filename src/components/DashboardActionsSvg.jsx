@@ -10,15 +10,15 @@ const DashboardActionsSvg = ({ invoiceId }) => {
   const navigate = useNavigate();
 
   function deleteInvoice() {
-    showToast("error", "you can't not delete invoices, contact the support🚀");
+    showToast("error", "Изтриването на фактури не е позволено. Свържете се с поддръжката.🚀");
   }
 
   return (
     <Stack direction="row" spacing={0.5} justifyContent="flex-end" alignItems="center">
       <IconButton
         size="small"
-        aria-label="View invoice"
-        onClick={() => navigate(`/view/invoice/${invoiceId}`)}
+        aria-label="Преглед на фактура"
+        onClick={() => navigate(`/invoices/${invoiceId}`)}
         sx={{
           color: "var(--color-brand-primary)",
           "&:hover": { bgcolor: "rgba(15, 118, 110, 0.08)" },
@@ -28,7 +28,7 @@ const DashboardActionsSvg = ({ invoiceId }) => {
       </IconButton>
       <IconButton
         size="small"
-        aria-label="Delete invoice"
+        aria-label="Изтрий фактура"
         onClick={deleteInvoice}
         sx={{
           color: "error.main",
@@ -39,7 +39,7 @@ const DashboardActionsSvg = ({ invoiceId }) => {
       </IconButton>
       <IconButton
         size="small"
-        aria-label="Edit invoice"
+        aria-label="Редакция на фактура"
         onClick={() => navigate(`/new/invoice/${invoiceId}`)}
         sx={{
           color: "var(--color-brand-charcoal)",

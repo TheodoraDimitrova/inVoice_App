@@ -41,8 +41,8 @@ export const LogoSection = ({
     {showTitle ? (
       <SectionTitle
         icon={ImageOutlinedIcon}
-        title="Logo"
-        subtitle={`Image file for the header of your invoice PDFs (${LOGO_FORMATS_LABEL}).`}
+        title="Лого"
+        subtitle={`Изображение за хедъра на вашите PDF фактури (${LOGO_FORMATS_LABEL}).`}
       />
     ) : null}
     <input
@@ -117,7 +117,7 @@ export const LogoSection = ({
               <Box
                 component="img"
                 src={logo}
-                alt="Logo preview"
+                alt="Преглед на лого"
                 sx={{
                   maxWidth: "100%",
                   maxHeight: compact ? 80 : 108,
@@ -134,7 +134,7 @@ export const LogoSection = ({
               >
                 <CheckCircleOutlineIcon color="primary" sx={{ fontSize: 20 }} />
                 <Typography variant="subtitle2" fontWeight={600}>
-                  Image ready
+                  Изображението е готово
                 </Typography>
               </Stack>
               <Typography
@@ -146,7 +146,7 @@ export const LogoSection = ({
                   display: "block",
                 }}
               >
-                {logoFileName || "Selected image"}
+                {logoFileName || "Избрано изображение"}
               </Typography>
               <Stack
                 direction="row"
@@ -164,7 +164,7 @@ export const LogoSection = ({
                     onChooseClick(e);
                   }}
                 >
-                  Replace
+                  Замени
                 </Button>
                 <Button
                   type="button"
@@ -176,7 +176,7 @@ export const LogoSection = ({
                     onClear(e);
                   }}
                 >
-                  Remove
+                  Премахни
                 </Button>
               </Stack>
             </Stack>
@@ -206,7 +206,7 @@ export const LogoSection = ({
               fontWeight={600}
               textAlign="center"
             >
-              Drop logo or click
+              Пуснете лого тук или натиснете
             </Typography>
             <Typography
               variant="caption"
@@ -228,7 +228,7 @@ export const LogoSection = ({
                 onChooseClick(e);
               }}
             >
-              Choose file
+              Избери файл
             </Button>
           </Stack>
         )}
