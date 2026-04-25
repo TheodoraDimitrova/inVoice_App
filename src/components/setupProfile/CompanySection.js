@@ -16,7 +16,7 @@ export const CompanySection = ({ form }) => {
       <SectionTitle
         icon={BusinessOutlinedIcon}
         title="Фирма и контакт"
-        subtitle="Търговско/юридическо име, фирмен имейл и телефон (всички са задължителни)."
+        subtitle="Търговско/юридическо име и фирмен имейл са задължителни; телефонът е по избор."
       />
       <Grid container spacing={3} sx={{ alignItems: "flex-start" }}>
         <Grid item xs={12} sm={6} sx={{ minWidth: 0 }}>
@@ -90,7 +90,7 @@ export const CompanySection = ({ form }) => {
                     hint={
                       fieldState.error
                         ? undefined
-                        : "Задължително. Пример: +359 88 123 4567"
+                        : "По избор. Пример: +359 889 12 34 67"
                     }
                   />
                 }

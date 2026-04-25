@@ -71,9 +71,7 @@ export const ProductsSection = ({
       {products.map((product) => (
         <ProductButton
           key={product.id}
-          id={product.id}
-          name={product.name}
-          price={product.price}
+          product={product}
           currencySymbol={currencySign}
           click={handleAddToRow}
         />

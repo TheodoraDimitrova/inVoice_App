@@ -154,6 +154,7 @@ const CreateInvoice = () => {
     (vatRate = defaultBusinessVatRate) => ({
       _rowId: ++rowIdRef.current,
       itemName: "",
+      itemUnit: "",
       itemCost: "",
       itemQuantity: "",
       itemVatRate: Number(vatRate) || 0,
@@ -209,6 +210,7 @@ const CreateInvoice = () => {
   }, [defaultBusinessVatRate]);
   const toInvoiceItem = (row) => ({
     itemName: String(row.itemName || "").trim(),
+    itemUnit: String(row.itemUnit || "").trim(),
     itemCost: Number(row.itemCost) || 0,
     itemQuantity: Number(row.itemQuantity) || 0,
     itemVatRate: Number(row.itemVatRate) || 0,
@@ -267,6 +269,7 @@ const CreateInvoice = () => {
             ? inv.itemList.map((item) => ({
                 _rowId: ++rowIdRef.current,
                 itemName: item.itemName ?? "",
+                itemUnit: item.itemUnit ?? "",
                 itemCost: item.itemCost ?? "",
                 itemQuantity: item.itemQuantity ?? "",
                 itemVatRate:
@@ -348,8 +351,15 @@ const CreateInvoice = () => {
     }
   };
 
-  const handleAddToRow = (e, id, name, price) => {
+  const handleAddToRow = (e, product) => {
     e.preventDefault();
+    const name = product?.name ?? "";
+    const price = Number(product?.price) || 0;
+    const unit = product?.unit ?? "";
+    const rowVatRate =
+      Number.isFinite(Number(product?.vat)) && Number(product?.vat) >= 0
+        ? Number(product.vat)
+        : Number(defaultBusinessVatRate) || 0;
     setItemList((prev) => {
       const rows = [...prev];
       const lastIdx = rows.length - 1;
@@ -357,17 +367,19 @@ const CreateInvoice = () => {
         rows[lastIdx] = {
           ...rows[lastIdx],
           itemName: name,
+          itemUnit: unit,
           itemCost: price,
           itemQuantity: 1,
-          itemVatRate: Number(defaultBusinessVatRate) || 0,
+          itemVatRate: rowVatRate,
         };
       } else {
         rows.push({
           _rowId: ++rowIdRef.current,
           itemName: name,
+          itemUnit: unit,
           itemCost: price,
           itemQuantity: 1,
-          itemVatRate: Number(defaultBusinessVatRate) || 0,
+          itemVatRate: rowVatRate,
           itemDiscount: 0,
         });
       }

@@ -20,13 +20,12 @@ export const setupProfileSchema = z
     phone: z
       .string()
       .trim()
-      .min(1, "Телефонът е задължителен")
-      .regex(
-        PHONE_REGEX,
+      .refine(
+        (s) => s === "" || PHONE_REGEX.test(s),
         "Невалиден формат на телефон. Използвайте цифри с опционални +, интервали или -.",
       ),
     businessAddress: z.string().trim().min(1, "Адресът е задължителен"),
-    postCode: z.string().trim().min(1, "Пощенският код е задължителен"),
+    postCode: z.string().trim(),
     city: z.string().trim().min(1, "Градът е задължителен"),
     country: z
       .string()
@@ -94,22 +93,18 @@ export const setupProfileSchema = z
     const bankName = (data.bankName ?? "").trim();
     const iban = (data.iban ?? "").trim();
     const swift = (data.swift ?? "").trim();
-    const anyBankFieldFilled = Boolean(bankName || iban || swift);
-    if (!anyBankFieldFilled) {
-      return;
-    }
 
     if (!bankName) {
       ctx.addIssue({
         code: "custom",
-        message: "Името на банка е задължително, когато има банкови данни.",
+        message: "Името на банка е задължително.",
         path: ["bankName"],
       });
     }
     if (!iban) {
       ctx.addIssue({
         code: "custom",
-        message: "IBAN е задължителен, когато има банкови данни.",
+        message: "IBAN е задължителен.",
         path: ["iban"],
       });
     } else if (!isValidIBAN(iban)) {
@@ -122,7 +117,7 @@ export const setupProfileSchema = z
     if (!swift) {
       ctx.addIssue({
         code: "custom",
-        message: "SWIFT / BIC е задължителен, когато има банкови данни.",
+        message: "SWIFT / BIC е задължителен.",
         path: ["swift"],
       });
     }

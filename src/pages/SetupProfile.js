@@ -64,7 +64,6 @@ import {
 } from "../utils/validateLogo";
 import { DEFAULT_BUSINESS_LOGO_URL } from "../constants/businessDefaults";
 import { messageForFirebaseStorageError } from "../utils/firebaseStorageMessages";
-import { getCountryCommercialDefaults } from "../data/countryCommercialRules";
 import { normaliseVatInput } from "../utils/vatNumberValidation";
 
 const DEFAULT_LOGO = DEFAULT_BUSINESS_LOGO_URL;
@@ -125,7 +124,7 @@ const defaultFormValues = {
   businessAddress: "",
   postCode: "",
   city: "",
-  country: "",
+  country: "Bulgaria",
   isVatRegistered: false,
   vat: "",
   tic: "",
@@ -305,7 +304,7 @@ const SetupProfile = () => {
               businessAddress: b.businessAddress ?? "",
               postCode: b.postCode ?? "",
               city: b.city ?? "",
-              country: b.country ?? "",
+              country: "Bulgaria",
               isVatRegistered:
                 typeof b.isVatRegistered === "boolean"
                   ? b.isVatRegistered
@@ -402,7 +401,12 @@ const SetupProfile = () => {
         postCode: data.postCode,
         city: data.city,
         country: data.country,
-        businessCity: `${data.postCode} ${data.city}, ${data.country}`,
+        businessCity: (() => {
+          const pc = (data.postCode ?? "").trim();
+          const city = (data.city ?? "").trim();
+          const line = [pc, city].filter(Boolean).join(" ");
+          return line ? `${line}, ${data.country}` : data.country;
+        })(),
         phone: data.phone,
         tic: data.tic,
         isVatRegistered: data.isVatRegistered,
@@ -650,7 +654,8 @@ const SetupProfile = () => {
                                 color="text.secondary"
                                 sx={{ mt: 0.25 }}
                               >
-                                Всички полета в тази секция са задължителни.
+                                Улица и град са задължителни; пощенският код е
+                                по избор.
                               </Typography>
                             </Box>
                           </Stack>
@@ -658,22 +663,7 @@ const SetupProfile = () => {
                         <AccordionDetails
                           sx={{ px: { xs: 1, sm: 2 }, pt: 0, pb: 2 }}
                         >
-                          <AddressSection
-                            form={form}
-                            showTitle={false}
-                            onCountryChange={(c) => {
-                              const d = getCountryCommercialDefaults(c);
-                              const rate =
-                                d.standardVatRate != null &&
-                                !Number.isNaN(Number(d.standardVatRate))
-                                  ? Number(d.standardVatRate)
-                                  : 0;
-                              form.setValue("vatRate", rate, {
-                                shouldValidate: false,
-                                shouldDirty: false,
-                              });
-                            }}
-                          />
+                          <AddressSection form={form} showTitle={false} />
                         </AccordionDetails>
                       </Accordion>
 
@@ -725,10 +715,7 @@ const SetupProfile = () => {
                                 color="text.secondary"
                                 sx={{ mt: 0.25 }}
                               >
-                                ДДС номерът е задължителен само при регистрация
-                                по ДДС. Фирменият/търговският идентификатор е
-                                задължителен. Валутата следва избраната държава
-                                (показана в тази секция).
+                                ЕИК / BULSTAT са задължителни за всички фактури.
                               </Typography>
                             </Box>
                           </Stack>
@@ -788,10 +775,9 @@ const SetupProfile = () => {
                                 color="text.secondary"
                                 sx={{ mt: 0.25 }}
                               >
-                                Опционален блок: оставете всички полета празни,
-                                или попълнете заедно име на банка, IBAN и
-                                SWIFT/BIC. Може и да отбележите, че банкови
-                                данни не са нужни.
+                                Име на банка, IBAN и SWIFT са задължителни,
+                                освен ако включите „Не ми трябват банкови данни
+                                във фактурите“.
                               </Typography>
                             </Box>
                           </Stack>
@@ -928,41 +914,52 @@ const SetupProfile = () => {
                   <Typography
                     variant="body2"
                     color="text.secondary"
-                    sx={{ mb: 2, lineHeight: 1.55 }}
+                    sx={{ mb: 1.5, lineHeight: 1.55 }}
                   >
-                    <strong>Лого:</strong> Не е задължително за отключване, но е
-                    важно за доверие. Ясното лого прави фактурите професионални
-                    и разпознаваеми.
+                    <strong>Задължителни данни:</strong>
+                    <br />
+                    Фирма, адрес и <strong>ЕИК / BULSTAT</strong>.
+                    <br />
+                    ДДС номер се изисква само ако сте регистрирани по ДДС.
                   </Typography>
                   <Typography
                     variant="body2"
                     color="text.secondary"
-                    sx={{ mb: 2, lineHeight: 1.55 }}
+                    sx={{ mb: 1.5, lineHeight: 1.55 }}
                   >
-                    <strong>Задължително:</strong> <strong>Фирма</strong> +{" "}
-                    <strong>Адрес</strong>. <strong>ДДС номер</strong> само при
-                    регистрация по ДДС.
+                    <strong>По избор:</strong>
                     <br />
-                    <strong>Задължително:</strong>{" "}
-                    <strong>Фирмен идентификатор ЕИК / BULSTAT</strong>
-                    .
+                    Телефон, лого и банкови данни.
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mb: 1.5, lineHeight: 1.55 }}
+                  >
+                    <strong>Банкови данни:</strong>
                     <br />
-                    <strong>По избор:</strong> <strong>Лого</strong>.
+                    Ако ги добавите, попълнете име на банка, IBAN и SWIFT/BIC.
+                    Можете да изберете опцията без банкови данни.
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mb: 1.5, lineHeight: 1.55 }}
+                  >
+                    <strong>Фактури:</strong>
                     <br />
-                    <strong>Банка:</strong> въведете заедно{" "}
-                    <strong>Име на банка</strong>, <strong>IBAN</strong> и{" "}
-                    <strong>SWIFT/BIC</strong>, или включете{" "}
-                    <strong>"Не ми трябват банкови данни във фактурите"</strong>
-                    .
+                    След попълване на основните данни ще можете да създавате
+                    фактури.
                   </Typography>
                   <Typography
                     variant="caption"
                     color="text.secondary"
                     sx={{ display: "block", lineHeight: 1.5 }}
                   >
-                    <strong>Отключване на „Нова фактура“:</strong> попълнете{" "}
-                    <strong>ДДС настройки</strong> +{" "}
-                    <strong>банкови данни (или опцията без банка)</strong>.
+                    <strong>Съвет:</strong>
+                    <br />
+                    Печат и подпис не са задължителни – фактурата е валидна и
+                    без тях.
                   </Typography>
                 </Paper>
               </Grid>

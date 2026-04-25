@@ -21,7 +21,7 @@ export const BankSection = ({ form, showTitle = true }) => {
         <SectionTitle
           icon={AccountBalanceOutlinedIcon}
           title="Банкови данни"
-          subtitle="Опционален блок: въведете банка + IBAN + SWIFT, или изрично отбележете, че не са нужни банкови данни във фактурите."
+          subtitle="Име на банка, IBAN и SWIFT са задължителни, освен ако включите опцията без банкови данни във фактурите."
         />
       )}
       <Box sx={{ mb: 2 }}>
@@ -77,7 +77,7 @@ export const BankSection = ({ form, showTitle = true }) => {
                     hint={
                       fieldState.error
                         ? undefined
-                        : "Опционално като група: ако попълните едно поле, и трите стават задължителни."
+                        : "Задължително, ако банковите данни се показват във фактурите."
                     }
                   />
                 }
@@ -109,7 +109,7 @@ export const BankSection = ({ form, showTitle = true }) => {
                     hint={
                       fieldState.error
                         ? undefined
-                        : "Опционално като група. Валидира формат и контролна сума на IBAN."
+                        : "Задължително. Проверява се формат и контролна сума на IBAN."
                     }
                   />
                 }
@@ -146,7 +146,7 @@ export const BankSection = ({ form, showTitle = true }) => {
                     hint={
                       fieldState.error
                         ? undefined
-                        : "Опционално като група: задължително само ако има въведени банкови данни."
+                        : "Задължително, ако банковите данни се показват във фактурите."
                     }
                   />
                 }

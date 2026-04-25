@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import GavelOutlinedIcon from "@mui/icons-material/GavelOutlined";
 import { FormFieldHelperText } from "../FormFieldHelperText";
-import { getCountryCommercialDefaults } from "../../data/countryCommercialRules";
+
 import {
   getCompanyIdentityIdentifiers,
   getPrimaryCompanyIdentityRule,
@@ -27,7 +27,6 @@ export const TaxSection = ({ form, showTitle = true }) => {
   const { control, setValue } = form;
   const country = useWatch({ control, name: "country" });
   const isVatRegistered = useWatch({ control, name: "isVatRegistered" });
-  const rules = getCountryCommercialDefaults(country || "");
   const identityPrimary = getPrimaryCompanyIdentityRule(country || "");
   const identityAll = getCompanyIdentityIdentifiers(country || "");
   const secondaryIdentityLabels = identityAll
@@ -40,41 +39,9 @@ export const TaxSection = ({ form, showTitle = true }) => {
         <SectionTitle
           icon={GavelOutlinedIcon}
           title="Данъци и регистрация"
-          subtitle="ДДС статус, ДДС номер (задължителен само при регистрация по ДДС), задължителен фирмен/търговски идентификатор и данъчни стойности по държава."
+          subtitle=""
         />
       )}
-      <Box
-        sx={{
-          mb: 2,
-          p: 1.5,
-          borderRadius: 2,
-          bgcolor: "rgba(15, 23, 42, 0.04)",
-          border: "1px solid",
-          borderColor: "rgba(15, 23, 42, 0.08)",
-        }}
-      >
-        <Typography variant="caption" color="text.secondary" component="div">
-          {country ? (
-            <>
-              По системни правила за <strong>{country}</strong>
-              {rules.standardVatRate != null && (
-                <>
-                  : предложена стандартна ДДС ставка{" "}
-                  <strong>{rules.standardVatRate}%</strong> (прилага се при
-                  смяна на държавата в секция „Адрес“)
-                </>
-              )}
-              {rules.standardVatRate == null &&
-                " — задайте собствена ДДС ставка по-долу при нужда"}
-            </>
-          ) : (
-            <>
-              Изберете държава в секция „Адрес“, за да се приложат ДДС и валутни
-              правила.
-            </>
-          )}
-        </Typography>
-      </Box>
 
       <Box sx={{ mb: 2 }}>
         <Controller
@@ -108,9 +75,8 @@ export const TaxSection = ({ form, showTitle = true }) => {
                     color="text.secondary"
                     display="block"
                   >
-                    Ако е включено, ДДС номерът е задължителен и се валидира.
-                    Ако е изключено, ДДС номерът е по избор. Фирменият
-                    идентификатор може да остане задължителен според правилата.
+                    ДДС статус, ДДС номер (задължителен само при регистрация по
+                    ДДС)
                   </Typography>
                 </Box>
               }
@@ -254,7 +220,7 @@ export const TaxSection = ({ form, showTitle = true }) => {
                     hint={
                       fieldState.error
                         ? undefined
-                        : "Задава се по държавни правила при избор на държава в „Адрес“; не се редактира тук."
+                        : "ДДС ставка по подразбиране. Може да се променя при създаване на фактура"
                     }
                   />
                 }
