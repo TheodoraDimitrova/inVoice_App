@@ -1,5 +1,6 @@
 import {
   Box,
+  Divider,
   Grid,
   TextField,
   Button,
@@ -10,9 +11,10 @@ import {
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
-import { auth } from "../firebase";
+import { auth, googleProvider } from "../firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { createUserWithEmailAndPassword } from "firebase/auth";
+import { signInWithPopup } from "firebase/auth";
 
 import { showToast } from "../utils/functions";
 import { outlinedFieldLabelProps, outlinedFieldSx } from "../utils/muiFieldSx";
@@ -77,6 +79,25 @@ const Auth = () => {
     setShowRegisterPassword(false);
     setShowLoginPassword(false);
     reset();
+  };
+
+  const signInWithGoogle = async () => {
+    try {
+      const userCredential = await signInWithPopup(auth, googleProvider);
+      if (userCredential?.user) {
+        showToast("success", "Успешен вход с Google!🚀");
+        navigate("/profile");
+      }
+    } catch (error) {
+      if (error.code === "auth/popup-closed-by-user") {
+        return;
+      }
+      if (error.code === "auth/account-exists-with-different-credential") {
+        showToast("error", "Този имейл вече е регистриран с друг метод за вход.");
+        return;
+      }
+      showToast("error", "Неуспешен вход с Google. Опитайте отново.");
+    }
   };
 
   const switchLinkClass =
@@ -291,6 +312,16 @@ const Auth = () => {
                   >
                     Регистрация
                   </Button>
+                  <Divider sx={{ my: 2 }}>или</Divider>
+                  <Button
+                    variant="outlined"
+                    fullWidth
+                    size="large"
+                    onClick={signInWithGoogle}
+                    sx={{ py: 1.25 }}
+                  >
+                    Продължи с Google
+                  </Button>
 
                   <button
                     type="button"
@@ -398,6 +429,16 @@ const Auth = () => {
                     sx={{ mt: 1, mb: 0, py: 1.25 }}
                   >
                     Вход
+                  </Button>
+                  <Divider sx={{ my: 2 }}>или</Divider>
+                  <Button
+                    variant="outlined"
+                    fullWidth
+                    size="large"
+                    onClick={signInWithGoogle}
+                    sx={{ py: 1.25 }}
+                  >
+                    Продължи с Google
                   </Button>
 
                   <button
