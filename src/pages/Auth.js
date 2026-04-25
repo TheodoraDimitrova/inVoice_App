@@ -1,6 +1,10 @@
 import {
   Box,
   Divider,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Grid,
   TextField,
   Button,
@@ -15,6 +19,7 @@ import { auth, googleProvider } from "../firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { signInWithPopup } from "firebase/auth";
+import { sendPasswordResetEmail } from "firebase/auth";
 
 import { showToast } from "../utils/functions";
 import { outlinedFieldLabelProps, outlinedFieldSx } from "../utils/muiFieldSx";
@@ -35,6 +40,9 @@ const Auth = () => {
   const [createAccount, setCreateAccount] = useState(false);
   const [showRegisterPassword, setShowRegisterPassword] = useState(false);
   const [showLoginPassword, setShowLoginPassword] = useState(false);
+  const [forgotDialogOpen, setForgotDialogOpen] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
+  const [resetLoading, setResetLoading] = useState(false);
   const emailFormat =
     /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
 
@@ -79,6 +87,53 @@ const Auth = () => {
     setShowRegisterPassword(false);
     setShowLoginPassword(false);
     reset();
+  };
+
+  const openForgotPasswordDialog = () => {
+    setResetEmail("");
+    setForgotDialogOpen(true);
+  };
+
+  const closeForgotPasswordDialog = () => {
+    if (resetLoading) return;
+    setForgotDialogOpen(false);
+  };
+
+  const handleForgotPassword = async () => {
+    const email = String(resetEmail || "").trim();
+    if (!email) {
+      showToast("error", "Моля, въведете имейл адрес.");
+      return;
+    }
+    if (!emailFormat.test(email)) {
+      showToast("error", "Въведете валиден имейл адрес.");
+      return;
+    }
+    try {
+      setResetLoading(true);
+      const response = await fetch("/api/auth/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      if (!response.ok) {
+        // Local CRA dev server (or missing deployment endpoint) fallback.
+        if (response.status === 404 || response.status === 405) {
+          await sendPasswordResetEmail(auth, email);
+        } else {
+          throw new Error("request_failed");
+        }
+      }
+      showToast(
+        "success",
+        "Ако имейлът съществува, изпратихме линк за възстановяване на парола.",
+      );
+      setForgotDialogOpen(false);
+    } catch {
+      showToast("error", "Неуспешно изпращане. Опитайте отново.");
+    } finally {
+      setResetLoading(false);
+    }
   };
 
   const signInWithGoogle = async () => {
@@ -430,6 +485,13 @@ const Auth = () => {
                   >
                     Вход
                   </Button>
+                  <Button
+                    variant="text"
+                    onClick={openForgotPasswordDialog}
+                    sx={{ mt: 1, alignSelf: "center", textTransform: "none" }}
+                  >
+                    Забравена парола?
+                  </Button>
                   <Divider sx={{ my: 2 }}>или</Divider>
                   <Button
                     variant="outlined"
@@ -454,6 +516,42 @@ const Auth = () => {
           </Box>
         </Grid>
       </Grid>
+      <Dialog
+        open={forgotDialogOpen}
+        onClose={closeForgotPasswordDialog}
+        fullWidth
+        maxWidth="xs"
+      >
+        <DialogTitle>Възстановяване на парола</DialogTitle>
+        <DialogContent>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Въведете имейла си и ще получите линк за смяна на паролата.
+          </Typography>
+          <TextField
+            autoFocus
+            label="Имейл"
+            type="email"
+            fullWidth
+            size="medium"
+            InputLabelProps={outlinedFieldLabelProps}
+            sx={{ ...outlinedFieldSx, mb: 0 }}
+            value={resetEmail}
+            onChange={(e) => setResetEmail(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2.5 }}>
+          <Button onClick={closeForgotPasswordDialog} disabled={resetLoading}>
+            Отказ
+          </Button>
+          <Button
+            variant="contained"
+            onClick={handleForgotPassword}
+            disabled={resetLoading}
+          >
+            Изпрати линк
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

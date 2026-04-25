@@ -17,6 +17,8 @@
     "@testing-library/user-event": "^13.5.0",
     "country-flag-icons": "^1.6.16",
     "firebase": "^9.6.10",
+    "firebase-admin": "^13.8.0",
+    "html-entities": "^2.3.3",
     "ibantools": "^4.5.4",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
@@ -27,6 +29,7 @@
     "react-spinners": "^0.17.0",
     "react-to-print": "^2.14.6",
     "react-toastify": "^8.2.0",
+    "resend": "^6.12.2",
     "uuid": "^9.0.0",
     "web-vitals": "^2.1.4",
     "zod": "^4.3.6"
