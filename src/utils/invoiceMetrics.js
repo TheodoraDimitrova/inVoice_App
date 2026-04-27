@@ -1,25 +1,15 @@
+import { lineNetBeforeVat, lineVatAmount } from "./invoiceLineNet";
+
 /**
- * Line totals aligned with ViewInvoice / findGrandTotal logic (VAT on net).
+ * Line totals aligned with ViewInvoice / findGrandTotal logic (VAT on net after discounts).
  */
-
-function lineNet(item) {
-  const cost = Number(item.itemCost) || 0;
-  const qty = Number(item.itemQuantity) || 0;
-  return cost * qty;
-}
-
-function lineVatRate(item, fallbackVatRate) {
-  if (item?.itemVatRate == null) return Number(fallbackVatRate) || 0;
-  return Number(item.itemVatRate) || 0;
-}
 
 export function computeInvoiceGrandTotalNumber(itemList, vatRate) {
   if (!Array.isArray(itemList) || itemList.length === 0) return 0;
   let total = 0;
   for (let i = 0; i < itemList.length; i++) {
-    const net = lineNet(itemList[i]);
-    const rate = lineVatRate(itemList[i], vatRate);
-    total += net + (net * rate) / 100;
+    const item = itemList[i];
+    total += lineNetBeforeVat(item) + lineVatAmount(item, vatRate);
   }
   return total;
 }

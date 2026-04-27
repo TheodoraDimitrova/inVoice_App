@@ -14,6 +14,7 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  Grid,
   IconButton,
   MenuItem,
   Paper,
@@ -35,14 +36,44 @@ import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import db, { auth } from "../firebase";
 import { showToast } from "../utils/functions";
 import { outlinedFieldSx, setupProfileFieldProps } from "../utils/muiFieldSx";
+import {
+  PRODUCT_CATALOG_CATEGORIES,
+  PRODUCT_KINDS,
+  getCategoryById,
+  normalizeApplicationForCategory,
+  normalizeCategoryId,
+  normalizeStoredProduct,
+  normalizeUnitForCategory,
+  kindLabel,
+} from "../data/productCatalogRules";
 
-const UNIT_OPTIONS = ["бр.", "час", "услуга", "месец"];
 const VAT_OPTIONS = [20, 9, 0];
 
+/** Полета в модала: пълна ширина, без „излизане“ от outline при select. */
+const productDialogFieldSx = {
+  ...outlinedFieldSx,
+  mb: 0,
+  width: "100%",
+  minWidth: 0,
+  "& .MuiOutlinedInput-root": {
+    maxWidth: "100%",
+  },
+  "& .MuiSelect-select": {
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+    pr: "36px !important",
+  },
+};
+
+const firstCat = PRODUCT_CATALOG_CATEGORIES[0];
 const EMPTY_FORM = {
   name: "",
   price: "",
-  unit: "бр.",
+  kind: "product",
+  category: firstCat.id,
+  application: firstCat.applications[0],
+  unit: firstCat.units[0],
   vat: 20,
 };
 
@@ -67,22 +98,20 @@ function Products() {
     [products]
   );
 
+  const formCategory = useMemo(
+    () => getCategoryById(normalizeCategoryId(formData.category)),
+    [formData.category]
+  );
+
   const fetchProducts = async () => {
     try {
       const userId = auth.currentUser.uid;
       const querySnapshot = await getDocs(collection(db, "users", userId, "products"));
-      const fetchedProducts = querySnapshot.docs.map((d) => {
-        const data = d.data();
-        return {
-          id: d.id,
-          name: data.name || "",
-          price: Number(data.price) || 0,
-          unit: data.unit || "бр.",
-          vat: Number.isFinite(Number(data.vat)) ? Number(data.vat) : 20,
-        };
-      });
+      const fetchedProducts = querySnapshot.docs.map((d) =>
+        normalizeStoredProduct(d.data(), d.id)
+      );
       setProducts(fetchedProducts);
-    } catch (error) {
+    } catch {
       showToast("error", "Моля, свържете се с техническа поддръжка.");
     }
   };
@@ -98,7 +127,10 @@ function Products() {
     setFormData({
       name: product.name || "",
       price: String(product.price ?? ""),
-      unit: product.unit || "бр.",
+      kind: product.kind === "service" ? "service" : "product",
+      category: normalizeCategoryId(product.category),
+      application: product.application || firstCat.applications[0],
+      unit: product.unit || firstCat.units[0],
       vat: Number.isFinite(Number(product.vat)) ? Number(product.vat) : 20,
     });
     setDialogOpen(true);
@@ -115,15 +147,18 @@ function Products() {
     e.preventDefault();
     const name = String(formData.name || "").trim();
     const price = Number(formData.price);
-    const unit = String(formData.unit || "").trim();
+    const kind = formData.kind === "service" ? "service" : "product";
+    const category = normalizeCategoryId(formData.category);
+    const unit = normalizeUnitForCategory(category, formData.unit);
+    const application = normalizeApplicationForCategory(category, formData.application);
     const vat = Number(formData.vat);
 
-    if (!name || !Number.isFinite(price) || price < 0 || !unit || !VAT_OPTIONS.includes(vat)) {
+    if (!name || !Number.isFinite(price) || price < 0 || !VAT_OPTIONS.includes(vat)) {
       showToast("error", "Попълнете всички задължителни полета коректно.");
       return;
     }
 
-    const payload = { name, price, unit, vat };
+    const payload = { name, price, kind, category, application, unit, vat };
     try {
       setSaving(true);
       const userId = auth.currentUser.uid;
@@ -160,17 +195,24 @@ function Products() {
           Продукти и услуги
         </Typography>
         <Button variant="contained" startIcon={<AddIcon />} onClick={openAddDialog}>
-          + Добави продукт
+          Добави продукт
         </Button>
       </Stack>
 
       {sortedProducts.length > 0 ? (
-        <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2 }}>
-          <Table>
+        <TableContainer
+          component={Paper}
+          variant="outlined"
+          sx={{ borderRadius: 2, maxWidth: "100%", overflowX: "auto" }}
+        >
+          <Table size="small" sx={{ minWidth: 720 }}>
             <TableHead>
               <TableRow sx={{ bgcolor: "rgba(15, 23, 42, 0.04)" }}>
                 <TableCell sx={{ fontWeight: 700 }}>Име</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>Мерна единица</TableCell>
+                <TableCell sx={{ fontWeight: 700 }}>Вид</TableCell>
+                <TableCell sx={{ fontWeight: 700 }}>Категория</TableCell>
+                <TableCell sx={{ fontWeight: 700 }}>Подкатегория</TableCell>
+                <TableCell sx={{ fontWeight: 700 }}>Мярка</TableCell>
                 <TableCell sx={{ fontWeight: 700, textAlign: "right" }}>ДДС %</TableCell>
                 <TableCell sx={{ fontWeight: 700, textAlign: "right" }}>Цена</TableCell>
                 <TableCell sx={{ fontWeight: 700, textAlign: "right" }}>Действия</TableCell>
@@ -179,8 +221,31 @@ function Products() {
             <TableBody>
               {sortedProducts.map((product) => (
                 <TableRow key={product.id} hover>
-                  <TableCell>{product.name}</TableCell>
-                  <TableCell>{product.unit}</TableCell>
+                  <TableCell
+                    sx={{
+                      maxWidth: 200,
+                      whiteSpace: "normal",
+                      wordBreak: "break-word",
+                    }}
+                  >
+                    {product.name}
+                  </TableCell>
+                  <TableCell sx={{ whiteSpace: "nowrap" }}>{kindLabel(product.kind)}</TableCell>
+                  <TableCell sx={{ whiteSpace: "nowrap" }}>
+                    {getCategoryById(product.category).label}
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      maxWidth: 160,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                    title={product.application}
+                  >
+                    {product.application}
+                  </TableCell>
+                  <TableCell sx={{ whiteSpace: "nowrap" }}>{product.unit}</TableCell>
                   <TableCell sx={{ textAlign: "right" }}>{Number(product.vat).toFixed(0)}%</TableCell>
                   <TableCell sx={{ textAlign: "right", fontVariantNumeric: "tabular-nums" }}>
                     {Number(product.price).toFixed(2)} EUR
@@ -225,56 +290,161 @@ function Products() {
         </Paper>
       )}
 
-      <Dialog open={dialogOpen} onClose={closeDialog} maxWidth="sm" fullWidth>
-        <DialogTitle>{editing ? "Редакция на продукт" : "Добавяне на продукт"}</DialogTitle>
+      <Dialog
+        open={dialogOpen}
+        onClose={closeDialog}
+        maxWidth="md"
+        fullWidth
+        scroll="paper"
+        PaperProps={{ sx: { borderRadius: 2 } }}
+      >
+        <DialogTitle sx={{ pb: 1 }}>
+          {editing ? "Редакция на продукт" : "Добавяне на продукт"}
+        </DialogTitle>
         <Box component="form" onSubmit={saveProduct}>
-          <DialogContent sx={{ pt: 1 }}>
-            <TextField
-              {...setupProfileFieldProps}
-              label="Име"
-              value={formData.name}
-              onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
-              placeholder="напр. Консултация"
-              sx={outlinedFieldSx}
-            />
-            <TextField
-              {...setupProfileFieldProps}
-              type="number"
-              label="Цена"
-              value={formData.price}
-              onChange={(e) => setFormData((prev) => ({ ...prev, price: e.target.value }))}
-              inputProps={{ min: 0, step: "0.01" }}
-              placeholder="напр. 100.00"
-              sx={outlinedFieldSx}
-            />
-            <TextField
-              {...setupProfileFieldProps}
-              select
-              label="Мерна единица"
-              value={formData.unit}
-              onChange={(e) => setFormData((prev) => ({ ...prev, unit: e.target.value }))}
-              sx={outlinedFieldSx}
-            >
-              {UNIT_OPTIONS.map((unit) => (
-                <MenuItem key={unit} value={unit}>
-                  {unit}
-                </MenuItem>
-              ))}
-            </TextField>
-            <TextField
-              {...setupProfileFieldProps}
-              select
-              label="ДДС ставка по подразбиране"
-              value={formData.vat}
-              onChange={(e) => setFormData((prev) => ({ ...prev, vat: Number(e.target.value) }))}
-              sx={{ ...outlinedFieldSx, mb: 0 }}
-            >
-              {VAT_OPTIONS.map((vat) => (
-                <MenuItem key={vat} value={vat}>
-                  {vat}%
-                </MenuItem>
-              ))}
-            </TextField>
+          <DialogContent
+            dividers
+            sx={{
+              pt: 0,
+              px: { xs: 2, sm: 3 },
+              overflowX: "hidden",
+            }}
+          >
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <TextField
+                  {...setupProfileFieldProps}
+                  label="Име на продукт / услуга"
+                  value={formData.name}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, name: e.target.value }))
+                  }
+                  placeholder="напр. Консултация"
+                  sx={productDialogFieldSx}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  {...setupProfileFieldProps}
+                  select
+                  label="Вид"
+                  value={formData.kind}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, kind: e.target.value }))
+                  }
+                  sx={productDialogFieldSx}
+                >
+                  {PRODUCT_KINDS.map((k) => (
+                    <MenuItem key={k.id} value={k.id}>
+                      {k.label}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  {...setupProfileFieldProps}
+                  select
+                  label="Категория"
+                  value={formCategory.id}
+                  onChange={(e) => {
+                    const catId = e.target.value;
+                    const c = getCategoryById(catId);
+                    setFormData((prev) => ({
+                      ...prev,
+                      category: catId,
+                      unit: c.units.includes(prev.unit) ? prev.unit : c.units[0],
+                      application: c.applications.includes(prev.application)
+                        ? prev.application
+                        : c.applications[0],
+                    }));
+                  }}
+                  sx={productDialogFieldSx}
+                >
+                  {PRODUCT_CATALOG_CATEGORIES.map((c) => (
+                    <MenuItem key={c.id} value={c.id}>
+                      {c.label}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  {...setupProfileFieldProps}
+                  select
+                  label="Подкатегория / приложение"
+                  value={
+                    formCategory.applications.includes(formData.application)
+                      ? formData.application
+                      : formCategory.applications[0]
+                  }
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, application: e.target.value }))
+                  }
+                  sx={productDialogFieldSx}
+                >
+                  {formCategory.applications.map((a) => (
+                    <MenuItem key={a} value={a}>
+                      {a}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  {...setupProfileFieldProps}
+                  select
+                  label="Мерна единица"
+                  value={
+                    formCategory.units.includes(formData.unit)
+                      ? formData.unit
+                      : formCategory.units[0]
+                  }
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, unit: e.target.value }))
+                  }
+                  sx={productDialogFieldSx}
+                >
+                  {formCategory.units.map((u) => (
+                    <MenuItem key={u} value={u}>
+                      {u}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  {...setupProfileFieldProps}
+                  type="number"
+                  label="Единична цена"
+                  value={formData.price}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, price: e.target.value }))
+                  }
+                  inputProps={{ min: 0, step: "0.01" }}
+                  placeholder="напр. 100.00"
+                  sx={productDialogFieldSx}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  {...setupProfileFieldProps}
+                  select
+                  label="ДДС ставка по подразбиране"
+                  value={formData.vat}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, vat: Number(e.target.value) }))
+                  }
+                  sx={productDialogFieldSx}
+                >
+                  {VAT_OPTIONS.map((vat) => (
+                    <MenuItem key={vat} value={vat}>
+                      {vat}%
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Grid>
+            </Grid>
           </DialogContent>
           <DialogActions sx={{ px: 3, pb: 2.5 }}>
             <Button onClick={closeDialog} disabled={saving}>

@@ -15,16 +15,18 @@ import {
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
-import { auth, googleProvider } from "../firebase";
+import db, { auth, googleProvider } from "../firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { signInWithPopup } from "firebase/auth";
 import { sendPasswordResetEmail } from "firebase/auth";
+import { collection, getDocs, query, where } from "@firebase/firestore";
 
 import { showToast } from "../utils/functions";
 import { outlinedFieldLabelProps, outlinedFieldSx } from "../utils/muiFieldSx";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import { isInvoiceCreationReady } from "../utils/invoiceCreationReady";
 
 const AUTH_ILLUSTRATION = "/invoice_auth.jpeg";
 
@@ -45,6 +47,16 @@ const Auth = () => {
   const [resetLoading, setResetLoading] = useState(false);
   const emailFormat =
     /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+  const resolvePostLoginPath = async (uid) => {
+    try {
+      const q = query(collection(db, "businesses"), where("user_id", "==", uid));
+      const snapshot = await getDocs(q);
+      const business = snapshot.docs[0]?.data() || null;
+      return isInvoiceCreationReady(business) ? "/dashboard" : "/profile";
+    } catch {
+      return "/profile";
+    }
+  };
 
   const signUpUser = (data) => {
     createUserWithEmailAndPassword(
@@ -66,10 +78,11 @@ const Auth = () => {
 
   const loginUser = (data) => {
     signInWithEmailAndPassword(auth, data.loginEmail, data.loginPassword)
-      .then((userCredential) => {
+      .then(async (userCredential) => {
         if (userCredential) {
           showToast("success", "Входът е успешен!🚀");
-          navigate("/profile");
+          const nextPath = await resolvePostLoginPath(userCredential.user.uid);
+          navigate(nextPath);
         }
       })
       .catch((error) => {
@@ -141,17 +154,50 @@ const Auth = () => {
       const userCredential = await signInWithPopup(auth, googleProvider);
       if (userCredential?.user) {
         showToast("success", "Успешен вход с Google!🚀");
-        navigate("/profile");
+        const nextPath = await resolvePostLoginPath(userCredential.user.uid);
+        navigate(nextPath);
       }
     } catch (error) {
       if (error.code === "auth/popup-closed-by-user") {
+        return;
+      }
+      if (error.code === "auth/cancelled-popup-request") {
         return;
       }
       if (error.code === "auth/account-exists-with-different-credential") {
         showToast("error", "Този имейл вече е регистриран с друг метод за вход.");
         return;
       }
-      showToast("error", "Неуспешен вход с Google. Опитайте отново.");
+      if (error.code === "auth/unauthorized-domain") {
+        showToast(
+          "error",
+          "Този сайт не е разрешен за вход в Firebase. Добавете домейна в Authentication → Settings → Authorized domains.",
+        );
+        return;
+      }
+      if (error.code === "auth/operation-not-allowed") {
+        showToast(
+          "error",
+          "Входът с Google не е включен в проекта. Включете Google в Firebase Console → Authentication → Sign-in method.",
+        );
+        return;
+      }
+      if (error.code === "auth/popup-blocked-by-browser") {
+        showToast(
+          "error",
+          "Браузърът блокира прозореца за Google. Разрешете pop-up за този сайт и опитайте отново.",
+        );
+        return;
+      }
+      if (error.code === "auth/network-request-failed") {
+        showToast("error", "Мрежова грешка. Проверете връзката и опитайте отново.");
+        return;
+      }
+      console.warn("[Google sign-in]", error.code, error.message);
+      showToast(
+        "error",
+        `Неуспешен вход с Google (${error.code || "неизвестна грешка"}). Опитайте отново.`,
+      );
     }
   };
 

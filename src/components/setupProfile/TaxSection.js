@@ -187,49 +187,51 @@ export const TaxSection = ({ form, showTitle = true }) => {
             )}
           />
         </Grid>
-        <Grid item xs={12} sm={6} sx={{ minWidth: 0 }}>
-          <Controller
-            name="vatRate"
-            control={control}
-            render={({ field, fieldState }) => (
-              <TextField
-                {...fieldProps}
-                {...field}
-                label="Стандартна ДДС ставка"
-                type="number"
-                disabled
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment
-                      position="end"
-                      sx={{
-                        fontWeight: 600,
-                        color: "text.secondary",
-                        userSelect: "none",
-                      }}
-                    >
-                      %
-                    </InputAdornment>
-                  ),
-                }}
-                inputProps={{ min: 0, max: 100, step: 0.5 }}
-                error={!!fieldState.error}
-                helperText={
-                  <FormFieldHelperText
-                    errorMessage={fieldState.error?.message}
-                    hint={
-                      fieldState.error
-                        ? undefined
-                        : "ДДС ставка по подразбиране. Може да се променя при създаване на фактура"
-                    }
-                  />
-                }
-                FormHelperTextProps={{ component: "div" }}
-                sx={gridFieldSx}
-              />
-            )}
-          />
-        </Grid>
+        {isVatRegistered ? (
+          <Grid item xs={12} sm={6} sx={{ minWidth: 0 }}>
+            <Controller
+              name="vatRate"
+              control={control}
+              render={({ field, fieldState }) => (
+                <TextField
+                  {...fieldProps}
+                  {...field}
+                  label="Стандартна ДДС ставка"
+                  type="number"
+                  disabled
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment
+                        position="end"
+                        sx={{
+                          fontWeight: 600,
+                          color: "text.secondary",
+                          userSelect: "none",
+                        }}
+                      >
+                        %
+                      </InputAdornment>
+                    ),
+                  }}
+                  inputProps={{ min: 0, max: 100, step: 0.5 }}
+                  error={!!fieldState.error}
+                  helperText={
+                    <FormFieldHelperText
+                      errorMessage={fieldState.error?.message}
+                      hint={
+                        fieldState.error
+                          ? undefined
+                          : "ДДС ставка по подразбиране. Може да се променя при създаване на фактура"
+                      }
+                    />
+                  }
+                  FormHelperTextProps={{ component: "div" }}
+                  sx={gridFieldSx}
+                />
+              )}
+            />
+          </Grid>
+        ) : null}
       </Grid>
     </>
   );

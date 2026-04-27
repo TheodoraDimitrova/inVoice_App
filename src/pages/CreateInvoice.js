@@ -1,4 +1,10 @@
-import React, { useCallback, useMemo, useRef, useState, useEffect } from "react";
+import React, {
+  useCallback,
+  useMemo,
+  useRef,
+  useState,
+  useEffect,
+} from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
@@ -26,18 +32,23 @@ import Loading from "../components/Loading";
 import {
   Box,
   Button,
+  Checkbox,
   Container,
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
+  FormControlLabel,
   Paper,
   Stack,
+  TextField,
   Typography,
 } from "@mui/material";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import { COUNTRIES } from "../data/countries";
+import { normalizeStoredProduct } from "../data/productCatalogRules";
+import { lineGross, lineNetBeforeVat, lineVatAmount } from "../utils/invoiceLineNet";
 import { getPrimaryCompanyIdentityRule } from "../data/companyIdentityRules";
 import { createInvoiceSchema } from "../schemas/createInvoiceSchema";
 import { DocumentSection } from "../components/createInvoice/DocumentSection";
@@ -53,8 +64,13 @@ const CURRENCY_SYMBOLS = {
   GBP: "\u00a3",
 };
 const INVOICE_CURRENCY_OPTIONS = ["EUR", "BGN", "USD", "GBP"];
+const VAT_EXEMPT_DEFAULT_NOTE =
+  "Основание за неначисляване на ДДС: чл. 113, ал. 9 от ЗДДС";
 
-const currencySymbol = (code) => CURRENCY_SYMBOLS[(code || "").toUpperCase()] || (code || "").toUpperCase() || "\u20ac";
+const currencySymbol = (code) =>
+  CURRENCY_SYMBOLS[(code || "").toUpperCase()] ||
+  (code || "").toUpperCase() ||
+  "\u20ac";
 const toDateInput = (d) => new Date(d).toISOString().slice(0, 10);
 const DEFAULT_FORM_VALUES = {
   customerType: "business",
@@ -70,8 +86,10 @@ const DEFAULT_FORM_VALUES = {
   customerPostCode: "",
   customerCity: "",
   customerEmail: "",
+  includeInvoiceNote: false,
+  invoiceNote: "",
+  itemList: [],
 };
-
 
 const sectionIconBoxSx = {
   display: "flex",
@@ -99,12 +117,12 @@ const INLINE_CELL_SX = {
   "& .MuiOutlinedInput-root": {
     borderRadius: UNIFIED_FIELD_RADIUS,
     minHeight: 44,
-    height: 44,
+    height: "auto",
     alignItems: "center",
     "& .MuiOutlinedInput-notchedOutline": {
       borderRadius: UNIFIED_FIELD_RADIUS,
     },
-    "& fieldset": { borderColor: "transparent" },
+    "& fieldset": { borderColor: "rgba(15, 23, 42, 0.14)" },
     "&:hover fieldset": { borderColor: "rgba(15, 23, 42, 0.16)" },
     "&.Mui-focused fieldset": {
       borderColor: "var(--color-brand-primary)",
@@ -116,6 +134,7 @@ const INLINE_CELL_SX = {
     fontSize: "0.9rem",
     lineHeight: 1.5,
     boxSizing: "border-box",
+    borderRadius: "inherit",
   },
   "& .MuiSelect-select": {
     paddingTop: "10px !important",
@@ -124,6 +143,7 @@ const INLINE_CELL_SX = {
     minHeight: "auto",
     display: "flex",
     alignItems: "center",
+    borderRadius: "inherit",
   },
   "& .MuiSelect-icon": {
     right: 8,
@@ -132,10 +152,18 @@ const INLINE_CELL_SX = {
     mt: 0,
   },
 };
-const isMeaningfulRow = (row) =>
+const parseLocaleNumber = (value) => {
+  const normalized = String(value ?? "")
+    .trim()
+    .replace(/\s+/g, "")
+    .replace(",", ".");
+  const n = Number(normalized);
+  return Number.isFinite(n) ? n : 0;
+};
+const hasRowInput = (row) =>
   String(row?.itemName || "").trim() !== "" ||
-  Number(row?.itemCost || 0) > 0 ||
-  Number(row?.itemQuantity || 0) > 0;
+  parseLocaleNumber(row?.itemCost) > 0 ||
+  parseLocaleNumber(row?.itemQuantity) > 0;
 const getValidInvoiceNumber = (value) => {
   const n = Number(value);
   return Number.isFinite(n) && n > 0 ? n : null;
@@ -149,18 +177,27 @@ const CreateInvoice = () => {
 
   const rowIdRef = useRef(0);
   const [defaultBusinessVatRate, setDefaultBusinessVatRate] = useState(20);
+  const [isBusinessVatRegistered, setIsBusinessVatRegistered] = useState(true);
 
   const createEmptyRow = useCallback(
-    (vatRate = defaultBusinessVatRate) => ({
-      _rowId: ++rowIdRef.current,
-      itemName: "",
-      itemUnit: "",
-      itemCost: "",
-      itemQuantity: "",
-      itemVatRate: Number(vatRate) || 0,
-      itemDiscount: 0,
-    }),
-    [defaultBusinessVatRate]
+    (vatRate = defaultBusinessVatRate) => {
+      const resolvedVatRate = isBusinessVatRegistered
+        ? Number(vatRate) || 0
+        : 0;
+      return {
+        _rowId: ++rowIdRef.current,
+        itemName: "",
+        itemKind: "product",
+        itemUnit: "бр.",
+        itemCost: "",
+        itemQuantity: 1,
+        itemVatRate: resolvedVatRate,
+        itemDiscountPercent: 0,
+        itemDiscountAmount: 0,
+        itemDiscount: 0,
+      };
+    },
+    [defaultBusinessVatRate, isBusinessVatRegistered],
   );
   const [itemList, setItemList] = useState([createEmptyRow(20)]);
   const navigate = useNavigate();
@@ -171,7 +208,8 @@ const CreateInvoice = () => {
   const [saveInProgress, setSaveInProgress] = useState(false);
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
   const [productsRequiredError, setProductsRequiredError] = useState(false);
-  const { ready: invoiceCreationReady, loading: invoiceGateLoading } = useInvoiceCreationReady();
+  const { ready: invoiceCreationReady, loading: invoiceGateLoading } =
+    useInvoiceCreationReady();
   const form = useForm({
     resolver: zodResolver(createInvoiceSchema),
     defaultValues: DEFAULT_FORM_VALUES,
@@ -199,6 +237,8 @@ const CreateInvoice = () => {
   const currency = watch("currency");
   const issueDate = watch("issueDate");
   const dueDate = watch("dueDate");
+  const includeInvoiceNote = watch("includeInvoiceNote");
+  const invoiceNote = watch("invoiceNote");
 
   const customerIdRule = getPrimaryCompanyIdentityRule(customerCountry || "");
   const customerIdLabel =
@@ -208,14 +248,40 @@ const CreateInvoice = () => {
     const merged = [...VAT_RATE_OPTIONS, Number(defaultBusinessVatRate) || 0];
     return [...new Set(merged)].sort((a, b) => a - b);
   }, [defaultBusinessVatRate]);
-  const toInvoiceItem = (row) => ({
-    itemName: String(row.itemName || "").trim(),
-    itemUnit: String(row.itemUnit || "").trim(),
-    itemCost: Number(row.itemCost) || 0,
-    itemQuantity: Number(row.itemQuantity) || 0,
-    itemVatRate: Number(row.itemVatRate) || 0,
-    itemDiscount: Number(row.itemDiscount) || 0,
-  });
+  const toInvoiceItem = useCallback(
+    (row) => {
+      const unit = String(row.itemUnit || "").trim() || "бр.";
+      const pct = parseLocaleNumber(row.itemDiscountPercent);
+      const pctSafe = Number.isFinite(pct)
+        ? pct
+        : parseLocaleNumber(row.itemDiscount);
+      const amountSafe = Math.max(0, parseLocaleNumber(row.itemDiscountAmount));
+      const discountMode =
+        row.itemDiscountMode === "amount" ? "amount" : "percent";
+      const normalizedPercent =
+        discountMode === "amount" && amountSafe > 0
+          ? 0
+          : Math.min(100, Math.max(0, pctSafe));
+      const normalizedAmount =
+        discountMode === "percent" && Math.min(100, Math.max(0, pctSafe)) > 0
+          ? 0
+          : amountSafe;
+      return {
+        itemName: String(row.itemName || "").trim(),
+        itemKind: row.itemKind === "service" ? "service" : "product",
+        itemUnit: unit,
+        itemCost: parseLocaleNumber(row.itemCost),
+        itemQuantity: parseLocaleNumber(row.itemQuantity),
+        itemVatRate: isBusinessVatRegistered
+          ? parseLocaleNumber(row.itemVatRate)
+          : 0,
+        itemDiscountPercent: normalizedPercent,
+        itemDiscountAmount: normalizedAmount,
+        itemDiscount: normalizedPercent,
+      };
+    },
+    [isBusinessVatRegistered],
+  );
   const invoiceItems = useMemo(
     () =>
       itemList
@@ -228,8 +294,35 @@ const CreateInvoice = () => {
           );
         })
         .map(toInvoiceItem),
-    [itemList]
+    [itemList, toInvoiceItem],
   );
+  useEffect(() => {
+    setValue("itemList", itemList, {
+      shouldDirty: false,
+      shouldValidate: false,
+    });
+  }, [itemList, setValue]);
+  useEffect(() => {
+    if (isBusinessVatRegistered) return;
+    setItemList((prev) => {
+      let changed = false;
+      const next = prev.map((row) => {
+        const currentRate = parseLocaleNumber(row?.itemVatRate);
+        if (currentRate === 0) return row;
+        changed = true;
+        return { ...row, itemVatRate: 0 };
+      });
+      return changed ? next : prev;
+    });
+  }, [isBusinessVatRegistered]);
+  useEffect(() => {
+    if (!includeInvoiceNote || isBusinessVatRegistered) return;
+    if (String(getValues("invoiceNote") || "").trim()) return;
+    setValue("invoiceNote", VAT_EXEMPT_DEFAULT_NOTE, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+  }, [includeInvoiceNote, isBusinessVatRegistered, getValues, setValue]);
 
   useEffect(() => {
     if (invoiceGateLoading) return;
@@ -264,27 +357,49 @@ const CreateInvoice = () => {
             currency: (inv.currency || "EUR").toUpperCase(),
             issueDate: inv.issueDate || toDateInput(new Date()),
             dueDate: inv.dueDate || inv.issueDate || toDateInput(new Date()),
+            includeInvoiceNote: Boolean(inv.includeInvoiceNote),
+            invoiceNote: inv.invoiceNote || "",
           });
           const existingRows = Array.isArray(inv.itemList)
-            ? inv.itemList.map((item) => ({
-                _rowId: ++rowIdRef.current,
-                itemName: item.itemName ?? "",
-                itemUnit: item.itemUnit ?? "",
-                itemCost: item.itemCost ?? "",
-                itemQuantity: item.itemQuantity ?? "",
-                itemVatRate:
-                  item.itemVatRate == null
-                    ? Number(defaultBusinessVatRate) || 0
-                    : Number(item.itemVatRate) || 0,
-                itemDiscount: item.itemDiscount ?? 0,
-              }))
+            ? inv.itemList.map((item) => {
+                const unit = String(item.itemUnit || "").trim() || "бр.";
+                const pct =
+                  item.itemDiscountPercent != null
+                    ? Number(item.itemDiscountPercent)
+                    : Number(item.itemDiscount) || 0;
+                const amt = Number(item.itemDiscountAmount) || 0;
+                return {
+                  _rowId: ++rowIdRef.current,
+                  itemName: item.itemName ?? "",
+                  itemKind: item.itemKind === "service" ? "service" : "product",
+                  itemUnit: unit,
+                  itemCost: item.itemCost ?? "",
+                  itemQuantity: item.itemQuantity ?? 1,
+                  itemVatRate:
+                    item.itemVatRate == null
+                      ? Number(defaultBusinessVatRate) || 0
+                      : Number(item.itemVatRate) || 0,
+                  itemDiscountPercent: Math.min(100, Math.max(0, pct)),
+                  itemDiscountAmount: Math.max(0, amt),
+                  itemDiscount: Math.min(100, Math.max(0, pct)),
+                };
+              })
             : [];
-          setItemList([...existingRows, createEmptyRow(defaultBusinessVatRate)]);
+          setItemList(
+            existingRows.length
+              ? existingRows
+              : [createEmptyRow(defaultBusinessVatRate)],
+          );
           const validNumber = getValidInvoiceNumber(inv.id);
-          setInvoiceNumberPreview(validNumber ? String(validNumber) : "Чернова");
+          setInvoiceNumberPreview(
+            validNumber ? String(validNumber) : "Чернова",
+          );
         }
       } catch (error) {
-        showToast("error", "Грешка при зареждане на фактурата. Опитайте отново.");
+        showToast(
+          "error",
+          "Грешка при зареждане на фактурата. Опитайте отново.",
+        );
       }
     };
 
@@ -292,13 +407,17 @@ const CreateInvoice = () => {
       try {
         const bisnesRef = query(
           collection(db, "businesses"),
-          where("user_id", "==", auth.currentUser.uid)
+          where("user_id", "==", auth.currentUser.uid),
         );
         const querySnapshot = await getDocs(bisnesRef);
         querySnapshot.forEach((d) => {
           const data = d.data();
+          setIsBusinessVatRegistered(data?.isVatRegistered !== false);
           if (!invoiceId) {
-            setValue("currency", ((data.currency ?? "").toString() || "EUR").toUpperCase());
+            setValue(
+              "currency",
+              ((data.currency ?? "").toString() || "EUR").toUpperCase(),
+            );
             setInvoiceNumberPreview(String((Number(data.invoices) || 0) + 1));
             const businessVatRate = Number(data.vatRate);
             const normalizedVatRate =
@@ -306,15 +425,17 @@ const CreateInvoice = () => {
               VAT_RATE_OPTIONS.includes(businessVatRate)
                 ? businessVatRate
                 : 20;
+            const resolvedVatRate =
+              data?.isVatRegistered === false ? 0 : normalizedVatRate;
             setDefaultBusinessVatRate(normalizedVatRate);
             setItemList((prev) => {
               if (!prev.length) return [createEmptyRow(normalizedVatRate)];
               const next = [...prev];
               const last = next[next.length - 1];
-              if (last && !isMeaningfulRow(last)) {
+              if (last && !hasRowInput(last)) {
                 next[next.length - 1] = {
                   ...last,
-                  itemVatRate: normalizedVatRate,
+                  itemVatRate: resolvedVatRate,
                 };
               }
               return next;
@@ -339,59 +460,19 @@ const CreateInvoice = () => {
     try {
       const userId = auth.currentUser.uid;
       const querySnapshot = await getDocs(
-        collection(db, "users", userId, "products")
+        collection(db, "users", userId, "products"),
       );
-      const fetchedProducts = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+      const fetchedProducts = querySnapshot.docs.map((d) =>
+        normalizeStoredProduct(d.data(), d.id),
+      );
       setProducts(fetchedProducts);
     } catch (error) {
       showToast("error", "Моля, свържете се с техническа поддръжка.");
     }
   };
 
-  const handleAddToRow = (e, product) => {
-    e.preventDefault();
-    const name = product?.name ?? "";
-    const price = Number(product?.price) || 0;
-    const unit = product?.unit ?? "";
-    const rowVatRate =
-      Number.isFinite(Number(product?.vat)) && Number(product?.vat) >= 0
-        ? Number(product.vat)
-        : Number(defaultBusinessVatRate) || 0;
-    setItemList((prev) => {
-      const rows = [...prev];
-      const lastIdx = rows.length - 1;
-      if (lastIdx >= 0 && !isMeaningfulRow(rows[lastIdx])) {
-        rows[lastIdx] = {
-          ...rows[lastIdx],
-          itemName: name,
-          itemUnit: unit,
-          itemCost: price,
-          itemQuantity: 1,
-          itemVatRate: rowVatRate,
-        };
-      } else {
-        rows.push({
-          _rowId: ++rowIdRef.current,
-          itemName: name,
-          itemUnit: unit,
-          itemCost: price,
-          itemQuantity: 1,
-          itemVatRate: rowVatRate,
-          itemDiscount: 0,
-        });
-      }
-      const tail = rows[rows.length - 1];
-      if (tail && isMeaningfulRow(tail)) {
-        rows.push(createEmptyRow(defaultBusinessVatRate));
-      }
-      return rows;
-    });
-  };
-
   const persistInvoice = async (action) => {
+    setValue("itemList", itemList, { shouldDirty: true, shouldValidate: true });
     const hasInvoiceItems = invoiceItems.length > 0;
     setProductsRequiredError(!hasInvoiceItems);
     const isValid = await trigger();
@@ -407,8 +488,10 @@ const CreateInvoice = () => {
     setSaveInProgress(true);
     const formData = getValues();
     const isIssued = action === "issued";
-    const issueDateToPersist = isIssued ? toDateInput(new Date()) : formData.issueDate;
-    const dueDateToPersist = (formData.dueDate || "").trim() || issueDateToPersist;
+    const issueDateToPersist =
+      (formData.issueDate || "").trim() || toDateInput(new Date());
+    const dueDateToPersist =
+      (formData.dueDate || "").trim() || issueDateToPersist;
 
     const basePayload = {
       user_id: auth.currentUser.uid,
@@ -422,6 +505,10 @@ const CreateInvoice = () => {
       companyIdentifier: formData.companyIdentifier || "",
       customerVatRegistered: formData.customerVatRegistered,
       customerVatNumber: formData.customerVatNumber || "",
+      includeInvoiceNote: Boolean(formData.includeInvoiceNote),
+      invoiceNote: formData.includeInvoiceNote
+        ? String(formData.invoiceNote || "").trim()
+        : "",
       currency: formData.currency,
       itemList: invoiceItems,
       issueDate: issueDateToPersist,
@@ -439,12 +526,13 @@ const CreateInvoice = () => {
         if (isIssued) {
           const businessRef = query(
             collection(db, "businesses"),
-            where("user_id", "==", auth.currentUser.uid)
+            where("user_id", "==", auth.currentUser.uid),
           );
           const businessSnapshot = await getDocs(businessRef);
           businessSnapshot.forEach((businessDoc) => {
             businessDocId = businessDoc.id;
-            generatedInvoiceNumber = (Number(businessDoc.data().invoices) || 0) + 1;
+            generatedInvoiceNumber =
+              (Number(businessDoc.data().invoices) || 0) + 1;
           });
         }
 
@@ -464,7 +552,11 @@ const CreateInvoice = () => {
             id: generatedInvoiceNumber,
             customerVatRegistered: formData.customerVatRegistered,
             customerVatNumber: formData.customerVatNumber || "",
-          })
+            includeInvoiceNote: Boolean(formData.includeInvoiceNote),
+            invoiceNote: formData.includeInvoiceNote
+              ? String(formData.invoiceNote || "").trim()
+              : "",
+          }),
         );
 
         await addDoc(collection(db, "invoices"), {
@@ -480,14 +572,20 @@ const CreateInvoice = () => {
 
         showToast(
           "success",
-          isIssued ? "Фактурата е издадена успешно!📜" : "Черновата е запазена успешно."
+          isIssued
+            ? "Фактурата е издадена успешно!📜"
+            : "Черновата е запазена успешно.",
         );
       } else {
         // Update an existing invoice
         const invoiceRef = doc(db, "invoices", invoiceId);
         const currentInvoice = await getDoc(invoiceRef);
-        const currentInvoiceData = currentInvoice.exists() ? currentInvoice.data() : {};
-        const existingInvoiceNumber = getValidInvoiceNumber(currentInvoiceData?.id);
+        const currentInvoiceData = currentInvoice.exists()
+          ? currentInvoice.data()
+          : {};
+        const existingInvoiceNumber = getValidInvoiceNumber(
+          currentInvoiceData?.id,
+        );
         const hasInvoiceNumber = existingInvoiceNumber != null;
         let generatedInvoiceNumber = existingInvoiceNumber;
         let businessDocId = "";
@@ -495,12 +593,13 @@ const CreateInvoice = () => {
         if (isIssued && !hasInvoiceNumber) {
           const businessRef = query(
             collection(db, "businesses"),
-            where("user_id", "==", auth.currentUser.uid)
+            where("user_id", "==", auth.currentUser.uid),
           );
           const businessSnapshot = await getDocs(businessRef);
           businessSnapshot.forEach((businessDoc) => {
             businessDocId = businessDoc.id;
-            generatedInvoiceNumber = (Number(businessDoc.data().invoices) || 0) + 1;
+            generatedInvoiceNumber =
+              (Number(businessDoc.data().invoices) || 0) + 1;
           });
         }
 
@@ -517,14 +616,16 @@ const CreateInvoice = () => {
 
         showToast(
           "success",
-          isIssued ? "Фактурата е издадена успешно!📜" : "Черновата е запазена успешно."
+          isIssued
+            ? "Фактурата е издадена успешно!📜"
+            : "Черновата е запазена успешно.",
         );
       }
 
       setSaveDialogOpen(false);
       navigate("/dashboard");
     } catch (err) {
-      console.log(err);
+      console.error(err);
       showToast("error", "Грешка при запазване. Опитайте отново.");
     } finally {
       setSaveInProgress(false);
@@ -533,6 +634,9 @@ const CreateInvoice = () => {
 
   const openSaveDialog = async (e) => {
     e.preventDefault();
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
     setSaveDialogOpen(true);
   };
   const buildPreviewData = () => {
@@ -552,6 +656,10 @@ const CreateInvoice = () => {
       companyIdentifier: formData.companyIdentifier || "",
       customerVatRegistered: Boolean(formData.customerVatRegistered),
       customerVatNumber: formData.customerVatNumber || "",
+      includeInvoiceNote: Boolean(formData.includeInvoiceNote),
+      invoiceNote: formData.includeInvoiceNote
+        ? String(formData.invoiceNote || "").trim()
+        : "",
       currency: (formData.currency || "EUR").toUpperCase(),
       issueDate: formData.issueDate,
       dueDate: (formData.dueDate || "").trim() || formData.issueDate,
@@ -563,6 +671,9 @@ const CreateInvoice = () => {
     };
   };
   const handlePreviewInvoice = () => {
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
     setPreviewModalOpen(true);
   };
 
@@ -571,52 +682,69 @@ const CreateInvoice = () => {
     setItemList((prev) => {
       const next = prev.filter((item) => item._rowId !== rowId);
       if (!next.length) return [createEmptyRow(defaultBusinessVatRate)];
-      const last = next[next.length - 1];
-      if (last && isMeaningfulRow(last)) {
-        next.push(createEmptyRow(defaultBusinessVatRate));
-      }
       return next;
     });
   };
   const updateRow = (rowId, key, value) => {
     setItemList((prev) => {
-      const next = prev.map((row) =>
-        row._rowId === rowId ? { ...row, [key]: value } : row
+      return prev.map((row) =>
+        row._rowId === rowId ? { ...row, [key]: value } : row,
       );
-      const last = next[next.length - 1];
-      if (last && isMeaningfulRow(last)) {
-        next.push(createEmptyRow(defaultBusinessVatRate));
-      }
-      return next;
     });
-    if (productsRequiredError) {
-      setProductsRequiredError(false);
-    }
+    setProductsRequiredError(false);
+  };
+
+  const patchRow = (rowId, partial) => {
+    setItemList((prev) => {
+      return prev.map((row) =>
+        row._rowId === rowId ? { ...row, ...partial } : row,
+      );
+    });
+    setProductsRequiredError(false);
+  };
+  const addRow = () => {
+    setItemList((prev) => [...prev, createEmptyRow(defaultBusinessVatRate)]);
   };
   const handleCustomerTypeChange = (_, next) => {
     if (!next) return;
     setValue("customerType", next, { shouldDirty: true, shouldValidate: true });
     if (next === "individual") {
-      setValue("companyIdentifier", "", { shouldDirty: true, shouldValidate: true });
-      setValue("customerVatRegistered", false, { shouldDirty: true, shouldValidate: true });
-      setValue("customerVatNumber", "", { shouldDirty: true, shouldValidate: true });
+      setValue("companyIdentifier", "", {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+      setValue("customerVatRegistered", false, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+      setValue("customerVatNumber", "", {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
     }
   };
 
   const blockNewInvoice = !invoiceId && !invoiceCreationReady;
   const subtotal = invoiceItems.reduce(
-    (sum, item) => sum + (Number(item.itemCost) || 0) * (Number(item.itemQuantity) || 0),
-    0
+    (sum, item) => sum + lineGross(item),
+    0,
   );
-  const vatTotal = invoiceItems.reduce((sum, item) => {
-    const net = (Number(item.itemCost) || 0) * (Number(item.itemQuantity) || 0);
-    const rate = Number(item.itemVatRate) || 0;
-    return sum + (net * rate) / 100;
-  }, 0);
-  const grandTotal = subtotal + vatTotal;
-  const uniqueRates = [...new Set(invoiceItems.map((item) => Number(item.itemVatRate) || 0))];
-  const vatLabel =
-    uniqueRates.length === 1
+  const netSubtotal = invoiceItems.reduce(
+    (sum, item) => sum + lineNetBeforeVat(item),
+    0,
+  );
+  const discountTotal = Math.max(0, subtotal - netSubtotal);
+  const vatTotal = invoiceItems.reduce(
+    (sum, item) => sum + lineVatAmount(item, defaultBusinessVatRate),
+    0,
+  );
+  const grandTotal = netSubtotal + vatTotal;
+  const uniqueRates = [
+    ...new Set(invoiceItems.map((item) => Number(item.itemVatRate) || 0)),
+  ];
+  const vatLabel = !isBusinessVatRegistered
+    ? "ДДС: не се начислява"
+    : uniqueRates.length === 1
       ? `ДДС (${uniqueRates[0].toFixed(0)}%)`
       : "ДДС (смесени ставки)";
 
@@ -641,11 +769,17 @@ const CreateInvoice = () => {
             >
               Създай фактура
             </Typography>
-            <Typography variant="body2" sx={{ color: "text.secondary", mt: 0.75, mb: 3 }}>
+            <Typography
+              variant="body2"
+              sx={{ color: "text.secondary", mt: 0.75, mb: 3 }}
+            >
               Попълнете данни за документа, клиента и продуктите.
             </Typography>
 
-            <Box component="form" sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
+            <Box
+              component="form"
+              sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}
+            >
               <DocumentSection
                 sectionShellSx={sectionShellSx}
                 sectionIconBoxSx={sectionIconBoxSx}
@@ -668,10 +802,14 @@ const CreateInvoice = () => {
                 }
                 currency={currency}
                 onCurrencyChange={(e) =>
-                  setValue("currency", (e.target.value || "EUR").toUpperCase(), {
-                    shouldDirty: true,
-                    shouldValidate: true,
-                  })
+                  setValue(
+                    "currency",
+                    (e.target.value || "EUR").toUpperCase(),
+                    {
+                      shouldDirty: true,
+                      shouldValidate: true,
+                    },
+                  )
                 }
                 currencyOptions={INVOICE_CURRENCY_OPTIONS}
                 errors={formErrors}
@@ -706,21 +844,19 @@ const CreateInvoice = () => {
                   })
                 }
                 customerVatRegistered={customerVatRegistered}
-                onCustomerVatRegisteredChange={(e) =>
-                  {
-                    const nextChecked = e.target.checked;
-                    setValue("customerVatRegistered", nextChecked, {
+                onCustomerVatRegisteredChange={(e) => {
+                  const nextChecked = e.target.checked;
+                  setValue("customerVatRegistered", nextChecked, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  });
+                  if (!nextChecked) {
+                    setValue("customerVatNumber", "", {
                       shouldDirty: true,
                       shouldValidate: true,
                     });
-                    if (!nextChecked) {
-                      setValue("customerVatNumber", "", {
-                        shouldDirty: true,
-                        shouldValidate: true,
-                      });
-                    }
                   }
-                }
+                }}
                 customerVatNumber={customerVatNumber}
                 onCustomerVatNumberChange={(e) =>
                   setValue("customerVatNumber", e.target.value, {
@@ -765,26 +901,113 @@ const CreateInvoice = () => {
                 inlineCellSx={INLINE_CELL_SX}
                 products={products}
                 currencySign={currencySign}
-                handleAddToRow={handleAddToRow}
                 itemList={itemList}
-                isMeaningfulRow={isMeaningfulRow}
+                isMeaningfulRow={hasRowInput}
                 updateRow={updateRow}
+                patchRow={patchRow}
+                addRow={addRow}
                 vatRateOptions={vatRateOptions}
+                showVatField={isBusinessVatRegistered}
                 deleteRow={deleteRow}
-                showRequiredError={productsRequiredError}
+                itemErrors={formErrors.itemList || []}
+                showRequiredError={
+                  productsRequiredError || Boolean(formErrors.itemList)
+                }
+                defaultBusinessVatRate={defaultBusinessVatRate}
               />
+
+              <Paper
+                variant="outlined"
+                sx={{
+                  p: { xs: 1, sm: 1.25 },
+                  borderRadius: 2,
+                  borderColor: "rgba(15, 23, 42, 0.08)",
+                  bgcolor: "#fff",
+                }}
+              >
+                <Stack spacing={1}>
+                  <FormControlLabel
+                    sx={{
+                      m: 0,
+                      "& .MuiFormControlLabel-label": {
+                        fontSize: "0.95rem",
+                        fontWeight: 600,
+                      },
+                    }}
+                    control={
+                      <Checkbox
+                        size="small"
+                        checked={Boolean(includeInvoiceNote)}
+                        onChange={(e) => {
+                          const checked = e.target.checked;
+                          setValue("includeInvoiceNote", checked, {
+                            shouldDirty: true,
+                            shouldValidate: true,
+                          });
+                          if (!checked) {
+                            setValue("invoiceNote", "", {
+                              shouldDirty: true,
+                              shouldValidate: true,
+                            });
+                            return;
+                          }
+                          if (
+                            !isBusinessVatRegistered &&
+                            !String(getValues("invoiceNote") || "").trim()
+                          ) {
+                            setValue("invoiceNote", VAT_EXEMPT_DEFAULT_NOTE, {
+                              shouldDirty: true,
+                              shouldValidate: true,
+                            });
+                          }
+                        }}
+                      />
+                    }
+                    label="Добави забележка към фактурата"
+                  />
+                  {includeInvoiceNote ? (
+                    <TextField
+                      size="small"
+                      fullWidth
+                      multiline
+                      minRows={2}
+                      label="Забележка"
+                      value={invoiceNote || ""}
+                      onChange={(e) =>
+                        setValue("invoiceNote", e.target.value, {
+                          shouldDirty: true,
+                          shouldValidate: true,
+                        })
+                      }
+                      error={Boolean(formErrors.invoiceNote)}
+                      helperText={formErrors.invoiceNote?.message}
+                      sx={{
+                        "& .MuiInputLabel-root": { fontSize: "0.9rem" },
+                        "& .MuiInputBase-input": { fontSize: "0.95rem" },
+                        "& .MuiFormHelperText-root": { fontSize: "0.78rem" },
+                      }}
+                    />
+                  ) : null}
+                </Stack>
+              </Paper>
 
               {invoiceItems.length > 0 && (
                 <TotalsSection
                   currencySign={currencySign}
                   subtotal={subtotal}
+                  discountTotal={discountTotal}
                   vatLabel={vatLabel}
                   vatTotal={vatTotal}
                   grandTotal={grandTotal}
+                  showVatAmount={isBusinessVatRegistered}
                 />
               )}
 
-              <Stack direction={{ xs: "column", sm: "row" }} spacing={1.25} sx={{ mt: 1 }}>
+              <Stack
+                direction={{ xs: "column", sm: "row" }}
+                spacing={1.25}
+                sx={{ mt: 1 }}
+              >
                 <Button
                   type="button"
                   variant="outlined"
@@ -812,15 +1035,24 @@ const CreateInvoice = () => {
           </Paper>
         </Container>
       )}
-      <Dialog open={saveDialogOpen} onClose={() => !saveInProgress && setSaveDialogOpen(false)} maxWidth="sm" fullWidth>
+      <Dialog
+        open={saveDialogOpen}
+        onClose={() => !saveInProgress && setSaveDialogOpen(false)}
+        maxWidth="sm"
+        fullWidth
+      >
         <DialogTitle>Как искате да запазите фактурата?</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Изберете дали да издадете официална фактура с пореден номер, или да запазите като чернова за по-късно.
+            Изберете дали да издадете официална фактура с пореден номер, или да
+            запазите като чернова за по-късно.
           </DialogContentText>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2.5, pt: 0.5, gap: 1 }}>
-          <Button onClick={() => setSaveDialogOpen(false)} disabled={saveInProgress}>
+          <Button
+            onClick={() => setSaveDialogOpen(false)}
+            disabled={saveInProgress}
+          >
             Отказ
           </Button>
           <Button

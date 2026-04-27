@@ -32,7 +32,7 @@ export const COMPANY_IDENTITY_RULES_BY_COUNTRY = Object.freeze({
   Bulgaria: [
     {
       id: "eik",
-      label: "EIK / BULSTAT",
+      label: "ЕИК / Булстат",
       pattern: "^(?:[0-9]{9}|[0-9]{10})$",
       primary: true,
       hint: "Фирма (9 цифри) или Фрийлансър (10 цифри).",
@@ -282,7 +282,7 @@ export function validatePrimaryCompanyIdentity(ticRaw, countryName) {
   if (!tic) {
     return {
       ok: false,
-      message: `${primary.label} is required.`,
+      message: `${primary.label} е задължително поле.`,
     };
   }
   let re;

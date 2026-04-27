@@ -1,26 +1,50 @@
 import { toast } from "react-toastify";
+import { lineNetBeforeVat, lineVatAmount } from "./invoiceLineNet";
+
+const toastOptions = {
+  position: "top-right",
+  autoClose: 5000,
+  hideProgressBar: false,
+  closeOnClick: true,
+  pauseOnHover: true,
+  draggable: true,
+  progress: undefined,
+  style: {
+    background: "var(--color-brand-primary)",
+    color: "#ffffff",
+    border: "1px solid rgba(255, 255, 255, 0.22)",
+  },
+  progressStyle: {
+    background: "var(--color-brand-accent)",
+  },
+};
 
 export const showToast = (type, message) => {
   if (type === "success") {
     toast.success(message, {
-      position: "top-right",
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
+      ...toastOptions,
+      icon: () => (
+        <span
+          style={{
+            width: 18,
+            height: 18,
+            borderRadius: "50%",
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            background: "#ffffff",
+            color: "var(--color-brand-primary)",
+            fontSize: 12,
+            fontWeight: 900,
+            lineHeight: 1,
+          }}
+        >
+          ✓
+        </span>
+      ),
     });
   } else {
-    toast.error(message, {
-      position: "top-right",
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-    });
+    toast.error(message, toastOptions);
   }
 };
 // export const findGrandTotal = ({ itemList }, currency, vatRate) => {
@@ -38,30 +62,21 @@ export const showToast = (type, message) => {
 //   total = total * ((100 + vatRate) / 100);
 //   return `${currency} ${total.toFixed(2).toLocaleString("en-US")}`;
 // };
-const lineNet = (item) =>
-  (Number(item?.itemCost) || 0) * (Number(item?.itemQuantity) || 0);
-
-const lineVatRate = (item, fallbackVatRate = 0) => {
-  if (item?.itemVatRate == null) return Number(fallbackVatRate) || 0;
-  return Number(item.itemVatRate) || 0;
-};
-
 export const findGrandTotal = ({ itemList }, currency, vatRate) => {
   if (typeof currency !== "string") {
     throw new Error("Currency must be a string");
   }
   let total = 0;
   for (let i = 0; i < itemList.length; i++) {
-    const net = lineNet(itemList[i]);
-    const rate = lineVatRate(itemList[i], vatRate);
-    total += net + (net * rate) / 100;
+    const item = itemList[i];
+    total += lineNetBeforeVat(item) + lineVatAmount(item, vatRate);
   }
   return `${currency} ${total.toFixed(2)}`;
 };
 export const amount = ({ itemList }, currency) => {
   let total = 0;
   for (let i = 0; i < itemList.length; i++) {
-    total += lineNet(itemList[i]);
+    total += lineNetBeforeVat(itemList[i]);
   }
 
   return `${currency} ${total.toFixed(2).toLocaleString("en-US")}`;
@@ -69,9 +84,7 @@ export const amount = ({ itemList }, currency) => {
 export const checkVat = ({ itemList }, currency, vatRate) => {
   let total = 0;
   for (let i = 0; i < itemList.length; i++) {
-    const net = lineNet(itemList[i]);
-    const rate = lineVatRate(itemList[i], vatRate);
-    total += (net * rate) / 100;
+    total += lineVatAmount(itemList[i], vatRate);
   }
 
   return `${currency} ${total.toFixed(2).toLocaleString("en-US")}`;
