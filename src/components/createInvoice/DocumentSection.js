@@ -1,10 +1,26 @@
 import React from "react";
-import { Box, Grid, MenuItem, Paper, Stack, TextField, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
+import {
+  Box,
+  Grid,
+  MenuItem,
+  Paper,
+  Stack,
+  TextField,
+  ToggleButton,
+  ToggleButtonGroup,
+  Typography,
+} from "@mui/material";
 import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
 import { FormFieldHelperText } from "../FormFieldHelperText";
 import { gridFieldSx, setupProfileFieldProps } from "../../utils/muiFieldSx";
 
 const fieldProps = setupProfileFieldProps;
+const formatInvoicePreviewNumber = (value) => {
+  const raw = String(value ?? "").trim();
+  if (!raw) return "-";
+  if (!/^\d+$/.test(raw)) return raw;
+  return raw.padStart(10, "0");
+};
 
 export const DocumentSection = ({
   sectionShellSx,
@@ -27,7 +43,9 @@ export const DocumentSection = ({
         <DescriptionOutlinedIcon fontSize="small" />
       </Box>
       <Box>
-        <Typography sx={{ fontWeight: 700, color: "var(--color-brand-primary)" }}>
+        <Typography
+          sx={{ fontWeight: 700, color: "var(--color-brand-primary)" }}
+        >
           Данни за документа
         </Typography>
         <Typography variant="caption" sx={{ color: "text.secondary" }}>
@@ -38,7 +56,10 @@ export const DocumentSection = ({
     <Grid container spacing={2}>
       <Grid item xs={12}>
         <Stack spacing={0.75}>
-          <Typography variant="body2" sx={{ fontWeight: 600, color: "text.secondary" }}>
+          <Typography
+            variant="body2"
+            sx={{ fontWeight: 600, color: "text.secondary" }}
+          >
             Тип клиент
           </Typography>
           <ToggleButtonGroup
@@ -63,38 +84,39 @@ export const DocumentSection = ({
           </Typography>
         </Stack>
       </Grid>
-      <Grid item xs={12} md={4}>
+      <Grid item xs={12} md={3}>
         <TextField
           {...fieldProps}
           label="Номер на фактура"
-          value={invoiceNumberPreview || "-"}
+          value={formatInvoicePreviewNumber(invoiceNumberPreview)}
           placeholder="Генерира се автоматично"
           disabled
-          helperText={<FormFieldHelperText hint="Автоматично генериран пореден номер." />}
+          helperText={
+            <FormFieldHelperText hint="Автоматично генериран пореден номер." />
+          }
           FormHelperTextProps={{ component: "div" }}
           sx={gridFieldSx}
         />
       </Grid>
-      <Grid item xs={12} md={4}>
+      <Grid item xs={12} md={3}>
         <TextField
           {...fieldProps}
           label="Дата на издаване"
           type="date"
           value={issueDate}
           onChange={onIssueDateChange}
-          required
           error={Boolean(errors.issueDate)}
           helperText={
             <FormFieldHelperText
               errorMessage={errors.issueDate?.message}
-              hint="Задължително поле. Дата на издаване."
+              hint="При нужда може да редактирате датата."
             />
           }
           FormHelperTextProps={{ component: "div" }}
           sx={gridFieldSx}
         />
       </Grid>
-      <Grid item xs={12} md={4}>
+      <Grid item xs={12} md={3}>
         <TextField
           {...fieldProps}
           label="Падеж"
@@ -105,14 +127,14 @@ export const DocumentSection = ({
           helperText={
             <FormFieldHelperText
               errorMessage={errors.dueDate?.message}
-              hint="По избор. Ако е празно, се приема датата на издаване."
+              hint="Ако е празно, се приема датата на издаване."
             />
           }
           FormHelperTextProps={{ component: "div" }}
           sx={gridFieldSx}
         />
       </Grid>
-      <Grid item xs={12} md={4}>
+      <Grid item xs={12} md={3}>
         <TextField
           {...fieldProps}
           select
@@ -123,7 +145,7 @@ export const DocumentSection = ({
           helperText={
             <FormFieldHelperText
               errorMessage={errors.currency?.message}
-              hint="По подразбиране от профила; промяната е само за тази фактура."
+              hint="По подразбиране от профила; промяната ще бъде само за тази фактура."
             />
           }
           FormHelperTextProps={{ component: "div" }}
@@ -139,4 +161,3 @@ export const DocumentSection = ({
     </Grid>
   </Paper>
 );
-

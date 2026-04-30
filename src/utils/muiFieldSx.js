@@ -1,5 +1,3 @@
-/** Shared MUI TextField styles */
-
 const FIELD_RADIUS = 1;
 
 const outlinedFieldBase = {
@@ -71,4 +69,44 @@ export const gridFieldSx = {
   ...outlinedFieldBase,
   mb: 0,
   ...compactOutlinedInput,
+};
+
+export const inlineCellSx = {
+  "& .MuiOutlinedInput-root": {
+    borderRadius: FIELD_RADIUS,
+    minHeight: 44,
+    height: "auto",
+    alignItems: "center",
+    "& .MuiOutlinedInput-notchedOutline": {
+      borderRadius: FIELD_RADIUS,
+    },
+    "& fieldset": { borderColor: "rgba(15, 23, 42, 0.14)" },
+    "&:hover fieldset": { borderColor: "rgba(15, 23, 42, 0.16)" },
+    "&.Mui-focused fieldset": {
+      borderColor: "var(--color-brand-primary)",
+      borderWidth: 1,
+    },
+  },
+  "& .MuiOutlinedInput-input": {
+    py: "10px",
+    fontSize: "0.9rem",
+    lineHeight: 1.5,
+    boxSizing: "border-box",
+    borderRadius: "inherit",
+  },
+  "& .MuiSelect-select": {
+    paddingTop: "10px !important",
+    paddingBottom: "10px !important",
+    paddingRight: "32px !important",
+    minHeight: "auto",
+    display: "flex",
+    alignItems: "center",
+    borderRadius: "inherit",
+  },
+  "& .MuiSelect-icon": {
+    right: 8,
+  },
+  "& .MuiInputAdornment-root": {
+    mt: 0,
+  },
 };

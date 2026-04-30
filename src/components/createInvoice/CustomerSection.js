@@ -60,7 +60,7 @@ export const CustomerSection = ({
       </Box>
     </Stack>
     <Grid container spacing={2}>
-      <Grid item xs={12} md={4}>
+      <Grid item xs={12} md={6}>
         <TextField
           {...fieldProps}
           label="Име на клиент"
@@ -80,7 +80,7 @@ export const CustomerSection = ({
           sx={gridFieldSx}
         />
       </Grid>
-      <Grid item xs={12} md={4}>
+      <Grid item xs={12} md={3}>
         <TextField
           {...fieldProps}
           select
@@ -111,7 +111,7 @@ export const CustomerSection = ({
       </Grid>
       {customerType === "business" ? (
         <>
-          <Grid item xs={12} md={4}>
+          <Grid item xs={12} md={3}>
             <TextField
               {...fieldProps}
               label={customerIdLabel}
@@ -171,7 +171,7 @@ export const CustomerSection = ({
           ) : null}
         </>
       ) : (
-        <Grid item xs={12} md={4}>
+        <Grid item xs={12} md={3}>
           <TextField
             {...fieldProps}
             label="Личен идентификатор (по избор)"
@@ -207,7 +207,6 @@ export const CustomerSection = ({
           placeholder="напр. 1000"
           value={customerPostCode}
           onChange={onCustomerPostCodeChange}
-          helperText={<FormFieldHelperText hint="Пощенски код." />}
           FormHelperTextProps={{ component: "div" }}
           sx={gridFieldSx}
         />
@@ -220,7 +219,6 @@ export const CustomerSection = ({
           placeholder="напр. София"
           value={customerCity}
           onChange={onCustomerCityChange}
-          helperText={<FormFieldHelperText hint="Град." />}
           FormHelperTextProps={{ component: "div" }}
           sx={gridFieldSx}
         />
@@ -236,10 +234,7 @@ export const CustomerSection = ({
           onChange={onCustomerEmailChange}
           error={Boolean(errors.customerEmail)}
           helperText={
-            <FormFieldHelperText
-              errorMessage={errors.customerEmail?.message}
-              hint="Имейл за фактуриране."
-            />
+            <FormFieldHelperText errorMessage={errors.customerEmail?.message} />
           }
           FormHelperTextProps={{ component: "div" }}
           sx={gridFieldSx}
