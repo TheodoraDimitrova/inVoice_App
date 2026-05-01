@@ -1,6 +1,6 @@
 import React from "react";
 import { Box, Grid, Stack } from "@mui/material";
-import { lineTotalWithVat } from "../../../utils/invoiceLineNet";
+import { lineTotalWithVat } from "../../../../utils/invoiceLineNet";
 import { invoiceLineFieldSx, COMMON_UNIT_OPTIONS } from "./styles";
 import { ProductNameField } from "./fields/ProductNameField";
 import { QuantityField } from "./fields/QuantityField";

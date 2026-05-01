@@ -11,13 +11,12 @@ import {
   Typography,
 } from "@mui/material";
 import GavelOutlinedIcon from "@mui/icons-material/GavelOutlined";
-import { FormFieldHelperText } from "../FormFieldHelperText";
-
+import { FormFieldHelperText } from "../../../components/FormFieldHelperText";
 import {
   getCompanyIdentityIdentifiers,
   getPrimaryCompanyIdentityRule,
-} from "../../data/companyIdentityRules";
-import { gridFieldSx, setupProfileFieldProps } from "../../utils/muiFieldSx";
+} from "../../../data/companyIdentityRules";
+import { gridFieldSx, setupProfileFieldProps } from "../../../utils/muiFieldSx";
 import { SectionTitle } from "./SectionTitle";
 
 const fieldProps = setupProfileFieldProps;

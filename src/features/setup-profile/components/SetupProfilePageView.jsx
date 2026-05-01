@@ -11,7 +11,7 @@ import {
   CompanySection,
   LogoSection,
   TaxSection,
-} from "../../../components/setupProfile";
+} from ".";
 import {
   LOGO_ACCEPT,
   LOGO_FORMATS_LABEL,

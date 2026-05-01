@@ -1,7 +1,7 @@
 import React from "react";
 import { Box, MenuItem, TextField } from "@mui/material";
-import { setupProfileFieldProps } from "../../../../utils/muiFieldSx";
-import { FormFieldHelperText } from "../../../FormFieldHelperText";
+import { setupProfileFieldProps } from "../../../../../utils/muiFieldSx";
+import { FormFieldHelperText } from "../../../../../components/FormFieldHelperText";
 
 const fieldProps = setupProfileFieldProps;
 

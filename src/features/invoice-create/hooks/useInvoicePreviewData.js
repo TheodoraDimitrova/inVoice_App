@@ -6,6 +6,8 @@ export const useInvoicePreviewData = ({
   invoiceItems,
   invoiceNumberPreview,
   getValidInvoiceNumber,
+  includeInvoiceNote,
+  invoiceNote,
 }) =>
   useMemo(
     () =>
@@ -15,5 +17,8 @@ export const useInvoicePreviewData = ({
         invoiceNumberPreview,
         getValidInvoiceNumber,
       }),
-    [getValues, getValidInvoiceNumber, invoiceItems, invoiceNumberPreview],
+    // includeInvoiceNote и invoiceNote са нужни като зависимости, за да се
+    // преизчисли memo-то при промяна на забележката, без смяна на артикули.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [getValues, getValidInvoiceNumber, invoiceItems, invoiceNumberPreview, includeInvoiceNote, invoiceNote],
   );

@@ -1,6 +1,6 @@
 import React from "react";
 import { Button, InputAdornment, MenuItem, Stack, TextField } from "@mui/material";
-import { setupProfileFieldProps } from "../../../utils/muiFieldSx";
+import { setupProfileFieldProps } from "../../../../utils/muiFieldSx";
 import { RowTotal } from "./RowTotal";
 
 const fieldProps = setupProfileFieldProps;

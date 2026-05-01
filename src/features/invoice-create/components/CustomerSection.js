@@ -11,8 +11,8 @@ import {
   Typography,
 } from "@mui/material";
 import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
-import { FormFieldHelperText } from "../FormFieldHelperText";
-import { gridFieldSx, setupProfileFieldProps } from "../../utils/muiFieldSx";
+import { FormFieldHelperText } from "../../../components/FormFieldHelperText";
+import { gridFieldSx, setupProfileFieldProps } from "../../../utils/muiFieldSx";
 
 const fieldProps = setupProfileFieldProps;
 

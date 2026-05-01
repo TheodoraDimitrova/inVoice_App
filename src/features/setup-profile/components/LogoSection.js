@@ -3,12 +3,9 @@ import { Box, Button, Stack, Typography } from "@mui/material";
 import CloudUploadOutlinedIcon from "@mui/icons-material/CloudUploadOutlined";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
-import { LOGO_FORMATS_LABEL } from "../../utils/validateLogo";
+import { LOGO_FORMATS_LABEL } from "../../../utils/validateLogo";
 import { SectionTitle } from "./SectionTitle";
 
-/**
- * Logo upload UI (state lives in parent for submit + storage upload).
- */
 export const LogoSection = ({
   logo,
   logoFileName,

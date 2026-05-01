@@ -47,21 +47,7 @@ export const showToast = (type, message) => {
     toast.error(message, toastOptions);
   }
 };
-// export const findGrandTotal = ({ itemList }, currency, vatRate) => {
-//   console.log(vatRate);
-//   let total = 0;
-//   for (let i = 0; i < itemList.length; i++) {
-//     const amount =
-//       itemList[i].itemCost * itemList[i].itemQuantity -
-//       (itemList[i].itemCost *
-//         itemList[i].itemQuantity *
-//         (itemList[i].itemDiscount || 0)) /
-//         100;
-//     total += amount;
-//   }
-//   total = total * ((100 + vatRate) / 100);
-//   return `${currency} ${total.toFixed(2).toLocaleString("en-US")}`;
-// };
+
 export const findGrandTotal = ({ itemList }, currency, vatRate) => {
   if (typeof currency !== "string") {
     throw new Error("Currency must be a string");
@@ -92,23 +78,10 @@ export const checkVat = ({ itemList }, currency, vatRate) => {
 
 export const convertTimestamp = (timestamp) => {
   const fireBaseTime = new Date(
-    timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000
+    timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000,
   );
-  const day =
-    fireBaseTime.getDate() < 10
-      ? `0${fireBaseTime.getDate()}`
-      : fireBaseTime.getDate();
-  // const month =
-  //   fireBaseTime.getMonth() < 10
-  //     ? `0${fireBaseTime.getMonth() + 1}`
-  //     : fireBaseTime.getMonth() + 1;
-
-  const month =
-    fireBaseTime.getMonth().length === 1
-      ? `0${fireBaseTime.getMonth() + 1}`
-      : fireBaseTime.getMonth() + 1;
-
+  const day = String(fireBaseTime.getDate()).padStart(2, "0");
+  const month = String(fireBaseTime.getMonth() + 1).padStart(2, "0");
   const year = fireBaseTime.getFullYear();
-
-  return `${day}-${month}-${year}`;
+  return `${day}.${month}.${year}`;
 };

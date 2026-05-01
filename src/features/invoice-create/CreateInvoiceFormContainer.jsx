@@ -31,7 +31,7 @@ import {
   VAT_EXEMPT_DEFAULT_NOTE,
 } from "./index";
 import CreateInvoiceFormView from "./components/CreateInvoiceFormView";
-import { ComponentToPrint as InvoicePreviewContent } from "../../pages/ViewInvoice";
+import { InvoicePreviewContent } from "../invoice-view";
 
 const CreateInvoiceFormContainer = () => {
   const defaultFormValues = useMemo(() => createDefaultInvoiceFormValues(), []);
@@ -186,6 +186,8 @@ const CreateInvoiceFormContainer = () => {
     invoiceItems,
     invoiceNumberPreview,
     getValidInvoiceNumber,
+    includeInvoiceNote,
+    invoiceNote,
   });
 
   const blockNewInvoice = !invoiceId && !invoiceCreationReady;

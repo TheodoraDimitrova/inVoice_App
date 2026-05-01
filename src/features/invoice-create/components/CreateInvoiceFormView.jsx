@@ -17,7 +17,7 @@ import {
   TotalsSection,
   SaveInvoiceDialog,
   InvoicePreviewDialog,
-} from "../../../components/createInvoice";
+} from ".";
 
 const CreateInvoiceFormView = ({
   loading,

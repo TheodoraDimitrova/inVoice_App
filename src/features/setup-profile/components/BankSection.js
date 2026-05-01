@@ -2,8 +2,8 @@ import React from "react";
 import { Controller, useWatch } from "react-hook-form";
 import { Box, FormControlLabel, Grid, Switch, TextField, Typography } from "@mui/material";
 import AccountBalanceOutlinedIcon from "@mui/icons-material/AccountBalanceOutlined";
-import { FormFieldHelperText } from "../FormFieldHelperText";
-import { gridFieldSx, setupProfileFieldProps } from "../../utils/muiFieldSx";
+import { FormFieldHelperText } from "../../../components/FormFieldHelperText";
+import { gridFieldSx, setupProfileFieldProps } from "../../../utils/muiFieldSx";
 import { SectionTitle } from "./SectionTitle";
 
 const fieldProps = setupProfileFieldProps;

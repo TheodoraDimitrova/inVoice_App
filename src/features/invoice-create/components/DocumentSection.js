@@ -11,8 +11,8 @@ import {
   Typography,
 } from "@mui/material";
 import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
-import { FormFieldHelperText } from "../FormFieldHelperText";
-import { gridFieldSx, setupProfileFieldProps } from "../../utils/muiFieldSx";
+import { FormFieldHelperText } from "../../../components/FormFieldHelperText";
+import { gridFieldSx, setupProfileFieldProps } from "../../../utils/muiFieldSx";
 
 const fieldProps = setupProfileFieldProps;
 const formatInvoicePreviewNumber = (value) => {

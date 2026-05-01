@@ -1,5 +1,5 @@
 import React from "react";
-import { InvoiceTotalsSummary } from "../invoice/InvoiceTotalsSummary";
+import { InvoiceTotalsSummary } from "../../../components/invoice/InvoiceTotalsSummary";
 
 export const TotalsSection = ({
   currencySign,

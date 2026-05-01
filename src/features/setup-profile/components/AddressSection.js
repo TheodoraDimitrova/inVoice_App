@@ -2,8 +2,8 @@ import React, { useEffect } from "react";
 import { Controller } from "react-hook-form";
 import { Grid, TextField } from "@mui/material";
 import PlaceOutlinedIcon from "@mui/icons-material/PlaceOutlined";
-import { FormFieldHelperText } from "../FormFieldHelperText";
-import { gridFieldSx, setupProfileFieldProps } from "../../utils/muiFieldSx";
+import { FormFieldHelperText } from "../../../components/FormFieldHelperText";
+import { gridFieldSx, setupProfileFieldProps } from "../../../utils/muiFieldSx";
 import { SectionTitle } from "./SectionTitle";
 
 const fieldProps = setupProfileFieldProps;

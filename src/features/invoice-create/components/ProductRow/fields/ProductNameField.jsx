@@ -1,8 +1,8 @@
 import React from "react";
 import { Autocomplete, TextField } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { setupProfileFieldProps } from "../../../../utils/muiFieldSx";
-import { FormFieldHelperText } from "../../../FormFieldHelperText";
+import { setupProfileFieldProps } from "../../../../../utils/muiFieldSx";
+import { FormFieldHelperText } from "../../../../../components/FormFieldHelperText";
 
 const fieldProps = setupProfileFieldProps;
 const NO_PRODUCTS_OPTION = "Нямате запазени продукти";
