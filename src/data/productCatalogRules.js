@@ -1,7 +1,6 @@
 export function normalizeStoredProduct(data, id) {
   const quantityDefault = Number(data?.quantityDefault);
   const unit = String(data?.unit || "").trim() || "бр.";
-  const vat = Number(data?.vat);
   return {
     id,
     name: data?.name || "",
@@ -11,6 +10,5 @@ export function normalizeStoredProduct(data, id) {
         ? quantityDefault
         : 1,
     unit,
-    vat: Number.isFinite(vat) ? vat : 20,
   };
 }
