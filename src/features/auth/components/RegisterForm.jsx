@@ -6,11 +6,11 @@ import {
   IconButton,
   InputAdornment,
   TextField,
-  Typography,
 } from "@mui/material";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { outlinedFieldLabelProps, outlinedFieldSx } from "../../../utils/muiFieldSx";
+import { FormFieldHelperText } from "../../../components/FormFieldHelperText";
 import { EMAIL_REGEX } from "../utils/authErrors";
 
 const switchLinkClass =
@@ -34,11 +34,6 @@ const RegisterForm = ({
       onSubmit={handleSubmit(onSubmit)}
       sx={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "stretch" }}
     >
-      {errors?.registerEmail && (
-        <Typography sx={{ color: "error.main", mb: 1, fontSize: "0.875rem", textAlign: "center" }}>
-          {errors.registerEmail.message}
-        </Typography>
-      )}
       <TextField
         label="Имейл"
         variant="outlined"
@@ -47,17 +42,20 @@ const RegisterForm = ({
         type="email"
         InputLabelProps={outlinedFieldLabelProps}
         sx={outlinedFieldSx}
+        error={Boolean(errors?.registerEmail)}
+        helperText={
+          <FormFieldHelperText
+            errorMessage={errors?.registerEmail?.message}
+            hint="Моля, въведете вашия имейл."
+          />
+        }
+        FormHelperTextProps={{ component: "div" }}
         {...register("registerEmail", {
           required: "Моля, въведете валиден имейл",
           pattern: { value: EMAIL_REGEX, message: "Въведете валиден имейл" },
         })}
       />
 
-      {errors?.registerPassword && (
-        <Typography sx={{ color: "error.main", mb: 1, fontSize: "0.875rem", textAlign: "center" }}>
-          {errors.registerPassword.message}
-        </Typography>
-      )}
       <TextField
         label="Парола"
         autoComplete="new-password"
@@ -80,6 +78,14 @@ const RegisterForm = ({
           ),
         }}
         sx={outlinedFieldSx}
+        error={Boolean(errors?.registerPassword)}
+        helperText={
+          <FormFieldHelperText
+            errorMessage={errors?.registerPassword?.message}
+            hint="Минимум 8 символа."
+          />
+        }
+        FormHelperTextProps={{ component: "div" }}
         {...register("registerPassword", {
           required: "Моля, въведете парола",
           minLength: { value: 8, message: "Паролата трябва да е поне 8 символа" },

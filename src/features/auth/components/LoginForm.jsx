@@ -6,11 +6,11 @@ import {
   IconButton,
   InputAdornment,
   TextField,
-  Typography,
 } from "@mui/material";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { outlinedFieldLabelProps, outlinedFieldSx } from "../../../utils/muiFieldSx";
+import { FormFieldHelperText } from "../../../components/FormFieldHelperText";
 import { EMAIL_REGEX } from "../utils/authErrors";
 
 const switchLinkClass =
@@ -35,11 +35,6 @@ const LoginForm = ({
       onSubmit={handleSubmit(onSubmit)}
       sx={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "stretch" }}
     >
-      {errors?.loginEmail && (
-        <Typography sx={{ color: "error.main", mb: 1, fontSize: "0.875rem", textAlign: "center" }}>
-          {errors.loginEmail.message}
-        </Typography>
-      )}
       <TextField
         label="Имейл"
         variant="outlined"
@@ -48,17 +43,20 @@ const LoginForm = ({
         type="email"
         InputLabelProps={outlinedFieldLabelProps}
         sx={outlinedFieldSx}
+        error={Boolean(errors?.loginEmail)}
+        helperText={
+          <FormFieldHelperText
+            errorMessage={errors?.loginEmail?.message}
+            hint="Моля, въведете вашия имейл."
+          />
+        }
+        FormHelperTextProps={{ component: "div" }}
         {...register("loginEmail", {
           required: "Моля, въведете валиден имейл",
           pattern: { value: EMAIL_REGEX, message: "Въведете валиден имейл" },
         })}
       />
 
-      {errors?.loginPassword && (
-        <Typography sx={{ color: "error.main", mb: 1, fontSize: "0.875rem", textAlign: "center" }}>
-          {errors.loginPassword.message}
-        </Typography>
-      )}
       <TextField
         label="Парола"
         type={showPassword ? "text" : "password"}
@@ -81,6 +79,11 @@ const LoginForm = ({
           ),
         }}
         sx={outlinedFieldSx}
+        error={Boolean(errors?.loginPassword)}
+        helperText={
+          <FormFieldHelperText errorMessage={errors?.loginPassword?.message} />
+        }
+        FormHelperTextProps={{ component: "div" }}
         {...register("loginPassword", {
           required: "Моля, въведете парола",
           minLength: { value: 8, message: "Паролата трябва да е поне 8 символа" },

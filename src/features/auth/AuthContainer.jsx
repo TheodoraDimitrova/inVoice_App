@@ -12,11 +12,17 @@ const AuthContainer = () => {
     formState: { errors },
     reset,
   } = useForm();
-  const { login, register: registerUser, loginWithGoogle } = useAuth();
-  const forgotPassword = useForgotPassword();
+  const { login, signUp, loginWithGoogle } = useAuth();
+  const { open, email, loading, openDialog, closeDialog, setEmail, submit } =
+    useForgotPassword();
 
-  const switchMode = (toRegister) => {
-    setIsRegister(toRegister);
+  const goToRegister = () => {
+    setIsRegister(true);
+    reset();
+  };
+
+  const goToLogin = () => {
+    setIsRegister(false);
     reset();
   };
 
@@ -27,11 +33,19 @@ const AuthContainer = () => {
       handleSubmit={handleSubmit}
       errors={errors}
       onLogin={login}
-      onRegister={registerUser}
+      onRegister={signUp}
       onGoogleLogin={loginWithGoogle}
-      onSwitchToRegister={() => switchMode(true)}
-      onSwitchToLogin={() => switchMode(false)}
-      forgotPassword={forgotPassword}
+      onSwitchToRegister={goToRegister}
+      onSwitchToLogin={goToLogin}
+      forgotPassword={{
+        open,
+        email,
+        loading,
+        onOpen: openDialog,
+        onClose: closeDialog,
+        onEmailChange: (e) => setEmail(e.target.value),
+        onSubmit: submit,
+      }}
     />
   );
 };
