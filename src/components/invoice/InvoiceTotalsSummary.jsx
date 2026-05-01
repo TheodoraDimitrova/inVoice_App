@@ -14,12 +14,18 @@ export const InvoiceTotalsSummary = ({
   const secondarySubtotal = formatSecondaryAmount
     ? formatSecondaryAmount(subtotal, "subtotal")
     : "";
+  const secondaryDiscount = formatSecondaryAmount
+    ? formatSecondaryAmount(discountTotal, "discount")
+    : "";
   const secondaryVat = formatSecondaryAmount
     ? formatSecondaryAmount(vatTotal, "vat")
     : "";
   const secondaryGrand = formatSecondaryAmount
     ? formatSecondaryAmount(grandTotal, "grandTotal")
     : "";
+
+  const hasDiscount = Number(discountTotal) > 0;
+  const negativeSecondaryDiscount = secondaryDiscount ? `-${secondaryDiscount}` : "";
 
   const Row = ({ label, value, currency, secondary, isTotal = false }) => (
     <Stack
@@ -99,6 +105,15 @@ export const InvoiceTotalsSummary = ({
           currency={currencyLabel}
           secondary={secondarySubtotal}
         />
+
+        {hasDiscount && (
+          <Row
+            label="Отстъпки"
+            value={`-${Number(discountTotal).toFixed(2)}`}
+            currency={currencyLabel}
+            secondary={negativeSecondaryDiscount}
+          />
+        )}
 
         <Row
           label={vatLabel}

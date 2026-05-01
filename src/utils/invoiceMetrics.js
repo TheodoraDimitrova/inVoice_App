@@ -19,34 +19,57 @@ export function computeInvoiceGrandTotalNumber(itemList, vatRate) {
  * @param {number|string} defaultVatRate from business profile
  */
 export function aggregateDashboardMetrics(invoices, defaultVatRate) {
-  let totalRevenue = 0;
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+  const monthEnd = new Date(
+    now.getFullYear(),
+    now.getMonth() + 1,
+    1
+  ).getTime();
+
+  let monthlyRevenue = 0;
   let currency = "EUR";
-  let pendingCount = 0;
-  let draftsCount = 0;
+  let issuedCount = 0;
+  let paidCount = 0;
+  let unpaidCount = 0;
 
   for (const inv of invoices) {
     const d = inv.data;
+    if (!d || d.status === "draft") continue;
+
     if (d.currency && typeof d.currency === "string") {
       currency = d.currency;
     }
-    totalRevenue += computeInvoiceGrandTotalNumber(d.itemList, defaultVatRate);
 
-    const ps = d.paymentStatus;
-    if (ps === "unpaid" || ps === "pending" || ps === "overdue") {
-      pendingCount += 1;
-    } else if (d.paid === false) {
-      pendingCount += 1;
-    }
+    const ts = d.timestamp?.seconds
+      ? d.timestamp.seconds * 1000
+      : Number.NaN;
+    const isCurrentMonth = Number.isFinite(ts) && ts >= monthStart && ts < monthEnd;
+    if (!isCurrentMonth) continue;
 
-    if (d.status === "draft") {
-      draftsCount += 1;
+    issuedCount += 1;
+    monthlyRevenue += computeInvoiceGrandTotalNumber(d.itemList, defaultVatRate);
+
+    const paymentStatus = String(d.paymentStatus || "").toLowerCase();
+    const isPaid =
+      paymentStatus === "paid" ||
+      paymentStatus === "completed" ||
+      d.paid === true;
+    if (isPaid) {
+      paidCount += 1;
+    } else {
+      unpaidCount += 1;
     }
   }
 
+  const averageInvoiceValue = issuedCount > 0 ? monthlyRevenue / issuedCount : 0;
+
   return {
-    totalRevenue,
+    monthlyRevenue,
+    averageInvoiceValue,
     currency,
-    pendingCount,
-    draftsCount,
+    issuedCount,
+    paidCount,
+    unpaidCount,
   };
 }
