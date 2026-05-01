@@ -14,7 +14,13 @@ export const QuantityField = ({ row, lineSx, updateRow, error }) => (
     placeholder="1"
     value={row.itemQuantity}
     onChange={(e) => updateRow(row._rowId, "itemQuantity", e.target.value)}
-    inputProps={{ min: 0, step: "0.01" }}
+    onBlur={(e) => {
+      const parsed = Number(e.target.value);
+      if (!Number.isFinite(parsed) || parsed < 1) {
+        updateRow(row._rowId, "itemQuantity", 1);
+      }
+    }}
+    inputProps={{ min: 1, step: "0.01" }}
     error={Boolean(error)}
     helperText={<FormFieldHelperText errorMessage={error} />}
     FormHelperTextProps={{ component: "div" }}

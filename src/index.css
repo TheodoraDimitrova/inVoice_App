@@ -18,7 +18,6 @@ body {
   --color-border-soft: #e2e8f0;
   --color-border-hover: #cbd5e1;
   --color-text-muted: #64748b;
-  /* Aligns header, body sections, footer on one vertical rhythm (same as max-w-6xl + px-4 md:px-8) */
   --page-max-width: 72rem;
   --page-padding-x: 1rem;
 }
@@ -114,19 +113,27 @@ table {
     0 1px 1px 0 rgba(0, 0, 0, 0.05);
 }
 thead {
-  background-color: #dddddd;
+  background-color: #ffffff;
 }
 
 td,
 th {
-  /* border: 1px solid #dddddd; */
   text-align: left;
-  padding: 4px;
-}
-
-tr:nth-child(even) {
-  background-color: #f7f7f7;
+  padding: 8px 6px;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
 }
 tr:hover {
-  background-color: #f7f5f2;
+  background-color: #f3f8f6;
+}
+
+table tbody tr {
+  transition: background-color 140ms ease-in-out;
+}
+
+.MuiTableCell-root {
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.MuiTableHead-root .MuiTableCell-root {
+  border-bottom: 1px solid rgba(15, 23, 42, 0.12);
 }

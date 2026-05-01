@@ -27,6 +27,7 @@ import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
 import { getCountryCommercialDefaults } from "../data/countryCommercialRules";
 import { aggregateDashboardMetrics } from "../utils/invoiceMetrics";
 import { useInvoiceCreationReady } from "../contexts/InvoiceCreationReadyContext";
+import { tableSurfaceSx } from "../utils/tableStyles";
 
 const metricPaperSx = {
   borderRadius: 2,
@@ -121,7 +122,7 @@ const Dashboard = () => {
       {loading ? (
         <Loading />
       ) : (
-        <Box sx={{ px: { xs: 2, sm: 3 }, py: { xs: 2, sm: 2.5 }, maxWidth: "100%" }}>
+        <Box sx={{ px: { xs: 2, sm: 3 }, py: { xs: 2, sm: 2.5 }, maxWidth: 1100, mx: "auto" }}>
           {!invoiceGateLoading && !canCreateInvoice ? (
             <Alert
               severity="warning"
@@ -296,19 +297,26 @@ const Dashboard = () => {
             </Grid>
           )}
 
-          <Box>
+          <Paper
+            variant="outlined"
+            sx={{
+              ...tableSurfaceSx,
+              maxWidth: "100%",
+              p: { xs: 1.5, sm: 2 },
+            }}
+          >
             <Typography
               sx={{
                 fontWeight: 700,
                 fontSize: "0.95rem",
                 color: "#334155",
-                mb: 1.5,
+                mb: 1,
               }}
             >
               Последни фактури
             </Typography>
-            <Table invoices={invoices} />
-          </Box>
+            <Table invoices={invoices} defaultVatRate={vatRate} />
+          </Paper>
         </Box>
       )}
     </>

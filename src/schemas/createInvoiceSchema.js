@@ -18,9 +18,9 @@ const invoiceItemSchema = z.object({
 
   itemUnit: z.string().optional(),
 
-  itemCost: z.coerce.number().nonnegative(),
+  itemCost: z.coerce.number().gt(0, "Ед. цена е задължителна."),
 
-  itemQuantity: z.coerce.number().positive(),
+  itemQuantity: z.coerce.number().gt(0, "Количеството трябва да е по-голямо от 0."),
 
   itemVatRate: z.union([z.literal(0), z.literal(9), z.literal(20)]).default(20),
   itemDiscountPercent: z.coerce.number().nonnegative().optional(),

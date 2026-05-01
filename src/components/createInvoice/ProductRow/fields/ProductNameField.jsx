@@ -56,7 +56,13 @@ export const ProductNameField = ({
             ? pickedVat
             : Number(row.itemVatRate || 0),
         };
-        if (!(Number(row.itemQuantity) > 0)) nextPatch.itemQuantity = 1;
+        const pickedQuantity = Number(selected.quantityDefault);
+        if (!(Number(row.itemQuantity) > 0)) {
+          nextPatch.itemQuantity =
+            Number.isFinite(pickedQuantity) && pickedQuantity >= 1
+              ? pickedQuantity
+              : 1;
+        }
         patchRow(row._rowId, nextPatch);
       }}
       sx={lineSx}

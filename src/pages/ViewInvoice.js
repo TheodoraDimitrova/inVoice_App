@@ -13,7 +13,6 @@ import {
   lineVatAmount,
   lineTotalWithVat,
 } from "../utils/invoiceLineNet";
-import { getCategoryById, kindLabel, normalizeCategoryId } from "../data/productCatalogRules";
 
 import Loading from "../components/Loading";
 import { getAuth } from "firebase/auth";
@@ -355,10 +354,15 @@ export const ComponentToPrint = React.forwardRef((props, ref) => {
                       .filter(Boolean)
                       .join(" ");
                     const lineTot = lineTotalWithVat(item, fallbackVatRate);
-                    const cat = getCategoryById(normalizeCategoryId(item.itemCategory));
+                    const kind =
+                      item.itemKind === "service"
+                        ? "Услуга"
+                        : item.itemKind === "product"
+                          ? "Продукт"
+                          : "";
                     const meta = [
-                      kindLabel(item.itemKind === "service" ? "service" : "product"),
-                      item.itemCategory ? cat.label : "",
+                      kind,
+                      String(item.itemCategory || "").trim(),
                       item.itemApplication || "",
                     ]
                       .filter(Boolean)

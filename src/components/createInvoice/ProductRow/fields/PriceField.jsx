@@ -14,7 +14,13 @@ export const PriceField = ({ row, lineSx, currencySign, updateRow, error }) => (
     placeholder="0.00"
     value={row.itemCost}
     onChange={(e) => updateRow(row._rowId, "itemCost", e.target.value)}
-    inputProps={{ step: "0.01", min: 0 }}
+    onBlur={(e) => {
+      const parsed = Number(e.target.value);
+      if (!Number.isFinite(parsed) || parsed <= 0) {
+        updateRow(row._rowId, "itemCost", "0.01");
+      }
+    }}
+    inputProps={{ step: "0.01", min: 0.01 }}
     error={Boolean(error)}
     helperText={<FormFieldHelperText errorMessage={error} />}
     FormHelperTextProps={{ component: "div" }}

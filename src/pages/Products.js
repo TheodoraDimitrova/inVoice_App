@@ -5,7 +5,9 @@ import {
   deleteDoc,
   doc,
   getDocs,
+  query,
   updateDoc,
+  where,
 } from "firebase/firestore";
 import {
   Box,
@@ -16,7 +18,6 @@ import {
   DialogTitle,
   Grid,
   IconButton,
-  MenuItem,
   Paper,
   Stack,
   Table,
@@ -25,7 +26,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  TextField,
   Typography,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
@@ -35,80 +35,72 @@ import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 
 import db, { auth } from "../firebase";
 import { showToast } from "../utils/functions";
-import { outlinedFieldSx, setupProfileFieldProps } from "../utils/muiFieldSx";
+import { inlineCellSx } from "../utils/muiFieldSx";
 import {
-  PRODUCT_CATALOG_CATEGORIES,
-  PRODUCT_KINDS,
-  getCategoryById,
-  normalizeApplicationForCategory,
-  normalizeCategoryId,
-  normalizeStoredProduct,
-  normalizeUnitForCategory,
-  kindLabel,
-} from "../data/productCatalogRules";
+  dataTableSx,
+  numericCellSx,
+  tableSurfaceSx,
+} from "../utils/tableStyles";
+import { createProductSchema } from "../schemas/productSchema";
+import {
+  invoiceLineFieldSx,
+  COMMON_UNIT_OPTIONS,
+} from "../components/createInvoice/ProductRow/styles";
+import { ProductNameField } from "../components/createInvoice/ProductRow/fields/ProductNameField";
+import { QuantityField } from "../components/createInvoice/ProductRow/fields/QuantityField";
+import { UnitField } from "../components/createInvoice/ProductRow/fields/UnitField";
+import { PriceField } from "../components/createInvoice/ProductRow/fields/PriceField";
+import { VatField } from "../components/createInvoice/ProductRow/fields/VatField";
+import { normalizeStoredProduct } from "../data/productCatalogRules";
 
 const VAT_OPTIONS = [20, 9, 0];
 
-/** Полета в модала: пълна ширина, без „излизане“ от outline при select. */
-const productDialogFieldSx = {
-  ...outlinedFieldSx,
-  mb: 0,
-  width: "100%",
-  minWidth: 0,
-  "& .MuiOutlinedInput-root": {
-    maxWidth: "100%",
-  },
-  "& .MuiSelect-select": {
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    whiteSpace: "nowrap",
-    pr: "36px !important",
-  },
-};
-
-const firstCat = PRODUCT_CATALOG_CATEGORIES[0];
+const FORM_ROW_ID = 1;
 const EMPTY_FORM = {
-  name: "",
-  price: "",
-  kind: "product",
-  category: firstCat.id,
-  application: firstCat.applications[0],
-  unit: firstCat.units[0],
-  vat: 20,
+  itemName: "",
+  itemQuantity: "1",
+  itemUnit: COMMON_UNIT_OPTIONS[0],
+  itemCost: "",
+  itemVatRate: 20,
 };
 
 function Products() {
   const [products, setProducts] = useState([]);
+  const [isBusinessVatRegistered, setIsBusinessVatRegistered] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [editingId, setEditingId] = useState("");
   const [formData, setFormData] = useState(EMPTY_FORM);
+  const [formErrors, setFormErrors] = useState({});
+  const lineSx = useMemo(() => invoiceLineFieldSx(inlineCellSx), []);
+  const formRow = useMemo(
+    () => ({ ...formData, _rowId: FORM_ROW_ID }),
+    [formData],
+  );
 
   const editing = Boolean(editingId);
 
   useEffect(() => {
     fetchProducts();
+    fetchBusinessMeta();
   }, []);
 
   const sortedProducts = useMemo(
     () =>
       [...products].sort((a, b) =>
-        String(a?.name || "").localeCompare(String(b?.name || ""), "bg")
+        String(a?.name || "").localeCompare(String(b?.name || ""), "bg"),
       ),
-    [products]
-  );
-
-  const formCategory = useMemo(
-    () => getCategoryById(normalizeCategoryId(formData.category)),
-    [formData.category]
+    [products],
   );
 
   const fetchProducts = async () => {
     try {
       const userId = auth.currentUser.uid;
-      const querySnapshot = await getDocs(collection(db, "users", userId, "products"));
+      const querySnapshot = await getDocs(
+        collection(db, "users", userId, "products"),
+      );
       const fetchedProducts = querySnapshot.docs.map((d) =>
-        normalizeStoredProduct(d.data(), d.id)
+        normalizeStoredProduct(d.data(), d.id),
       );
       setProducts(fetchedProducts);
     } catch {
@@ -116,23 +108,44 @@ function Products() {
     }
   };
 
+  const fetchBusinessMeta = async () => {
+    try {
+      const userId = auth.currentUser.uid;
+      const businessSnapshot = await getDocs(
+        query(collection(db, "businesses"), where("user_id", "==", userId)),
+      );
+      if (businessSnapshot.empty) return;
+      const data = businessSnapshot.docs[0]?.data?.() || {};
+      setIsBusinessVatRegistered(data?.isVatRegistered !== false);
+    } catch {
+      // Keep page usable if metadata request fails.
+    }
+  };
+
   const openAddDialog = () => {
     setEditingId("");
-    setFormData(EMPTY_FORM);
+    setFormData({
+      ...EMPTY_FORM,
+      itemVatRate: isBusinessVatRegistered ? EMPTY_FORM.itemVatRate : 0,
+    });
+    setFormErrors({});
     setDialogOpen(true);
   };
 
   const openEditDialog = (product) => {
     setEditingId(product.id);
     setFormData({
-      name: product.name || "",
-      price: String(product.price ?? ""),
-      kind: product.kind === "service" ? "service" : "product",
-      category: normalizeCategoryId(product.category),
-      application: product.application || firstCat.applications[0],
-      unit: product.unit || firstCat.units[0],
-      vat: Number.isFinite(Number(product.vat)) ? Number(product.vat) : 20,
+      itemName: product.name || "",
+      itemQuantity: String(product.quantityDefault ?? 1),
+      itemUnit: product.unit || COMMON_UNIT_OPTIONS[0],
+      itemCost: String(product.price ?? ""),
+      itemVatRate: isBusinessVatRegistered
+        ? Number.isFinite(Number(product.vat))
+          ? Number(product.vat)
+          : 20
+        : 0,
     });
+    setFormErrors({});
     setDialogOpen(true);
   };
 
@@ -141,37 +154,94 @@ function Products() {
     setDialogOpen(false);
     setEditingId("");
     setFormData(EMPTY_FORM);
+    setFormErrors({});
+  };
+
+  const updateField = (field, value) => {
+    const normalizedValue =
+      field === "itemVatRate" && !isBusinessVatRegistered ? 0 : value;
+    setFormData((prev) => ({ ...prev, [field]: normalizedValue }));
+    setFormErrors((prev) => {
+      if (!prev[field]) return prev;
+      const next = { ...prev };
+      delete next[field];
+      return next;
+    });
+  };
+  const updateRow = (rowId, field, value) => {
+    if (rowId !== FORM_ROW_ID) return;
+    updateField(field, value);
+  };
+  const patchRow = (rowId, patch) => {
+    if (rowId !== FORM_ROW_ID || !patch || typeof patch !== "object") return;
+    const normalizedPatch = { ...patch };
+    if (!isBusinessVatRegistered) normalizedPatch.itemVatRate = 0;
+
+    setFormData((prev) => ({ ...prev, ...normalizedPatch }));
+    setFormErrors((prev) => {
+      const next = { ...prev };
+      Object.keys(normalizedPatch).forEach((field) => {
+        delete next[field];
+      });
+      return next;
+    });
   };
 
   const saveProduct = async (e) => {
     e.preventDefault();
-    const name = String(formData.name || "").trim();
-    const price = Number(formData.price);
-    const kind = formData.kind === "service" ? "service" : "product";
-    const category = normalizeCategoryId(formData.category);
-    const unit = normalizeUnitForCategory(category, formData.unit);
-    const application = normalizeApplicationForCategory(category, formData.application);
-    const vat = Number(formData.vat);
+    const schema = createProductSchema({
+      isBusinessVatRegistered,
+      vatOptions: VAT_OPTIONS,
+    });
+    const parseResult = schema.safeParse({
+      itemName: formData.itemName,
+      itemQuantity: formData.itemQuantity,
+      itemUnit: formData.itemUnit,
+      itemCost: formData.itemCost,
+      itemVatRate: isBusinessVatRegistered ? formData.itemVatRate : 0,
+    });
 
-    if (!name || !Number.isFinite(price) || price < 0 || !VAT_OPTIONS.includes(vat)) {
-      showToast("error", "Попълнете всички задължителни полета коректно.");
+    if (!parseResult.success) {
+      const nextErrors = {};
+      parseResult.error.issues.forEach((issue) => {
+        const field = issue.path?.[0];
+        if (typeof field === "string" && !nextErrors[field]) {
+          nextErrors[field] = issue.message;
+        }
+      });
+      setFormErrors(nextErrors);
       return;
     }
 
-    const payload = { name, price, kind, category, application, unit, vat };
+    const { itemName, itemQuantity, itemUnit, itemCost, itemVatRate } =
+      parseResult.data;
+    setFormErrors({});
+
+    const payload = {
+      name: itemName,
+      price: itemCost,
+      unit: itemUnit,
+      vat: itemVatRate,
+      quantityDefault: itemQuantity,
+    };
     try {
       setSaving(true);
       const userId = auth.currentUser.uid;
       if (editing) {
-        await updateDoc(doc(db, "users", userId, "products", editingId), payload);
+        await updateDoc(
+          doc(db, "users", userId, "products", editingId),
+          payload,
+        );
       } else {
         await addDoc(collection(db, "users", userId, "products"), payload);
       }
       await fetchProducts();
       closeDialog();
-      showToast("success", editing ? "Продуктът е обновен успешно." : "Продуктът е добавен успешно.");
     } catch {
-      showToast("error", "Моля, свържете се с техническа поддръжка.");
+      setFormErrors((prev) => ({
+        ...prev,
+        _form: "Моля, свържете се с техническа поддръжка.",
+      }));
     } finally {
       setSaving(false);
     }
@@ -189,12 +259,32 @@ function Products() {
   };
 
   return (
-    <Box sx={{ px: { xs: 2, sm: 3 }, py: { xs: 2, sm: 2.5 }, maxWidth: 1100, mx: "auto" }}>
-      <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 2.5 }}>
-        <Typography variant="h6" component="h1" sx={{ fontWeight: 700, color: "var(--color-brand-charcoal)" }}>
-          Продукти и услуги
+    <Box
+      sx={{
+        px: { xs: 2, sm: 3 },
+        py: { xs: 2, sm: 2.5 },
+        maxWidth: 1100,
+        mx: "auto",
+      }}
+    >
+      <Stack
+        direction="row"
+        alignItems="center"
+        justifyContent="space-between"
+        sx={{ mb: 2.5 }}
+      >
+        <Typography
+          variant="h6"
+          component="h1"
+          sx={{ fontWeight: 700, color: "var(--color-brand-charcoal)" }}
+        >
+          Продукти или услуги
         </Typography>
-        <Button variant="contained" startIcon={<AddIcon />} onClick={openAddDialog}>
+        <Button
+          variant="contained"
+          startIcon={<AddIcon />}
+          onClick={openAddDialog}
+        >
           Добави продукт
         </Button>
       </Stack>
@@ -203,19 +293,28 @@ function Products() {
         <TableContainer
           component={Paper}
           variant="outlined"
-          sx={{ borderRadius: 2, maxWidth: "100%", overflowX: "auto" }}
+          sx={{ ...tableSurfaceSx, maxWidth: "100%", overflowX: "auto" }}
         >
-          <Table size="small" sx={{ minWidth: 720 }}>
+          <Table size="small" sx={{ ...dataTableSx, minWidth: 720 }}>
             <TableHead>
-              <TableRow sx={{ bgcolor: "rgba(15, 23, 42, 0.04)" }}>
+              <TableRow>
                 <TableCell sx={{ fontWeight: 700 }}>Име</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>Вид</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>Категория</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>Подкатегория</TableCell>
+                <TableCell sx={{ fontWeight: 700, textAlign: "right" }}>
+                  Кол-во
+                </TableCell>
                 <TableCell sx={{ fontWeight: 700 }}>Мярка</TableCell>
-                <TableCell sx={{ fontWeight: 700, textAlign: "right" }}>ДДС %</TableCell>
-                <TableCell sx={{ fontWeight: 700, textAlign: "right" }}>Цена</TableCell>
-                <TableCell sx={{ fontWeight: 700, textAlign: "right" }}>Действия</TableCell>
+                <TableCell sx={{ fontWeight: 700, textAlign: "right" }}>
+                  ДДС %
+                </TableCell>
+                <TableCell sx={{ fontWeight: 700, textAlign: "right" }}>
+                  Цена
+                </TableCell>
+                <TableCell
+                  className="table-actions-cell"
+                  sx={{ fontWeight: 700, textAlign: "right" }}
+                >
+                  Действия
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -226,42 +325,61 @@ function Products() {
                       maxWidth: 200,
                       whiteSpace: "normal",
                       wordBreak: "break-word",
+                      color: "#1A1A1A",
+                      fontWeight: 600,
                     }}
                   >
                     {product.name}
                   </TableCell>
-                  <TableCell sx={{ whiteSpace: "nowrap" }}>{kindLabel(product.kind)}</TableCell>
-                  <TableCell sx={{ whiteSpace: "nowrap" }}>
-                    {getCategoryById(product.category).label}
+                  <TableCell
+                    className="table-number-cell"
+                    sx={{
+                      ...numericCellSx,
+                      textAlign: "right",
+                      color: "#6B7280",
+                    }}
+                  >
+                    {Number(product.quantityDefault || 1).toFixed(2)}
+                  </TableCell>
+                  <TableCell sx={{ whiteSpace: "nowrap", color: "#6B7280" }}>
+                    {product.unit}
                   </TableCell>
                   <TableCell
-                    sx={{
-                      maxWidth: 160,
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                    }}
-                    title={product.application}
+                    className="table-number-cell"
+                    sx={{ ...numericCellSx, color: "#6B7280" }}
                   >
-                    {product.application}
+                    {isBusinessVatRegistered
+                      ? `${Number(product.vat).toFixed(0)}%`
+                      : "—"}
                   </TableCell>
-                  <TableCell sx={{ whiteSpace: "nowrap" }}>{product.unit}</TableCell>
-                  <TableCell sx={{ textAlign: "right" }}>{Number(product.vat).toFixed(0)}%</TableCell>
-                  <TableCell sx={{ textAlign: "right", fontVariantNumeric: "tabular-nums" }}>
+                  <TableCell
+                    className="table-number-cell"
+                    sx={{
+                      ...numericCellSx,
+                      textAlign: "right",
+                      color: "#6B7280",
+                    }}
+                  >
                     {Number(product.price).toFixed(2)} EUR
                   </TableCell>
-                  <TableCell sx={{ textAlign: "right" }}>
-                    <IconButton size="small" onClick={() => openEditDialog(product)} aria-label="Редакция на продукт">
-                      <EditOutlinedIcon fontSize="small" />
-                    </IconButton>
-                    <IconButton
-                      size="small"
-                      color="error"
-                      onClick={() => deleteProduct(product.id)}
-                      aria-label="Изтрий продукт"
-                    >
-                      <DeleteOutlineIcon fontSize="small" />
-                    </IconButton>
+                  <TableCell className="table-actions-cell">
+                    <Box className="table-actions-wrap">
+                      <IconButton
+                        size="small"
+                        onClick={() => openEditDialog(product)}
+                        aria-label="Редакция на продукт"
+                      >
+                        <EditOutlinedIcon fontSize="small" />
+                      </IconButton>
+                      <IconButton
+                        size="small"
+                        color="error"
+                        onClick={() => deleteProduct(product.id)}
+                        aria-label="Изтрий продукт"
+                      >
+                        <DeleteOutlineIcon fontSize="small" />
+                      </IconButton>
+                    </Box>
                   </TableCell>
                 </TableRow>
               ))}
@@ -280,12 +398,15 @@ function Products() {
             bgcolor: "rgba(15, 23, 42, 0.02)",
           }}
         >
-          <Inventory2OutlinedIcon sx={{ fontSize: 48, color: "var(--color-brand-primary)", mb: 1 }} />
+          <Inventory2OutlinedIcon
+            sx={{ fontSize: 48, color: "var(--color-brand-primary)", mb: 1 }}
+          />
           <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 0.5 }}>
             Нямате добавени продукти
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Спестете време при фактуриране! Добавете първия си продукт и той ще се попълва автоматично.
+            Спестете време при фактуриране! Добавете първия си продукт и той ще
+            се попълва автоматично.
           </Typography>
         </Paper>
       )}
@@ -296,157 +417,118 @@ function Products() {
         maxWidth="md"
         fullWidth
         scroll="paper"
-        PaperProps={{ sx: { borderRadius: 2 } }}
+        PaperProps={{
+          sx: {
+            borderRadius: 2.5,
+            overflow: "hidden",
+            bgcolor: "#f8fafc",
+            border: "1px solid rgba(15,23,42,0.08)",
+            boxShadow: "0 16px 44px rgba(2,6,23,0.18)",
+          },
+        }}
       >
-        <DialogTitle sx={{ pb: 1 }}>
+        <DialogTitle
+          sx={{
+            pb: 1.5,
+            pt: 2,
+            px: { xs: 2, sm: 3 },
+            fontWeight: 700,
+            bgcolor: "#fff",
+            borderBottom: "1px solid rgba(15,23,42,0.08)",
+          }}
+        >
           {editing ? "Редакция на продукт" : "Добавяне на продукт"}
         </DialogTitle>
-        <Box component="form" onSubmit={saveProduct}>
+        <Box component="form" onSubmit={saveProduct} noValidate>
           <DialogContent
-            dividers
             sx={{
-              pt: 0,
+              pt: 2.5,
               px: { xs: 2, sm: 3 },
+              pb: 2.5,
               overflowX: "hidden",
+              bgcolor: "#f8fafc",
             }}
           >
-            <Grid container spacing={2}>
+            <Grid container spacing={2.25}>
+              {formErrors._form ? (
+                <Grid item xs={12}>
+                  <Typography variant="body2" color="error">
+                    {formErrors._form}
+                  </Typography>
+                </Grid>
+              ) : null}
               <Grid item xs={12}>
-                <TextField
-                  {...setupProfileFieldProps}
-                  label="Име на продукт / услуга"
-                  value={formData.name}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, name: e.target.value }))
-                  }
-                  placeholder="напр. Консултация"
-                  sx={productDialogFieldSx}
+                <ProductNameField
+                  row={formRow}
+                  products={products}
+                  lineSx={lineSx}
+                  updateRow={updateRow}
+                  patchRow={patchRow}
+                  error={formErrors.itemName}
                 />
               </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  {...setupProfileFieldProps}
-                  select
-                  label="Вид"
-                  value={formData.kind}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, kind: e.target.value }))
-                  }
-                  sx={productDialogFieldSx}
-                >
-                  {PRODUCT_KINDS.map((k) => (
-                    <MenuItem key={k.id} value={k.id}>
-                      {k.label}
-                    </MenuItem>
-                  ))}
-                </TextField>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  {...setupProfileFieldProps}
-                  select
-                  label="Категория"
-                  value={formCategory.id}
-                  onChange={(e) => {
-                    const catId = e.target.value;
-                    const c = getCategoryById(catId);
-                    setFormData((prev) => ({
-                      ...prev,
-                      category: catId,
-                      unit: c.units.includes(prev.unit) ? prev.unit : c.units[0],
-                      application: c.applications.includes(prev.application)
-                        ? prev.application
-                        : c.applications[0],
-                    }));
-                  }}
-                  sx={productDialogFieldSx}
-                >
-                  {PRODUCT_CATALOG_CATEGORIES.map((c) => (
-                    <MenuItem key={c.id} value={c.id}>
-                      {c.label}
-                    </MenuItem>
-                  ))}
-                </TextField>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  {...setupProfileFieldProps}
-                  select
-                  label="Подкатегория / приложение"
-                  value={
-                    formCategory.applications.includes(formData.application)
-                      ? formData.application
-                      : formCategory.applications[0]
-                  }
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, application: e.target.value }))
-                  }
-                  sx={productDialogFieldSx}
-                >
-                  {formCategory.applications.map((a) => (
-                    <MenuItem key={a} value={a}>
-                      {a}
-                    </MenuItem>
-                  ))}
-                </TextField>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  {...setupProfileFieldProps}
-                  select
-                  label="Мерна единица"
-                  value={
-                    formCategory.units.includes(formData.unit)
-                      ? formData.unit
-                      : formCategory.units[0]
-                  }
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, unit: e.target.value }))
-                  }
-                  sx={productDialogFieldSx}
-                >
-                  {formCategory.units.map((u) => (
-                    <MenuItem key={u} value={u}>
-                      {u}
-                    </MenuItem>
-                  ))}
-                </TextField>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  {...setupProfileFieldProps}
-                  type="number"
-                  label="Единична цена"
-                  value={formData.price}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, price: e.target.value }))
-                  }
-                  inputProps={{ min: 0, step: "0.01" }}
-                  placeholder="напр. 100.00"
-                  sx={productDialogFieldSx}
+              {!isBusinessVatRegistered ? (
+                <Grid item xs={12}>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: "text.secondary",
+                      px: 0.25,
+                    }}
+                  >
+                    Фирмата не е регистрирана по ДДС. Продуктите се записват с
+                    0% ДДС.
+                  </Typography>
+                </Grid>
+              ) : null}
+              <Grid item xs={12} sm={4}>
+                <QuantityField
+                  row={formRow}
+                  lineSx={lineSx}
+                  updateRow={updateRow}
+                  error={formErrors.itemQuantity}
                 />
               </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  {...setupProfileFieldProps}
-                  select
-                  label="ДДС ставка по подразбиране"
-                  value={formData.vat}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, vat: Number(e.target.value) }))
-                  }
-                  sx={productDialogFieldSx}
-                >
-                  {VAT_OPTIONS.map((vat) => (
-                    <MenuItem key={vat} value={vat}>
-                      {vat}%
-                    </MenuItem>
-                  ))}
-                </TextField>
+              <Grid item xs={12} sm={4}>
+                <UnitField
+                  row={formRow}
+                  lineSx={lineSx}
+                  unitOptions={COMMON_UNIT_OPTIONS}
+                  updateRow={updateRow}
+                  error={formErrors.itemUnit}
+                />
               </Grid>
+              <Grid item xs={12} sm={4}>
+                <PriceField
+                  row={formRow}
+                  lineSx={lineSx}
+                  currencySign="€"
+                  updateRow={updateRow}
+                  error={formErrors.itemCost}
+                />
+              </Grid>
+              {isBusinessVatRegistered ? (
+                <Grid item xs={12} sm={6}>
+                  <VatField
+                    row={formRow}
+                    lineSx={lineSx}
+                    showVatField={isBusinessVatRegistered}
+                    vatRateOptions={VAT_OPTIONS}
+                    updateRow={updateRow}
+                    error={formErrors.itemVatRate}
+                  />
+                </Grid>
+              ) : null}
             </Grid>
           </DialogContent>
-          <DialogActions sx={{ px: 3, pb: 2.5 }}>
+          <DialogActions
+            sx={{
+              px: { xs: 2, sm: 3 },
+              py: 2,
+              bgcolor: "#fff",
+              borderTop: "1px solid rgba(15,23,42,0.08)",
+            }}
+          >
             <Button onClick={closeDialog} disabled={saving}>
               Отказ
             </Button>

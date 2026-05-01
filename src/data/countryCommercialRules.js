@@ -1,8 +1,5 @@
 import { COUNTRIES } from "./countries";
 
-/** @typedef {{ currency: string, standardVatRate: number | null, iso2: string }} CountryCommercialRule */
-
-/** @type {Record<string, CountryCommercialRule>} */
 export const COUNTRY_COMMERCIAL_RULES = Object.freeze({
   Austria: { currency: "EUR", standardVatRate: 20, iso2: "AT" },
   Belgium: { currency: "EUR", standardVatRate: 21, iso2: "BE" },

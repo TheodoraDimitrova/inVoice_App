@@ -1,6 +1,17 @@
 import React from "react";
 import DashboardActionsSvg from "./DashboardActionsSvg";
 import { convertTimestamp } from "../utils/functions";
+import {
+  Box,
+  Table as MuiTable,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  Typography,
+} from "@mui/material";
+import { dataTableSx, numericCellSx } from "../utils/tableStyles";
+import { computeInvoiceGrandTotalNumber } from "../utils/invoiceMetrics";
 
 const formatInvoiceBadge = (invoiceData) => {
   const n = Number(invoiceData?.id);
@@ -9,34 +20,94 @@ const formatInvoiceBadge = (invoiceData) => {
   return String(n).padStart(10, "0");
 };
 
-const Table = ({ invoices }) => {
+const Table = ({ invoices, defaultVatRate = 0 }) => {
+  if (!Array.isArray(invoices) || invoices.length === 0) {
+    return (
+      <Typography variant="body2" color="text.secondary" sx={{ py: 1 }}>
+        Няма налични фактури.
+      </Typography>
+    );
+  }
+
   return (
-    <div className="w-full">
-      <h3 className="text-xl text-blue-700 font-semibold">Последни фактури</h3>
-      <table>
-        <thead>
-          <tr>
-            <th className="text-blue-600">Дата</th>
-            <th className="text-blue-600">Клиент</th>
-            <th className="text-blue-600">Действия</th>
-          </tr>
-        </thead>
-        <tbody>
-          {invoices?.map((invoice) => (
-            <tr key={invoice.id}>
-              <td className="text-sm text-gray-400">
-                {convertTimestamp(invoice.data.timestamp)} -{" "}
-                {formatInvoiceBadge(invoice.data)}
-              </td>
-              <td className="text-sm">{invoice.data.customerName}</td>
-              <td>
-                <DashboardActionsSvg invoiceId={invoice.id} />
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <Box sx={{ overflowX: "auto" }}>
+      <MuiTable size="small" sx={{ ...dataTableSx, minWidth: 560 }}>
+        <TableHead>
+          <TableRow>
+            <TableCell sx={{ fontWeight: 700 }}>Дата</TableCell>
+            <TableCell sx={{ fontWeight: 700 }}>Клиент</TableCell>
+            <TableCell className="table-number-cell" sx={{ ...numericCellSx, fontWeight: 700 }}>
+              Сума
+            </TableCell>
+            <TableCell className="table-actions-cell" sx={{ fontWeight: 700, textAlign: "right" }}>
+              Действия
+            </TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {invoices.map((invoice) => {
+            const invoiceData = invoice.data || {};
+            const rowCurrency = String(invoiceData.currency || "EUR").toUpperCase();
+            const rowVatRate = Number(invoiceData.vatRate);
+            const computedTotal = computeInvoiceGrandTotalNumber(
+              invoiceData.itemList,
+              Number.isFinite(rowVatRate) ? rowVatRate : defaultVatRate
+            );
+
+            return (
+              <TableRow key={invoice.id} hover>
+                <TableCell sx={{ whiteSpace: "nowrap" }}>
+                  <Box
+                    sx={{
+                      display: "inline-flex",
+                      flexDirection: "column",
+                      alignItems: "flex-start",
+                      gap: 0.35,
+                    }}
+                  >
+                    <Box
+                      component="span"
+                      sx={{
+                        color: "#111827",
+                        fontWeight: 600,
+                        fontSize: "0.87rem",
+                        lineHeight: 1.28,
+                      }}
+                    >
+                      {convertTimestamp(invoiceData.timestamp)}
+                    </Box>
+                    <Box
+                      component="span"
+                      sx={{
+                        ...numericCellSx,
+                        display: "block",
+                        color: "#4B5563",
+                        fontSize: "0.79rem",
+                        fontWeight: 500,
+                        lineHeight: 1.22,
+                      }}
+                    >
+                      № {formatInvoiceBadge(invoiceData)}
+                    </Box>
+                  </Box>
+                </TableCell>
+                <TableCell sx={{ whiteSpace: "nowrap", color: "#1A1A1A", fontWeight: 600 }}>
+                  {invoiceData.customerName || "—"}
+                </TableCell>
+                <TableCell className="table-number-cell" sx={{ ...numericCellSx, color: "#6B7280" }}>
+                  {computedTotal.toFixed(2)} {rowCurrency}
+                </TableCell>
+                <TableCell className="table-actions-cell">
+                  <Box className="table-actions-wrap">
+                    <DashboardActionsSvg invoiceId={invoice.id} />
+                  </Box>
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </MuiTable>
+    </Box>
   );
 };
 
