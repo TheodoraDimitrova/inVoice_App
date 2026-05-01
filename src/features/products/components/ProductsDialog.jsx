@@ -21,7 +21,6 @@ import {
 const ProductsDialog = ({
   open,
   saving,
-  editing,
   sortedProducts,
   formErrors,
   formRow,
@@ -56,7 +55,7 @@ const ProductsDialog = ({
         borderBottom: "1px solid rgba(15,23,42,0.08)",
       }}
     >
-      {editing ? "Редакция на продукт" : "Добавяне на продукт"}
+      Добавяне на продукт
     </DialogTitle>
     <Box component="form" onSubmit={onSubmit} noValidate>
       <DialogContent sx={{ pt: 2.5, px: { xs: 2, sm: 3 }, pb: 2.5, overflowX: "hidden", bgcolor: "#f8fafc" }}>
@@ -94,7 +93,7 @@ const ProductsDialog = ({
           Отказ
         </Button>
         <Button type="submit" variant="contained" disabled={saving}>
-          {editing ? "Запази промените" : "Добави продукт"}
+          Добави продукт
         </Button>
       </DialogActions>
     </Box>

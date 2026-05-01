@@ -4,26 +4,34 @@ import ProductsDialog from "./components/ProductsDialog";
 import { useProductsData } from "./hooks/useProductsData";
 import { useProductCrud } from "./hooks/useProductCrud";
 import { useProductForm } from "./hooks/useProductForm";
+import { useInlineEdit } from "./hooks/useInlineEdit";
 
 const ProductsPageContainer = () => {
   const { sortedProducts, refreshProducts, deleteProduct } = useProductsData();
   const { saveProduct } = useProductCrud();
+
   const {
     dialogOpen,
     saving,
-    editingId,
     formErrors,
     formRow,
     openAddDialog,
-    openEditDialog,
     closeDialog,
     onSubmit,
     updateRow,
     patchRow,
-  } = useProductForm({
-    onSaved: refreshProducts,
-    saveProduct,
-  });
+  } = useProductForm({ onSaved: refreshProducts, saveProduct });
+
+  const {
+    editingId,
+    editData,
+    inlineSaving,
+    inlineErrors,
+    startEdit,
+    cancelEdit,
+    updateField,
+    saveEdit,
+  } = useInlineEdit({ saveProduct, onSaved: refreshProducts });
 
   useEffect(() => {
     refreshProducts();
@@ -39,13 +47,19 @@ const ProductsPageContainer = () => {
       <ProductsPageView
         sortedProducts={sortedProducts}
         onOpenAddDialog={openAddDialog}
-        onOpenEditDialog={openEditDialog}
         onDeleteProduct={handleDeleteProduct}
+        editingId={editingId}
+        editData={editData}
+        inlineSaving={inlineSaving}
+        inlineErrors={inlineErrors}
+        onStartEdit={startEdit}
+        onCancelEdit={cancelEdit}
+        onSaveEdit={saveEdit}
+        onUpdateField={updateField}
       />
       <ProductsDialog
         open={dialogOpen}
         saving={saving}
-        editing={Boolean(editingId)}
         sortedProducts={sortedProducts}
         formErrors={formErrors}
         formRow={formRow}
