@@ -7,6 +7,7 @@ import db from "../firebase";
 import LocalPrintshopIcon from "@mui/icons-material/LocalPrintshop";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
+import { InvoiceTotalsSummary } from "../components/invoice/InvoiceTotalsSummary";
 import {
   lineGross,
   lineNetBeforeVat,
@@ -71,7 +72,8 @@ export const ComponentToPrint = React.forwardRef((props, ref) => {
   const swift = String(businessData.swift || "").trim();
   const isBusinessVatRegistered = businessData.isVatRegistered !== false;
   const hideBankDetails = businessData.noBankDetailsOnInvoices === true;
-  const showPaymentDetails = !hideBankDetails && Boolean(bankName || iban || swift);
+  const showPaymentDetails =
+    !hideBankDetails && Boolean(bankName || iban || swift);
   const invoiceNoteText = String(invoiceData?.invoiceNote || "").trim();
   const hasInvoiceNote =
     Boolean(invoiceData?.includeInvoiceNote) && Boolean(invoiceNoteText);
@@ -83,15 +85,18 @@ export const ComponentToPrint = React.forwardRef((props, ref) => {
     const amt = Number(item?.itemDiscountAmount) || 0;
     return pct > 0 || amt > 0;
   });
-  const grossSubtotal = invoiceItems.reduce((sum, item) => sum + lineGross(item), 0);
+  const grossSubtotal = invoiceItems.reduce(
+    (sum, item) => sum + lineGross(item),
+    0,
+  );
   const netSubtotal = invoiceItems.reduce(
     (sum, item) => sum + lineNetBeforeVat(item),
-    0
+    0,
   );
   const discountTotal = Math.max(0, grossSubtotal - netSubtotal);
   const vatAmount = invoiceItems.reduce(
     (sum, item) => sum + lineVatAmount(item, fallbackVatRate),
-    0
+    0,
   );
   const grandTotal = netSubtotal + vatAmount;
 
@@ -99,7 +104,7 @@ export const ComponentToPrint = React.forwardRef((props, ref) => {
     try {
       const q = query(
         collection(db, "businesses"),
-        where("user_id", "==", auth.currentUser.uid)
+        where("user_id", "==", auth.currentUser.uid),
       );
       onSnapshot(q, (querySnapshot) => {
         const firebaseBusinesses = [];
@@ -185,9 +190,7 @@ export const ComponentToPrint = React.forwardRef((props, ref) => {
                   if (line || country) {
                     return (
                       <>
-                        {line ? (
-                          <p className="text-sm mb-1">{line}</p>
-                        ) : null}
+                        {line ? <p className="text-sm mb-1">{line}</p> : null}
                         {country ? (
                           <p className="text-sm mb-1">{country}</p>
                         ) : null}
@@ -195,9 +198,7 @@ export const ComponentToPrint = React.forwardRef((props, ref) => {
                     );
                   }
                   if (d.businessCity) {
-                    return (
-                      <p className="text-sm mb-1">{d.businessCity}</p>
-                    );
+                    return <p className="text-sm mb-1">{d.businessCity}</p>;
                   }
                   return null;
                 })()}
@@ -226,8 +227,7 @@ export const ComponentToPrint = React.forwardRef((props, ref) => {
                           businessDetails[0].data.tic,
                           "Идентификатор",
                         )}
-                        :{" "}
-                        {businessDetails[0].data.tic}
+                        : {businessDetails[0].data.tic}
                       </span>
                     )}
                   </p>
@@ -239,9 +239,7 @@ export const ComponentToPrint = React.forwardRef((props, ref) => {
             {invoiceDetails && (
               <div className=" py-2">
                 <h3 className="font-medium mb-2 text-gray-700">Клиент:</h3>
-                <p className="text-sm mb-1">
-                  {invoiceData.customerName}
-                </p>
+                <p className="text-sm mb-1">{invoiceData.customerName}</p>
                 {invoiceData.customerType === "business" &&
                 String(invoiceData.companyIdentifier || "").trim() ? (
                   <p className="text-sm mb-1">
@@ -249,9 +247,7 @@ export const ComponentToPrint = React.forwardRef((props, ref) => {
                     {invoiceData.companyIdentifier}
                   </p>
                 ) : null}
-                <p className="text-sm mb-1">
-                  {invoiceData.customerAddress}
-                </p>
+                <p className="text-sm mb-1">{invoiceData.customerAddress}</p>
                 <p className="text-sm mb-1">
                   {[invoiceData.customerPostCode, invoiceData.customerCity]
                     .filter(Boolean)
@@ -260,9 +256,7 @@ export const ComponentToPrint = React.forwardRef((props, ref) => {
                 <p className="text-sm mb-1">
                   {invoiceData.customerCountry || ""}
                 </p>
-                <p className="text-sm mb-1">
-                  {invoiceData.customerEmail}
-                </p>
+                <p className="text-sm mb-1">{invoiceData.customerEmail}</p>
                 {invoiceData.customerVatRegistered &&
                 invoiceData.customerVatNumber ? (
                   <p className="text-sm mb-1">
@@ -281,9 +275,9 @@ export const ComponentToPrint = React.forwardRef((props, ref) => {
                       Number.isFinite(previewNumber) && previewNumber > 0;
                     return !hasPreviewNumber;
                   })() ? (
-                  <p className="inline-flex items-center rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800 mb-3">
-                    ПРЕГЛЕД (НЕЗАПИСАНО)
-                  </p>
+                    <p className="inline-flex items-center rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800 mb-3">
+                      ПРЕГЛЕД (НЕЗАПИСАНО)
+                    </p>
                   ) : null
                 ) : null}
                 <h3 className="text-6xl text-gray-700 mb-4">Фактура</h3>
@@ -318,7 +312,7 @@ export const ComponentToPrint = React.forwardRef((props, ref) => {
             )}
           </div>
 
-          <div className="min-h-[560px] overflow-x-auto">
+          <div>
             <table className="table-auto mt-2 max-w-full text-xs md:text-sm ">
               <thead>
                 <tr className="bg-gray-200">
@@ -339,7 +333,9 @@ export const ComponentToPrint = React.forwardRef((props, ref) => {
                 {invoiceDetails &&
                   invoiceDetails.data.itemList.map((item, itemIdx) => {
                     const lineRate =
-                      item.itemVatRate == null ? fallbackVatRate : item.itemVatRate;
+                      item.itemVatRate == null
+                        ? fallbackVatRate
+                        : item.itemVatRate;
                     const discPct =
                       item.itemDiscountPercent != null
                         ? Number(item.itemDiscountPercent)
@@ -349,8 +345,13 @@ export const ComponentToPrint = React.forwardRef((props, ref) => {
                       lineGross(item) - lineNetBeforeVat(item),
                     );
                     const discountPctText = formatDiscountPercent(discPct);
-                    const discountAmountText = discAmt ? discAmt.toFixed(2) : "";
-                    const discountDisplay = [discountPctText, discountAmountText ? `(${discountAmountText})` : ""]
+                    const discountAmountText = discAmt
+                      ? discAmt.toFixed(2)
+                      : "";
+                    const discountDisplay = [
+                      discountPctText,
+                      discountAmountText ? `(${discountAmountText})` : "",
+                    ]
                       .filter(Boolean)
                       .join(" ");
                     const lineTot = lineTotalWithVat(item, fallbackVatRate);
@@ -372,7 +373,9 @@ export const ComponentToPrint = React.forwardRef((props, ref) => {
                         <td className="border px-2 py-1 align-top">
                           <div className="font-medium">{item.itemName}</div>
                           {meta ? (
-                            <div className="text-gray-500 text-xs mt-0.5">{meta}</div>
+                            <div className="text-gray-500 text-xs mt-0.5">
+                              {meta}
+                            </div>
                           ) : null}
                         </td>
                         <td className="border px-2 py-1 align-top">
@@ -382,7 +385,9 @@ export const ComponentToPrint = React.forwardRef((props, ref) => {
                           {Number(item.itemCost || 0).toFixed(2)}
                         </td>
                         <td className="border px-2 py-1 text-right">
-                          {Number(item.itemQuantity || 0).toLocaleString("bg-BG")}
+                          {Number(item.itemQuantity || 0).toLocaleString(
+                            "bg-BG",
+                          )}
                         </td>
                         {hasAnyDiscount ? (
                           <>
@@ -402,84 +407,26 @@ export const ComponentToPrint = React.forwardRef((props, ref) => {
                       </tr>
                     );
                   })}
-                {invoiceDetails && (
-                  <>
-                    <tr className="bg-gray-200">
-                      <td
-                        colSpan={hasAnyDiscount ? 6 : 5}
-                        className="text-right font-bold py-1"
-                      >
-                        Междинна сума
-                      </td>
-                      <td className="font-bold uppercase py-1 text-right">
-                        <div>{grossSubtotal.toFixed(2)} {invoiceCurrency}</div>
-                        {showBgnEquivalent ? (
-                          <div className="text-[11px] font-medium normal-case text-gray-600">
-                            {formatBgnEquivalent(grossSubtotal)}
-                          </div>
-                        ) : null}
-                      </td>
-                    </tr>
-                    {hasAnyDiscount ? (
-                      <tr className="bg-gray-200">
-                        <td colSpan="6" className="text-right font-bold py-1">
-                          Отстъпки
-                        </td>
-                        <td className="font-bold uppercase py-1 text-right">
-                          <div>-{discountTotal.toFixed(2)} {invoiceCurrency}</div>
-                          {showBgnEquivalent ? (
-                            <div className="text-[11px] font-medium normal-case text-gray-600">
-                              -{formatBgnEquivalent(discountTotal)}
-                            </div>
-                          ) : null}
-                        </td>
-                      </tr>
-                    ) : null}
-                    <tr className="bg-gray-200">
-                      <td
-                        colSpan={hasAnyDiscount ? 6 : 5}
-                        className="text-right font-bold py-1"
-                      >
-                        {isBusinessVatRegistered
-                          ? "Сума ДДС"
-                          : "ДДС: не се начислява"}
-                      </td>
-                      <td className="font-bold uppercase py-1 text-right">
-                        {isBusinessVatRegistered
-                          ? (
-                            <>
-                              <div>{vatAmount.toFixed(2)} {invoiceCurrency}</div>
-                              {showBgnEquivalent ? (
-                                <div className="text-[11px] font-medium normal-case text-gray-600">
-                                  {formatBgnEquivalent(vatAmount)}
-                                </div>
-                              ) : null}
-                            </>
-                          )
-                          : ""}
-                      </td>
-                    </tr>
-                    <tr className="bg-gray-200">
-                      <td
-                        colSpan={hasAnyDiscount ? 6 : 5}
-                        className="text-right font-bold py-1"
-                      >
-                        Крайна сума
-                      </td>
-                      <td className="font-bold uppercase py-1 text-right">
-                        <div>{grandTotal.toFixed(2)} {invoiceCurrency}</div>
-                        {showBgnEquivalent ? (
-                          <div className="text-[11px] font-medium normal-case text-gray-700">
-                            {formatBgnEquivalent(grandTotal)}
-                          </div>
-                        ) : null}
-                      </td>
-                    </tr>
-                  </>
-                )}
               </tbody>
             </table>
           </div>
+
+          <InvoiceTotalsSummary
+            currencyLabel={invoiceCurrency}
+            subtotal={grossSubtotal}
+            discountTotal={discountTotal}
+            vatLabel={
+              isBusinessVatRegistered ? "Сума ДДС" : "ДДС: не се начислява"
+            }
+            vatTotal={vatAmount}
+            grandTotal={grandTotal}
+            showVatAmount={isBusinessVatRegistered}
+            formatSecondaryAmount={
+              showBgnEquivalent
+                ? (amount) => formatBgnEquivalent(amount)
+                : undefined
+            }
+          />
 
           {businessDetails && showPaymentDetails && (
             <div className="mt-2 sm:mt-8 flex flex-col">
@@ -506,7 +453,9 @@ export const ComponentToPrint = React.forwardRef((props, ref) => {
 
           {hasInvoiceNote ? (
             <div className="mt-4 border-t border-gray-200 pt-3">
-              <p className="text-sm font-semibold text-gray-700 mb-1">Забележка</p>
+              <p className="text-sm font-semibold text-gray-700 mb-1">
+                Забележка
+              </p>
               <p className="text-sm text-gray-700 whitespace-pre-wrap">
                 {invoiceNoteText}
               </p>
