@@ -5,7 +5,7 @@ import LoginForm from "./components/LoginForm";
 import RegisterForm from "./components/RegisterForm";
 import ForgotPasswordDialog from "./components/ForgotPasswordDialog";
 
-const AUTH_ILLUSTRATION = "/invoice_auth.jpeg";
+import authIllustration from "../../images/invoice_auth.jpeg";
 
 const AuthView = ({
   isRegister,
@@ -36,7 +36,7 @@ const AuthView = ({
       >
         <Box
           component="img"
-          src={AUTH_ILLUSTRATION}
+          src={authIllustration}
           alt="Invoicer — фактуриране и бизнес процеси"
           sx={{
             position: "absolute",
@@ -62,7 +62,10 @@ const AuthView = ({
           px: 0,
         }}
       >
-        <Box className="page-shell w-full flex justify-center" sx={{ maxWidth: "100%" }}>
+        <Box
+          className="page-shell w-full flex justify-center"
+          sx={{ maxWidth: "100%" }}
+        >
           <Box
             sx={{
               width: "100%",
@@ -101,7 +104,7 @@ const AuthView = ({
             >
               <Box
                 component="img"
-                src={AUTH_ILLUSTRATION}
+                src={authIllustration}
                 alt=""
                 loading="lazy"
                 decoding="async"

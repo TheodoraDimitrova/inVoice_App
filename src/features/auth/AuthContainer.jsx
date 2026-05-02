@@ -12,7 +12,7 @@ const AuthContainer = () => {
     formState: { errors },
     reset,
   } = useForm();
-  const { login, signUp, loginWithGoogle } = useAuth();
+  const { login, register: signUp, loginWithGoogle } = useAuth();
   const { open, email, loading, openDialog, closeDialog, setEmail, submit } =
     useForgotPassword();
 

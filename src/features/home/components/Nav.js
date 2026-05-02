@@ -1,35 +1,14 @@
 import { AppBar, Typography, Box, Toolbar, Button } from "@mui/material";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 import React from "react";
-import ElevationScroll from "./ElevationScroll";
+import ElevationScroll from "../../../components/ElevationScroll";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import { useDispatch } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
-import { showToast } from "../utils/functions";
-import { useAuthStatus } from "../hooks/useAuthStatus";
+import { Link } from "react-router-dom";
 
-import { logOut } from "../redux/user";
-import { getAuth, signOut } from "firebase/auth";
-const Nav = (props) => {
-  const dispatch = useDispatch();
-  const { loggedIn } = useAuthStatus();
-  const navigate = useNavigate();
+const Nav = ({ loggedIn, onSignOut, ...props }) => {
   const theme = useTheme();
   const matches = useMediaQuery(theme.breakpoints.down("sm"));
-
-  const sign_Out = async () => {
-    const auth = getAuth();
-
-    try {
-      await signOut(auth);
-      dispatch(logOut());
-      showToast("success", "Довиждане!👋");
-      navigate("/");
-    } catch (error) {
-      console.error("Error signing out:", error);
-    }
-  };
 
   return (
     <Box sx={{ marginBottom: { xs: "56px", sm: "64px" } }}>
@@ -58,49 +37,28 @@ const Nav = (props) => {
                 to={loggedIn ? "/dashboard" : "/"}
                 className="inline-flex items-center leading-none no-underline"
               >
-                {matches ? (
-                  <Typography
-                    variant="h6"
-                    component="span"
-                    sx={{
-                      margin: 0,
-                      lineHeight: 1.15,
-                      color: "var(--color-brand-charcoal)",
-                      cursor: "pointer",
-                    }}
-                  >
-                    Invoicer
-                  </Typography>
-                ) : (
-                  <Typography
-                    variant="h5"
-                    component="span"
-                    sx={{
-                      margin: 0,
-                      lineHeight: 1.15,
-                      color: "var(--color-brand-charcoal)",
-                      cursor: "pointer",
-                    }}
-                  >
-                    Invoicer
-                  </Typography>
-                )}
+                <Typography
+                  variant={matches ? "h6" : "h5"}
+                  component="span"
+                  sx={{
+                    margin: 0,
+                    lineHeight: 1.15,
+                    color: "var(--color-brand-charcoal)",
+                    cursor: "pointer",
+                  }}
+                >
+                  Invoicer
+                </Typography>
               </Link>
 
-              <Box
-                sx={{ display: "flex", alignItems: "center", flexShrink: 0 }}
-              >
+              <Box sx={{ display: "flex", alignItems: "center", flexShrink: 0 }}>
                 {loggedIn ? (
                   <Button
                     type="button"
                     variant="text"
                     color="inherit"
-                    onClick={() => sign_Out()}
-                    startIcon={
-                      <LogoutOutlinedIcon
-                        sx={{ fontSize: matches ? 20 : 22 }}
-                      />
-                    }
+                    onClick={onSignOut}
+                    startIcon={<LogoutOutlinedIcon sx={{ fontSize: matches ? 20 : 22 }} />}
                     sx={{
                       textTransform: "none",
                       fontSize: matches ? "0.95rem" : "1rem",
@@ -123,9 +81,7 @@ const Nav = (props) => {
                         color: "var(--color-brand-charcoal)",
                         cursor: "pointer",
                         transition: "color 0.2s ease",
-                        "&:hover": {
-                          color: "var(--color-brand-primary)",
-                        },
+                        "&:hover": { color: "var(--color-brand-primary)" },
                       }}
                     >
                       Вход

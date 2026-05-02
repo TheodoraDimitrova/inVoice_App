@@ -59,9 +59,9 @@ export const useAuth = () => {
       const nextPath = await resolvePostLoginPath(credential.user.uid);
       navigate(nextPath);
     } catch (error) {
+      if (error.code === "auth/popup-closed-by-user" || error.code === "auth/cancelled-popup-request") return;
       const message = getAuthErrorMessage(error.code);
-      if (message === null) return;
-      const fallback = `Неуспешен вход с Google (${error.code || "неизвестна грешка"}). Опитайте отново.`;
+      const fallback = `Неуспешен вход с Google. Опитайте отново.`;
       showToast("error", message ?? fallback);
     }
   };

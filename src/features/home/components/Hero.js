@@ -1,9 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { Button } from "@mui/material";
 import { BG } from "country-flag-icons/react/3x2";
-import invoice from "../images/invoice.png";
-
-
+import invoice from "../../../images/invoice.png";
 
 const Hero = () => {
   return (
@@ -17,8 +16,8 @@ const Hero = () => {
           управлявайте ДДС и поддържайте клиентите си на едно място.
         </p>
         <p className="text-slate-700 mb-8 md:mb-10 text-sm md:text-base leading-relaxed max-w-[36rem] mx-auto lg:mx-0 font-medium">
-          Без сложни счетоводни системи. Валидирани фирмени идентификатори и
-          ДДС данни. Създадено за България{" "}
+          Без сложни счетоводни системи. Валидирани фирмени идентификатори и ДДС
+          данни. Създадено за България{" "}
           <span className="inline-flex align-middle ml-1 w-6 h-4 rounded-[2px] overflow-hidden border border-slate-200">
             <BG
               style={{
@@ -32,20 +31,25 @@ const Hero = () => {
         </p>
 
         <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start max-w-md mx-auto lg:mx-0">
-          <Link to="/login" className="w-full sm:w-auto">
-            <button className="btn-brand rounded w-full sm:w-[220px] px-4 py-3 font-semibold">
-              Започни безплатно
-            </button>
-          </Link>
-          <a
+          <Button
+            variant="contained"
+            component={Link}
+            to="/login"
+            fullWidth
+            sx={{ sm: { width: "auto" } }}
+          >
+            Започни безплатно
+          </Button>
+          <Button
+            variant="outlined"
+            component="a"
             href="#features"
-            className="btn-brand-outline rounded w-full sm:w-[220px] px-4 py-3 font-semibold text-center inline-flex items-center justify-center"
+            fullWidth
+            sx={{ sm: { width: "auto" } }}
           >
             Виж примерна фактура
-          </a>
+          </Button>
         </div>
-
-   
       </div>
 
       <div className="w-full lg:w-2/5 flex items-center justify-center">
