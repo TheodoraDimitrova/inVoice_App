@@ -32,7 +32,9 @@ const ProductsPageView = ({
   const [deleting, setDeleting] = useState(false);
 
   const requestDelete = (id) => setPendingDeleteId(id);
-  const cancelDelete = () => { if (!deleting) setPendingDeleteId(null); };
+  const cancelDelete = () => {
+    if (!deleting) setPendingDeleteId(null);
+  };
   const confirmDelete = async () => {
     if (!pendingDeleteId) return;
     setDeleting(true);
@@ -42,12 +44,43 @@ const ProductsPageView = ({
   };
 
   return (
-    <Box sx={{ px: { xs: 2, sm: 3 }, py: { xs: 2, sm: 2.5 }, maxWidth: 1100, mx: "auto" }}>
-      <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 2.5 }}>
-        <Typography variant="h6" component="h1" sx={{ fontWeight: 700, color: "var(--color-brand-charcoal)" }}>
+    <Box
+      sx={{
+        px: { xs: 2, sm: 3 },
+        py: { xs: 2, sm: 2.5 },
+        maxWidth: 1100,
+        mx: "auto",
+      }}
+    >
+      <Stack
+        direction="row"
+        alignItems="center"
+        justifyContent="space-between"
+        sx={{ mb: 2.5 }}
+      >
+        <Typography
+          variant="h6"
+          component="h1"
+          sx={{ fontWeight: 700, color: "var(--color-brand-charcoal)" }}
+        >
           Продукти или услуги
         </Typography>
-        <Button variant="contained" startIcon={<AddIcon />} onClick={onOpenAddDialog} disabled={Boolean(editingId)}>
+        <Button
+          variant="contained"
+          color="primary"
+          size="small"
+          startIcon={<AddIcon />}
+          onClick={onOpenAddDialog}
+          disabled={Boolean(editingId)}
+          sx={{
+            minHeight: 40,
+            px: 1.75,
+            fontWeight: 600,
+            textTransform: "none",
+            boxShadow:
+              "0 2px 12px rgba(15, 118, 110, 0.12), 0 1px 4px rgba(15, 23, 42, 0.06)",
+          }}
+        >
           Добави продукт
         </Button>
       </Stack>
@@ -77,28 +110,42 @@ const ProductsPageView = ({
             bgcolor: "rgba(15, 23, 42, 0.02)",
           }}
         >
-          <Inventory2OutlinedIcon sx={{ fontSize: 48, color: "var(--color-brand-primary)", mb: 1 }} />
+          <Inventory2OutlinedIcon
+            sx={{ fontSize: 48, color: "var(--color-brand-primary)", mb: 1 }}
+          />
           <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 0.5 }}>
             Нямате добавени продукти
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Спестете време при фактуриране! Добавете първия си продукт и той ще се попълва автоматично.
+            Спестете време при фактуриране! Добавете първия си продукт и той ще
+            се попълва автоматично.
           </Typography>
         </Paper>
       )}
 
-      <Dialog open={Boolean(pendingDeleteId)} onClose={cancelDelete} maxWidth="xs" fullWidth>
+      <Dialog
+        open={Boolean(pendingDeleteId)}
+        onClose={cancelDelete}
+        maxWidth="xs"
+        fullWidth
+      >
         <DialogTitle>Изтриване на продукт</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Сигурни ли сте, че искате да изтриете този продукт? Действието не може да бъде отменено.
+            Сигурни ли сте, че искате да изтриете този продукт? Действието не
+            може да бъде отменено.
           </DialogContentText>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2.5, gap: 1 }}>
           <Button onClick={cancelDelete} disabled={deleting}>
             Отказ
           </Button>
-          <Button variant="contained" color="error" onClick={confirmDelete} disabled={deleting}>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={confirmDelete}
+            disabled={deleting}
+          >
             Изтрий
           </Button>
         </DialogActions>

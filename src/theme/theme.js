@@ -25,12 +25,16 @@ const theme = createTheme({
   components: {
     MuiButton: {
       styleOverrides: {
-        root: {
+        root: ({ theme }) => ({
           textTransform: "none",
           fontWeight: 600,
           borderRadius: "0.5rem",
           padding: "10px 22px",
-        },
+          [theme.breakpoints.down("sm")]: {
+            padding: "8px 16px",
+            fontSize: "0.875rem",
+          },
+        }),
         containedPrimary: {
           boxShadow:
             "0 4px 20px rgba(15, 118, 110, 0.12), 0 2px 8px rgba(15, 23, 42, 0.06)",

@@ -114,7 +114,8 @@ export const useProductForm = ({ onSaved, saveProduct }) => {
         });
         await onSaved();
         closeDialog();
-      } catch {
+      } catch (err) {
+        console.error("[ProductForm] saveProduct failed:", err);
         setFormErrors((prev) => ({
           ...prev,
           _form: "Моля, свържете се с техническа поддръжка.",

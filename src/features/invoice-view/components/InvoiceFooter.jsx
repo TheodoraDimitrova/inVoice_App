@@ -1,5 +1,4 @@
 import React from "react";
-import { Box, Divider, Typography } from "@mui/material";
 
 const InvoiceFooter = ({ business, invoice }) => {
   const bankName = String(business?.bankName || "").trim();
@@ -33,13 +32,14 @@ const InvoiceFooter = ({ business, invoice }) => {
           </p>
         </div>
       ) : null}
-
       {hasInvoiceNote && (
-        <Box sx={{ mt: 2 }}>
-          <Divider />
-          <Typography fontWeight={600}>Забележка</Typography>
-          <Typography whiteSpace="pre-wrap">{invoiceNoteText}</Typography>
-        </Box>
+        <div className="mt-2 border-t border-slate-200 pt-3">
+          <p className="font-semibold text-slate-800 mb-1">Забележка</p>
+
+          <p className="whitespace-pre-wrap text-slate-700">
+            {invoiceNoteText}
+          </p>
+        </div>
       )}
     </>
   );

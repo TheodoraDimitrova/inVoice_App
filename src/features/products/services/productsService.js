@@ -16,16 +16,19 @@ export async function fetchProductsForCurrentUser() {
 }
 
 export async function createProductForCurrentUser(payload) {
-  const userId = auth.currentUser.uid;
+  const userId = auth.currentUser?.uid;
+  if (!userId) throw new Error("Потребителят не е автентикиран.");
   await addDoc(collection(db, "users", userId, "products"), payload);
 }
 
 export async function updateProductForCurrentUser(productId, payload) {
-  const userId = auth.currentUser.uid;
+  const userId = auth.currentUser?.uid;
+  if (!userId) throw new Error("Потребителят не е автентикиран.");
   await updateDoc(doc(db, "users", userId, "products", productId), payload);
 }
 
 export async function deleteProductForCurrentUser(productId) {
-  const userId = auth.currentUser.uid;
+  const userId = auth.currentUser?.uid;
+  if (!userId) throw new Error("Потребителят не е автентикиран.");
   await deleteDoc(doc(db, "users", userId, "products", productId));
 }

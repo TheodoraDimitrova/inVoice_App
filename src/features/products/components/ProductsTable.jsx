@@ -18,7 +18,7 @@ import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
-import { dataTableSx, numericCellSx, tableSurfaceSx } from "../../../utils/tableStyles";
+import { dataTableSx, numericCellSx } from "../../../utils/tableStyles";
 
 const HEAD_SX = {
   fontSize: "0.72rem",
@@ -37,7 +37,11 @@ const COL = {
 };
 
 const inlineSx = {
-  "& .MuiOutlinedInput-root": { fontSize: "0.8rem", bgcolor: "#fff", borderRadius: 1 },
+  "& .MuiOutlinedInput-root": {
+    fontSize: "0.8rem",
+    bgcolor: "#fff",
+    borderRadius: 1,
+  },
   "& .MuiOutlinedInput-input": { py: "5px", px: "7px" },
   "& input[type=number]": { MozAppearance: "textfield" },
   "& input[type=number]::-webkit-outer-spin-button, & input[type=number]::-webkit-inner-spin-button":
@@ -46,7 +50,12 @@ const inlineSx = {
 
 const inlineNumericSx = {
   ...inlineSx,
-  "& .MuiOutlinedInput-input": { py: "5px", px: "7px", textAlign: "right", fontVariantNumeric: "tabular-nums" },
+  "& .MuiOutlinedInput-input": {
+    py: "5px",
+    px: "7px",
+    textAlign: "right",
+    fontVariantNumeric: "tabular-nums",
+  },
 };
 
 const ProductsTable = ({
@@ -64,9 +73,12 @@ const ProductsTable = ({
   <TableContainer
     component={Paper}
     variant="outlined"
-    sx={{ ...tableSurfaceSx, maxWidth: "100%", overflowX: "auto", maxHeight: 560 }}
+    sx={{ maxWidth: "100%", overflowX: "auto" }}
   >
-    <Table size="small" stickyHeader sx={{ ...dataTableSx, minWidth: 620, tableLayout: "fixed" }}>
+    <Table
+      size="small"
+      sx={{ ...dataTableSx, minWidth: 620, tableLayout: "fixed" }}
+    >
       <TableHead>
         <TableRow>
           <TableCell sx={{ ...HEAD_SX, ...COL.name }}>Наименование</TableCell>
@@ -74,7 +86,9 @@ const ProductsTable = ({
           <TableCell sx={{ ...HEAD_SX, ...COL.unit }}>Мярка</TableCell>
           <TableCell sx={{ ...HEAD_SX, ...COL.price }}>Нетна цена</TableCell>
           <TableCell sx={{ ...HEAD_SX, ...COL.actions }}>
-            <Box sx={{ display: "flex", justifyContent: "flex-end" }}>Действия</Box>
+            <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+              Действия
+            </Box>
           </TableCell>
         </TableRow>
       </TableHead>
@@ -84,7 +98,10 @@ const ProductsTable = ({
 
           if (isEditing && editData) {
             return (
-              <TableRow key={product.id} sx={{ bgcolor: "rgba(16,185,129,0.04)" }}>
+              <TableRow
+                key={product.id}
+                sx={{ bgcolor: "rgba(16,185,129,0.04)" }}
+              >
                 <TableCell sx={COL.name}>
                   <TextField
                     autoFocus
@@ -106,7 +123,9 @@ const ProductsTable = ({
                     fullWidth
                     placeholder="1"
                     value={editData.itemQuantity}
-                    onChange={(e) => onUpdateField("itemQuantity", e.target.value)}
+                    onChange={(e) =>
+                      onUpdateField("itemQuantity", e.target.value)
+                    }
                     error={Boolean(inlineErrors.itemQuantity)}
                     title={inlineErrors.itemQuantity || ""}
                     inputProps={{ min: 0.01, step: "0.01" }}
@@ -140,7 +159,12 @@ const ProductsTable = ({
                     inputProps={{ min: 0.01, step: "0.01" }}
                     InputProps={{
                       startAdornment: (
-                        <InputAdornment position="start" sx={{ "& p": { fontSize: "0.75rem", color: "#9CA3AF" } }}>
+                        <InputAdornment
+                          position="start"
+                          sx={{
+                            "& p": { fontSize: "0.75rem", color: "#9CA3AF" },
+                          }}
+                        >
                           EUR
                         </InputAdornment>
                       ),
@@ -150,14 +174,23 @@ const ProductsTable = ({
                   />
                 </TableCell>
                 <TableCell sx={COL.actions}>
-                  <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 0.5 }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "flex-end",
+                      gap: 0.5,
+                    }}
+                  >
                     <Tooltip title="Запази">
                       <span>
                         <IconButton
                           size="small"
                           onClick={onSaveEdit}
                           disabled={inlineSaving}
-                          sx={{ color: "var(--color-brand-primary)", "&:hover": { bgcolor: "rgba(16,185,129,0.1)" } }}
+                          sx={{
+                            color: "var(--color-brand-primary)",
+                            "&:hover": { bgcolor: "rgba(16,185,129,0.1)" },
+                          }}
                         >
                           <CheckIcon fontSize="small" />
                         </IconButton>
@@ -169,7 +202,13 @@ const ProductsTable = ({
                           size="small"
                           onClick={onCancelEdit}
                           disabled={inlineSaving}
-                          sx={{ color: "#9CA3AF", "&:hover": { color: "#374151", bgcolor: "rgba(15,23,42,0.06)" } }}
+                          sx={{
+                            color: "#9CA3AF",
+                            "&:hover": {
+                              color: "#374151",
+                              bgcolor: "rgba(15,23,42,0.06)",
+                            },
+                          }}
                         >
                           <CloseIcon fontSize="small" />
                         </IconButton>
@@ -182,7 +221,11 @@ const ProductsTable = ({
           }
 
           return (
-            <TableRow key={product.id} hover sx={{ opacity: editingId && !isEditing ? 0.45 : 1 }}>
+            <TableRow
+              key={product.id}
+              hover
+              sx={{ opacity: editingId && !isEditing ? 0.45 : 1 }}
+            >
               <TableCell
                 sx={{
                   ...COL.name,
@@ -194,24 +237,35 @@ const ProductsTable = ({
                   textOverflow: "ellipsis",
                 }}
               >
-                <Tooltip title={product.name} placement="top-start" enterDelay={600}>
+                <Tooltip
+                  title={product.name}
+                  placement="top-start"
+                  enterDelay={600}
+                >
                   <span>{product.name}</span>
                 </Tooltip>
               </TableCell>
               <TableCell sx={{ ...COL.qty, color: "#374151" }}>
                 {Number(product.quantityDefault || 1).toFixed(2)}
               </TableCell>
-              <TableCell sx={{ ...COL.unit, color: "#6B7280", whiteSpace: "nowrap" }}>
+              <TableCell
+                sx={{ ...COL.unit, color: "#6B7280", whiteSpace: "nowrap" }}
+              >
                 {product.unit}
               </TableCell>
               <TableCell sx={{ ...COL.price, color: "#374151" }}>
                 {Number(product.price).toFixed(2)}
-                <Typography component="span" sx={{ color: "#9CA3AF", ml: 0.5, fontSize: "0.75rem" }}>
+                <Typography
+                  component="span"
+                  sx={{ color: "#9CA3AF", ml: 0.5, fontSize: "0.75rem" }}
+                >
                   EUR
                 </Typography>
               </TableCell>
               <TableCell sx={COL.actions}>
-                <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 0.5 }}>
+                <Box
+                  sx={{ display: "flex", justifyContent: "flex-end", gap: 0.5 }}
+                >
                   <Tooltip title="Редактирай">
                     <span>
                       <IconButton
@@ -219,7 +273,13 @@ const ProductsTable = ({
                         onClick={() => onStartEdit(product)}
                         disabled={Boolean(editingId)}
                         aria-label="Редакция на продукт"
-                        sx={{ color: "#475569", "&:hover": { color: "var(--color-brand-primary)", bgcolor: "rgba(16,185,129,0.08)" } }}
+                        sx={{
+                          color: "#475569",
+                          "&:hover": {
+                            color: "var(--color-brand-primary)",
+                            bgcolor: "rgba(16,185,129,0.08)",
+                          },
+                        }}
                       >
                         <EditOutlinedIcon fontSize="small" />
                       </IconButton>
@@ -232,7 +292,13 @@ const ProductsTable = ({
                         onClick={() => onDeleteRequest(product.id)}
                         disabled={Boolean(editingId)}
                         aria-label="Изтрий продукт"
-                        sx={{ color: "#9CA3AF", "&:hover": { color: "error.main", bgcolor: "rgba(239,68,68,0.08)" } }}
+                        sx={{
+                          color: "#9CA3AF",
+                          "&:hover": {
+                            color: "error.main",
+                            bgcolor: "rgba(239,68,68,0.08)",
+                          },
+                        }}
                       >
                         <DeleteOutlineIcon fontSize="small" />
                       </IconButton>
