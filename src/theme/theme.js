@@ -1,17 +1,17 @@
 import { createTheme } from "@mui/material/styles";
+import tokens from "./designTokens.json";
 
-/**
- * Global MUI theme. Palette primary must stay parseable (hex/rgb) — MUI runs color math on it.
- * Keep brand tokens in sync with :root in src/index.css where applicable.
- */
+const { primary, primaryHover, charcoal, borderSoft, borderHover, textMuted } =
+  tokens.brand;
+
 const theme = createTheme({
   typography: {
     fontFamily: ["Sora", "sans-serif"].join(","),
   },
   palette: {
     primary: {
-      main: "#0f766e",
-      dark: "#0d9488",
+      main: primary,
+      dark: primaryHover,
       contrastText: "#ffffff",
     },
     background: {
@@ -57,13 +57,13 @@ const theme = createTheme({
             backgroundColor: "#ffffff",
           },
           "& fieldset": {
-            borderColor: "var(--color-border-soft)",
+            borderColor: borderSoft,
           },
           "&:hover fieldset": {
-            borderColor: "var(--color-border-hover)",
+            borderColor: borderHover,
           },
           "&.Mui-focused fieldset": {
-            borderColor: "var(--color-brand-primary)",
+            borderColor: primary,
             borderWidth: "1px",
           },
         },
@@ -71,8 +71,8 @@ const theme = createTheme({
           backgroundColor: "#ffffff",
           "&:-webkit-autofill": {
             WebkitBoxShadow: "0 0 0 1000px #ffffff inset",
-            WebkitTextFillColor: "var(--color-brand-charcoal)",
-            caretColor: "var(--color-brand-charcoal)",
+            WebkitTextFillColor: charcoal,
+            caretColor: charcoal,
           },
         },
       },
@@ -80,10 +80,10 @@ const theme = createTheme({
     MuiInputLabel: {
       styleOverrides: {
         root: {
-          color: "var(--color-text-muted)",
+          color: textMuted,
           backgroundColor: "transparent",
           "&.Mui-focused": {
-            color: "var(--color-brand-primary)",
+            color: primary,
           },
           "&.MuiInputLabel-shrink": {
             backgroundColor: "#ffffff",

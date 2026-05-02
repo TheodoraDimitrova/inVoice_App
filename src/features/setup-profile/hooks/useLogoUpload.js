@@ -1,5 +1,8 @@
 import { useCallback, useRef, useState } from "react";
-import { validateLogo } from "../../../utils/validateLogo";
+import {
+  validateLogo,
+  validateLogoDimensions,
+} from "../../../utils/validateLogo";
 import { DEFAULT_BUSINESS_LOGO_URL } from "../../../constants/businessDefaults";
 import { showToast } from "../../../utils/functions";
 
@@ -13,12 +16,19 @@ export const useLogoUpload = () => {
 
   const hasCustomLogo = logo !== DEFAULT_LOGO;
 
-  const applyLogoFile = useCallback((file) => {
+  const applyLogoFile = useCallback(async (file) => {
     const check = validateLogo(file);
     if (!check.ok) {
       showToast("error", check.message);
       return;
     }
+
+    const dim = await validateLogoDimensions(file);
+    if (!dim.ok) {
+      showToast("error", dim.message);
+      return;
+    }
+
     setLogoFileName(file.name);
     const reader = new FileReader();
     reader.readAsDataURL(file);
@@ -31,7 +41,7 @@ export const useLogoUpload = () => {
     (e) => {
       const file = e.target.files?.[0];
       if (!file) return;
-      applyLogoFile(file);
+      void applyLogoFile(file);
       e.target.value = "";
     },
     [applyLogoFile],
@@ -43,7 +53,7 @@ export const useLogoUpload = () => {
       e.stopPropagation();
       setLogoDragActive(false);
       const file = e.dataTransfer.files?.[0];
-      if (file) applyLogoFile(file);
+      if (file) void applyLogoFile(file);
     },
     [applyLogoFile],
   );

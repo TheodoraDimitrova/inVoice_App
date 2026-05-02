@@ -1,0 +1,11 @@
+{
+  "brand": {
+    "primary": "#0f766e",
+    "primaryHover": "#0d9488",
+    "accent": "#ccfbf1",
+    "charcoal": "#1f2937",
+    "borderSoft": "#e2e8f0",
+    "borderHover": "#cbd5e1",
+    "textMuted": "#64748b"
+  }
+}

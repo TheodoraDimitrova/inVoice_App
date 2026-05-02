@@ -9,30 +9,35 @@ const InvoiceMetaBlock = ({ invoice, isPreview }) => {
 
   const previewNumber = Number(invoice?.id);
   const hasPreviewNumber = Number.isFinite(previewNumber) && previewNumber > 0;
+  const badge = formatInvoiceBadge(invoice);
+  const issue = formatStoredDate(invoice.issueDate, invoice.timestamp);
+  const due = formatStoredDate(invoice.dueDate, invoice.timestamp);
 
   return (
-    <div className="py-2 text-right">
+    <div className="flex w-full flex-col items-stretch space-y-2 sm:items-end sm:text-right">
       {isPreview && !hasPreviewNumber ? (
-        <p className="inline-flex items-center rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800 mb-3">
-          ПРЕГЛЕД (НЕЗАПИСАНО)
+        <p className="inline-flex self-start rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-800 sm:self-end print:text-[9px]">
+          Преглед
         </p>
       ) : null}
-      <h3 className="text-6xl text-gray-700 mb-4">Фактура</h3>
-      <p className="text-sm font-medium">
-        №: <span className="ml-2 text-sm">{formatInvoiceBadge(invoice)}</span>
-      </p>
-      <p className="text-sm font-medium">
-        Дата на издаване:{" "}
-        <span className="ml-2 text-sm">
-          {formatStoredDate(invoice.issueDate, invoice.timestamp)}
+
+      <p className="text-[1.65rem] font-black leading-none tracking-tight text-slate-900 sm:text-[1.85rem] print:text-[1.5rem]">
+        ФАКТУРА{" "}
+        <span className="text-lg font-bold tabular-nums text-slate-800 sm:text-xl print:text-base">
+          № {badge}
         </span>
       </p>
-      <p className="text-sm font-medium">
-        Падеж:{" "}
-        <span className="ml-2 text-sm">
-          {formatStoredDate(invoice.dueDate, invoice.timestamp)}
-        </span>
-      </p>
+
+      <div className="space-y-0.5 text-sm text-slate-800">
+        <p>
+          <span className="text-slate-500">Дата на издаване: </span>
+          <span className="font-semibold tabular-nums">{issue}</span>
+        </p>
+        <p>
+          <span className="text-slate-500">Падеж: </span>
+          <span className="font-semibold tabular-nums">{due}</span>
+        </p>
+      </div>
     </div>
   );
 };

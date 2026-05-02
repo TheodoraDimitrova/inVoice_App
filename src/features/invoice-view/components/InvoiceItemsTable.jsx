@@ -1,29 +1,45 @@
 import React from "react";
-import {
-  formatDiscountPercent,
-} from "../utils/invoiceFormatters";
+import { formatDiscountPercent } from "../utils/invoiceFormatters";
 import {
   hasDiscountInItems,
   toDiscountAmount,
   toLineTotal,
 } from "../utils/invoiceMath";
 
+const thBase =
+  "border border-slate-300 bg-slate-200 px-1 py-0.5 text-left align-bottom text-[10px] font-bold uppercase tracking-wide text-slate-800 sm:px-1.5 sm:text-[11px]";
+const tdBase =
+  "border border-slate-200 px-1 py-0.5 align-middle text-[10px] text-slate-900 sm:px-1.5 sm:text-[11px]";
+
 const InvoiceItemsTable = ({ invoice, fallbackVatRate, isBusinessVatRegistered }) => {
   const invoiceItems = invoice?.itemList ?? [];
   const hasAnyDiscount = hasDiscountInItems(invoiceItems);
 
   return (
-    <div>
-      <table className="table-auto mt-2 max-w-full text-xs md:text-sm">
+    <div className="overflow-x-auto">
+      <table className="invoice-items-table mt-3 w-full border-collapse text-[10px] sm:mt-3 sm:text-[11px] print:mt-2 print:text-[9px]">
+        <colgroup>
+          <col />
+          <col className="w-[2.75rem] sm:w-[3rem]" />
+          <col className="w-[4rem] sm:w-[4.25rem]" />
+          <col className="w-[2.5rem] sm:w-[2.75rem]" />
+          {hasAnyDiscount ? <col className="w-[2.6rem] sm:w-[2.85rem]" /> : null}
+          <col className="w-[2.5rem] sm:w-[2.75rem]" />
+          <col className="w-[3.75rem] sm:w-[4rem]" />
+        </colgroup>
         <thead>
-          <tr className="bg-gray-200">
-            <th className="px-2 py-1">Артикул</th>
-            <th className="px-2 py-1">Мярка</th>
-            <th className="px-2 py-1 text-right">Ед. цена</th>
-            <th className="px-2 py-1 text-right">Кол.</th>
-            {hasAnyDiscount ? <th className="px-2 py-1 text-right">Отстъпка</th> : null}
-            <th className="px-2 py-1 text-right">ДДС %</th>
-            <th className="px-2 py-1 text-right">Общо</th>
+          <tr>
+            <th className={thBase}>Артикул</th>
+            <th className={`${thBase} text-center`}>Мярка</th>
+            <th className={`${thBase} text-right`}>Ед. ц.</th>
+            <th className={`${thBase} text-right`}>Кол.</th>
+            {hasAnyDiscount ? (
+              <th className={`${thBase} text-center leading-tight`} title="Отстъпка">
+                Отст.%
+              </th>
+            ) : null}
+            <th className={`${thBase} text-right`}>ДДС</th>
+            <th className={`${thBase} text-right`}>Общо</th>
           </tr>
         </thead>
         <tbody>
@@ -36,43 +52,39 @@ const InvoiceItemsTable = ({ invoice, fallbackVatRate, isBusinessVatRegistered }
                 : Number(item.itemDiscount) || 0;
             const discAmt = toDiscountAmount(item);
             const discountPctText = formatDiscountPercent(discPct);
-            const discountAmountText = discAmt ? discAmt.toFixed(2) : "";
-            const discountDisplay = [discountPctText, discountAmountText ? `(${discountAmountText})` : ""]
-              .filter(Boolean)
-              .join(" ");
+            const discountCell =
+              discPct > 0
+                ? discountPctText
+                : discAmt > 0
+                  ? discAmt.toFixed(0)
+                  : "—";
             const lineTot = toLineTotal(item, fallbackVatRate);
-            const kind =
-              item.itemKind === "service"
-                ? "Услуга"
-                : item.itemKind === "product"
-                  ? "Продукт"
-                  : "";
-            const meta = [kind, String(item.itemCategory || "").trim(), item.itemApplication || ""]
-              .filter(Boolean)
-              .join(" · ");
 
             return (
               <tr key={`${item.itemName}-${itemIdx}`}>
-                <td className="border px-2 py-1 align-top">
-                  <div className="font-medium">{item.itemName}</div>
-                  {meta ? <div className="text-gray-500 text-xs mt-0.5">{meta}</div> : null}
+                <td className={`${tdBase} max-w-0`}>
+                  <div className="truncate font-semibold leading-snug" title={item.itemName}>
+                    {item.itemName}
+                  </div>
                 </td>
-                <td className="border px-2 py-1 align-top">{item.itemUnit || "—"}</td>
-                <td className="border px-2 py-1 text-right">
+                <td className={`${tdBase} text-center`}>{item.itemUnit || "—"}</td>
+                <td className={`${tdBase} text-right tabular-nums`}>
                   {Number(item.itemCost || 0).toFixed(2)}
                 </td>
-                <td className="border px-2 py-1 text-right">
+                <td className={`${tdBase} text-right tabular-nums`}>
                   {Number(item.itemQuantity || 0).toLocaleString("bg-BG")}
                 </td>
                 {hasAnyDiscount ? (
-                  <td className="border px-2 py-1 text-right">
-                    {discountDisplay || "—"}
+                  <td className={`${tdBase} text-center tabular-nums text-[9px] sm:text-[10px]`}>
+                    {discountCell}
                   </td>
                 ) : null}
-                <td className="border px-2 py-1 text-right">
+                <td className={`${tdBase} text-right`}>
                   {isBusinessVatRegistered ? `${Number(lineRate).toFixed(0)}%` : "—"}
                 </td>
-                <td className="border px-2 py-1 text-right">{lineTot.toFixed(2)}</td>
+                <td className={`${tdBase} text-right font-semibold tabular-nums`}>
+                  {lineTot.toFixed(2)}
+                </td>
               </tr>
             );
           })}

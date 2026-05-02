@@ -7,7 +7,7 @@ import "react-toastify/dist/ReactToastify.css";
 import Loading from "./components/Loading";
 import PrivateRoute from "./components/PrivateRoute";
 import PublicRoute from "./components/PublicRoute";
-import AppShell from "./components/AppShell";
+import AppShell from "./components/layout/AppShell";
 
 import { ViewInvoice } from "./pages/ViewInvoice";
 import PageNotFound from "./pages/PageNotFound";

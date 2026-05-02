@@ -10,8 +10,8 @@ export const InvoicePreviewDialog = ({ open, onClose, children }) => (
     size="lg"
     footer={<Button onClick={onClose}>Затвори</Button>}
   >
-    <div className="p-4">
-      <div className="max-h-[72vh] overflow-auto rounded-xl bg-[#f8fafc] p-2 sm:p-3">
+    <div className="px-3 py-3 sm:p-4 md:px-6 md:pb-5">
+      <div className="max-h-[72vh] overflow-auto rounded-xl bg-[#f8fafc] p-3 sm:p-4 md:p-6">
         {children}
       </div>
     </div>

@@ -22,8 +22,7 @@ body {
   --page-padding-x: 1rem;
   --section-icon-tile-ring: rgba(15, 118, 110, 0.22);
   --section-icon-tile-shadow:
-    0 0 0 1px var(--section-icon-tile-ring),
-    0 2px 8px rgba(15, 118, 110, 0.12),
+    0 0 0 1px var(--section-icon-tile-ring), 0 2px 8px rgba(15, 118, 110, 0.12),
     0 4px 12px rgba(15, 118, 110, 0.08);
 }
 
@@ -41,58 +40,6 @@ body {
   padding-left: var(--page-padding-x);
   padding-right: var(--page-padding-x);
   box-sizing: border-box;
-}
-
-/* App shell sidebar: active route — project accent + primary text/icons */
-.app-shell-nav-item-active {
-  background-color: var(--color-brand-accent);
-  color: var(--color-brand-primary);
-  font-weight: 600;
-}
-
-.app-shell-nav-item-active .MuiSvgIcon-root {
-  color: var(--color-brand-primary) !important;
-}
-
-.btn-brand {
-  background-color: var(--color-brand-primary);
-  color: #ffffff;
-  box-shadow:
-    0 4px 20px rgba(15, 118, 110, 0.12),
-    0 2px 8px rgba(15, 23, 42, 0.06);
-  transition:
-    background-color 0.2s ease,
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-.btn-brand:hover {
-  background-color: var(--color-brand-primary-hover);
-  transform: translateY(-1px);
-  box-shadow:
-    0 8px 28px rgba(15, 118, 110, 0.14),
-    0 4px 12px rgba(15, 23, 42, 0.07);
-}
-
-.btn-brand-outline {
-  border: 1px solid var(--color-brand-primary);
-  color: var(--color-brand-primary);
-  background-color: #ffffff;
-  transition:
-    background-color 0.2s ease,
-    color 0.2s ease,
-    transform 0.2s ease;
-}
-
-.btn-brand-outline:hover {
-  background-color: var(--color-brand-accent);
-  transform: translateY(-1px);
-}
-
-.btn-brand:focus-visible,
-.btn-brand-outline:focus-visible {
-  outline: 2px solid var(--color-brand-primary);
-  outline-offset: 2px;
 }
 
 .feature-card {
@@ -148,7 +95,75 @@ body {
   height: 3rem;
 }
 
-table {
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 10mm;
+  }
+
+  html,
+  body {
+    height: auto !important;
+    width: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+  }
+
+  body * {
+    visibility: hidden !important;
+  }
+
+  .invoice-document,
+  .invoice-document * {
+    visibility: visible !important;
+  }
+
+  .invoice-document {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 190mm !important;
+    max-width: none !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    background: #fff !important;
+    print-color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
+  }
+
+  .invoice-document-inner,
+  .invoice-document-footer {
+    width: auto !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  .invoice-items-table {
+    margin-top: 1rem !important;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+
+  tbody tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}
+
+.invoice-document table {
+  margin-top: 1rem !important;
+}
+
+table:not(.invoice-items-table) {
   font-family: arial, sans-serif;
   margin-top: 30px;
   border-collapse: collapse;
@@ -157,21 +172,21 @@ table {
     0 2px 5px 0 rgba(50, 50, 105, 0.15),
     0 1px 1px 0 rgba(0, 0, 0, 0.05);
 }
-thead {
+table:not(.invoice-items-table) thead {
   background-color: #ffffff;
 }
 
-td,
-th {
+table:not(.invoice-items-table) td,
+table:not(.invoice-items-table) th {
   text-align: left;
   padding: 8px 6px;
   border-bottom: 1px solid rgba(15, 23, 42, 0.08);
 }
-tr:hover {
+table:not(.invoice-items-table) tr:hover {
   background-color: #f3f8f6;
 }
 
-table tbody tr {
+table:not(.invoice-items-table) tbody tr {
   transition: background-color 140ms ease-in-out;
 }
 
