@@ -5,7 +5,7 @@ import { invoiceLineFieldSx, COMMON_UNIT_OPTIONS } from "./styles";
 import { ProductNameField } from "./fields/ProductNameField";
 import { QuantityField } from "./fields/QuantityField";
 import { UnitField } from "./fields/UnitField";
-import { PriceField } from "./fields/PriceField";
+import { PriceField } from "../../../../components/product-row-fields";
 import { VatField } from "./fields/VatField";
 import { DiscountEditor } from "./DiscountEditor";
 
@@ -83,6 +83,7 @@ export const ProductRow = ({
               currencySign={currencySign}
               updateRow={updateRow}
               error={resolveFieldError("itemCost")}
+              fieldName="itemCost"
             />
           </Grid>
           <Grid item xs={6} sm={3} md={15} sx={{ minWidth: { md: 88 } }}>

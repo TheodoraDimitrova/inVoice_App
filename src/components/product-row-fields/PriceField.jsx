@@ -5,22 +5,15 @@ import { FormFieldHelperText } from "../FormFieldHelperText";
 
 const fieldProps = setupProfileFieldProps;
 
-export const PriceField = ({ row, lineSx, currencySign, updateRow, error }) => (
+export const PriceField = ({ row, lineSx, currencySign, updateRow, error, fieldName = "priceNet" }) => (
   <TextField
     {...fieldProps}
     type="number"
     label="Ед. цена"
     required
     placeholder="0.00"
-    value={row.priceNet}
-    onChange={(e) => updateRow(row._rowId, "priceNet", e.target.value)}
-    onBlur={(e) => {
-      const parsed = Number(e.target.value);
-      if (!Number.isFinite(parsed) || parsed <= 0) {
-        updateRow(row._rowId, "priceNet", "0.01");
-      }
-    }}
-    inputProps={{ step: "0.01", min: 0.01 }}
+    value={row[fieldName]}
+    onChange={(e) => updateRow(row._rowId, fieldName, e.target.value)}
     error={Boolean(error)}
     helperText={<FormFieldHelperText errorMessage={error} />}
     FormHelperTextProps={{ component: "div" }}
