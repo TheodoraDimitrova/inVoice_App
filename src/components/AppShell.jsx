@@ -21,24 +21,32 @@ import {
 
 const DRAWER_WIDTH = 240;
 
-const navItemBaseClass =
-  "mx-2 mb-1 flex w-[calc(100%-1rem)] items-center gap-3 rounded-2xl px-3 py-2 text-left text-[0.9375rem] transition-colors";
-const navItemClass = (selected) =>
-  `${navItemBaseClass} ${
-    selected
-      ? "bg-[rgba(15,118,110,0.1)] font-semibold text-[var(--color-brand-primary)]"
-      : "text-[var(--color-brand-charcoal)] hover:bg-[rgba(15,23,42,0.04)]"
-  }`;
+const navShellClass =
+  "mx-2 mb-1 flex w-[calc(100%-1rem)] items-center gap-3 rounded-2xl border-0 px-3 py-2 text-left text-[0.9375rem] font-[inherit] no-underline outline-none transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--color-brand-primary)]";
+
+const navInactiveClass = `${navShellClass} bg-transparent text-[var(--color-brand-charcoal)] hover:bg-[rgba(15,23,42,0.04)]`;
+
+const navActiveClass = `${navShellClass} app-shell-nav-item-active`;
+
+const invoicesRouteActive = (pathname, navIsActive) =>
+  Boolean(navIsActive || pathname.startsWith("/new/invoice"));
 
 const AppShellContent = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isSmDown, setIsSmDown] = useState(() =>
-    typeof window !== "undefined" ? window.matchMedia("(max-width: 767px)").matches : false
+    typeof window !== "undefined"
+      ? window.matchMedia("(max-width: 767px)").matches
+      : false,
   );
   const [userEmail, setUserEmail] = useState("");
   const navigate = useNavigate();
   const pathname = useLocation().pathname;
   const dispatch = useDispatch();
+
+  const closeDrawerIfMobile = () => {
+    if (isSmDown) setMobileOpen(false);
+  };
+
   const {
     loading: invoiceGateLoading,
     ready: canCreateInvoice,
@@ -61,11 +69,6 @@ const AppShellContent = () => {
     return () => query.removeEventListener("change", update);
   }, []);
 
-  const go = (path) => {
-    navigate(path);
-    if (isSmDown) setMobileOpen(false);
-  };
-
   const handleDrawerToggle = () => {
     setMobileOpen((prev) => !prev);
   };
@@ -85,28 +88,56 @@ const AppShellContent = () => {
   const drawer = (
     <aside className="flex h-full flex-col bg-white">
       <div className="flex min-h-[56px] items-center border-b border-[var(--color-border-soft)] px-4">
-        <NavLink to="/dashboard" className="text-lg font-semibold tracking-[-0.02em] text-[var(--color-brand-charcoal)] no-underline">
+        <NavLink
+          to="/dashboard"
+          className="text-lg font-semibold tracking-[-0.02em] text-[var(--color-brand-charcoal)] no-underline"
+        >
           Invoicer
         </NavLink>
       </div>
       <nav className="flex-1 px-1 pt-4" aria-label="основна навигация">
-        <button type="button" className={navItemClass(pathname === "/dashboard")} onClick={() => go("/dashboard")}>
+        <NavLink
+          to="/dashboard"
+          end
+          onClick={closeDrawerIfMobile}
+          className={({ isActive }) => (isActive ? navActiveClass : navInactiveClass)}
+        >
           <DashboardOutlinedIcon fontSize="small" />
           <span>Табло</span>
-        </button>
-        <button type="button" className={navItemClass(pathname === "/invoices")} onClick={() => go("/invoices")}>
+        </NavLink>
+        <NavLink
+          to="/invoices"
+          onClick={closeDrawerIfMobile}
+          className={({ isActive }) =>
+            invoicesRouteActive(pathname, isActive) ? navActiveClass : navInactiveClass
+          }
+        >
           <ReceiptLongOutlinedIcon fontSize="small" />
           <span>Фактури</span>
-        </button>
-        <button type="button" className={navItemClass(pathname === "/products")} onClick={() => go("/products")}>
+        </NavLink>
+        <NavLink
+          to="/products"
+          end
+          onClick={closeDrawerIfMobile}
+          className={({ isActive }) => (isActive ? navActiveClass : navInactiveClass)}
+        >
           <Inventory2OutlinedIcon fontSize="small" />
           <span>Продукти</span>
-        </button>
-        <button type="button" className={navItemClass(pathname === "/customers")} onClick={() => go("/customers")}>
+        </NavLink>
+        <NavLink
+          to="/customers"
+          end
+          onClick={closeDrawerIfMobile}
+          className={({ isActive }) => (isActive ? navActiveClass : navInactiveClass)}
+        >
           <PeopleOutlineOutlinedIcon fontSize="small" />
           <span>Клиенти</span>
-        </button>
-        <button type="button" className={`${navItemBaseClass} cursor-not-allowed opacity-55`} disabled>
+        </NavLink>
+        <button
+          type="button"
+          className={`${navInactiveClass} cursor-not-allowed opacity-55 hover:bg-transparent`}
+          disabled
+        >
           <AssessmentOutlinedIcon fontSize="small" />
           <span className="flex flex-col">
             <span>Отчети</span>
@@ -115,15 +146,23 @@ const AppShellContent = () => {
         </button>
       </nav>
       <div className="border-t border-[rgba(15,23,42,0.12)] px-1 py-2">
-        <button type="button" className={navItemClass(pathname === "/profile")} onClick={() => go("/profile")}>
+        <NavLink
+          to="/profile"
+          end
+          onClick={closeDrawerIfMobile}
+          className={({ isActive }) => (isActive ? navActiveClass : navInactiveClass)}
+        >
           <SettingsOutlinedIcon fontSize="small" />
           <span>Настройки на профила</span>
-        </button>
+        </NavLink>
       </div>
       {userEmail ? (
         <div className="border-t border-[var(--color-border-soft)] px-4 pb-[calc(2rem+env(safe-area-inset-bottom,0px))] pt-4">
           <span className="block text-xs font-semibold text-slate-500">Вписан</span>
-          <span className="block break-all text-[0.8125rem] leading-snug text-slate-500" title={userEmail}>
+          <span
+            className="block break-all text-[0.8125rem] leading-snug text-slate-500"
+            title={userEmail}
+          >
             {userEmail}
           </span>
         </div>
@@ -147,7 +186,10 @@ const AppShellContent = () => {
             className="absolute inset-0 bg-slate-900/35"
             onClick={handleDrawerToggle}
           />
-          <div className="relative h-full border-r border-[var(--color-border-soft)]" style={{ width: DRAWER_WIDTH }}>
+          <div
+            className="relative h-full border-r border-[var(--color-border-soft)]"
+            style={{ width: DRAWER_WIDTH }}
+          >
             {drawer}
           </div>
         </div>
@@ -210,7 +252,10 @@ const AppShellContent = () => {
               minHeight: 40,
               textTransform: "none",
               color: "var(--color-brand-charcoal)",
-              "&:hover": { color: "var(--color-brand-primary)", bgcolor: "rgba(15, 118, 110, 0.06)" },
+              "&:hover": {
+                color: "var(--color-brand-primary)",
+                bgcolor: "rgba(15, 118, 110, 0.06)",
+              },
             }}
           >
             Изход

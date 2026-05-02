@@ -114,11 +114,13 @@ export const LogoSection = ({
         ) : (
           <div className={`flex flex-col items-center px-2 ${compact ? "gap-2 py-4" : "gap-3 py-8 sm:py-10"}`}>
             <div
-              className={`flex items-center justify-center rounded-full bg-[var(--color-brand-accent)] text-[var(--color-brand-primary)] shadow-[inset_0_0_0_1px_rgba(15,118,110,0.14),0_1px_2px_rgba(15,23,42,0.04)] ${
-                compact ? "h-12 w-12" : "h-16 w-16"
+              className={`section-icon-tile ${
+                compact ? "section-icon-tile--circle-md" : "section-icon-tile--circle-lg"
               }`}
             >
-              <CloudUploadOutlinedIcon sx={{ fontSize: compact ? 28 : 34 }} />
+              <CloudUploadOutlinedIcon
+                sx={{ fontSize: compact ? "1.45rem" : "1.8rem" }}
+              />
             </div>
             <p className={`${compact ? "text-sm" : "text-base"} text-center font-semibold text-slate-900`}>
               Пуснете лого тук или натиснете

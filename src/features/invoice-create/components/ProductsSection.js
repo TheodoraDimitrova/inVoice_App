@@ -23,9 +23,6 @@ const isRowComplete = (row) => {
 
 const sectionClass =
   "rounded-2xl border border-[rgba(15,23,42,0.08)] bg-[rgba(15,23,42,0.04)] px-4 py-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:px-5 sm:py-6";
-const iconTileClass =
-  "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--color-brand-accent)] text-[var(--color-brand-primary)] shadow-[inset_0_0_0_1px_rgba(15,118,110,0.14),0_1px_2px_rgba(15,23,42,0.04)]";
-
 export const ProductsSection = ({
   inlineCellSx,
   products,
@@ -48,8 +45,8 @@ export const ProductsSection = ({
   return (
   <section className={sectionClass}>
     <div className="mb-4 flex items-center gap-3">
-      <div className={iconTileClass}>
-        <Inventory2OutlinedIcon fontSize="small" />
+      <div className="section-icon-tile">
+        <Inventory2OutlinedIcon fontSize="inherit" />
       </div>
       <div>
         <h2

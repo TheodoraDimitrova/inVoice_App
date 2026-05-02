@@ -24,9 +24,7 @@ const SetupProfileAccordion = ({
       onClick={() => setOpenPanels((prev) => ({ ...prev, [panelId]: !isOpen }))}
     >
       <div className="flex items-start gap-4">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--color-brand-accent)] text-[var(--color-brand-primary)] shadow-[inset_0_0_0_1px_rgba(15,118,110,0.14),0_1px_2px_rgba(15,23,42,0.04)]">
-          {icon}
-        </div>
+        <div className="section-icon-tile">{icon}</div>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <h3

@@ -8,9 +8,6 @@ import { gridFieldSx, setupProfileFieldProps } from "../../../utils/muiFieldSx";
 const fieldProps = setupProfileFieldProps;
 const sectionClass =
   "rounded-2xl border border-[rgba(15,23,42,0.08)] bg-[rgba(15,23,42,0.04)] p-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:p-5";
-const iconTileClass =
-  "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--color-brand-accent)] text-[var(--color-brand-primary)] shadow-[inset_0_0_0_1px_rgba(15,118,110,0.14),0_1px_2px_rgba(15,23,42,0.04)]";
-
 export const CustomerSection = ({
   countries,
   customerType,
@@ -46,8 +43,8 @@ export const CustomerSection = ({
   return (
     <section className={sectionClass}>
       <div className="mb-5 flex items-center gap-4">
-        <div className={iconTileClass}>
-          <PersonOutlineOutlinedIcon fontSize="small" />
+        <div className="section-icon-tile">
+          <PersonOutlineOutlinedIcon fontSize="inherit" />
         </div>
         <div>
           <h2 className="font-bold text-[var(--color-brand-primary)]">

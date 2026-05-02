@@ -18,12 +18,17 @@ export const sectionIconBoxSx = {
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  width: 40,
-  height: 40,
-  borderRadius: 2,
-  bgcolor: "var(--color-brand-accent)",
-  color: "var(--color-brand-primary)",
+  width: 44,
+  height: 44,
+  borderRadius: "50%",
   flexShrink: 0,
+  color: "var(--color-brand-primary)",
+  bgcolor: "var(--color-brand-accent)",
+  boxShadow: "var(--section-icon-tile-shadow)",
+  "& .MuiSvgIcon-root": {
+    fontSize: "1.375rem",
+    opacity: 0.96,
+  },
 };
 
 export const sectionShellSx = {

@@ -20,6 +20,11 @@ body {
   --color-text-muted: #64748b;
   --page-max-width: 72rem;
   --page-padding-x: 1rem;
+  --section-icon-tile-ring: rgba(15, 118, 110, 0.22);
+  --section-icon-tile-shadow:
+    0 0 0 1px var(--section-icon-tile-ring),
+    0 2px 8px rgba(15, 118, 110, 0.12),
+    0 4px 12px rgba(15, 118, 110, 0.08);
 }
 
 @media (min-width: 768px) {
@@ -36,6 +41,17 @@ body {
   padding-left: var(--page-padding-x);
   padding-right: var(--page-padding-x);
   box-sizing: border-box;
+}
+
+/* App shell sidebar: active route — project accent + primary text/icons */
+.app-shell-nav-item-active {
+  background-color: var(--color-brand-accent);
+  color: var(--color-brand-primary);
+  font-weight: 600;
+}
+
+.app-shell-nav-item-active .MuiSvgIcon-root {
+  color: var(--color-brand-primary) !important;
 }
 
 .btn-brand {
@@ -101,6 +117,35 @@ body {
   box-shadow:
     0 1px 2px rgba(15, 23, 42, 0.05),
     0 4px 12px rgba(15, 23, 42, 0.04);
+}
+
+/* Section headings: icon tiles on /profile & invoice flows */
+.section-icon-tile {
+  display: flex;
+  height: 2.75rem;
+  width: 2.75rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: var(--color-brand-primary);
+  background-color: var(--color-brand-accent);
+  box-shadow: var(--section-icon-tile-shadow);
+}
+
+.section-icon-tile .MuiSvgIcon-root {
+  font-size: 1.375rem !important;
+  opacity: 0.96;
+}
+
+.section-icon-tile--circle-lg {
+  width: 3.65rem;
+  height: 3.65rem;
+}
+
+.section-icon-tile--circle-md {
+  width: 3rem;
+  height: 3rem;
 }
 
 table {
