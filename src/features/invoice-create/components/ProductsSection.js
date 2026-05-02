@@ -1,8 +1,9 @@
 import React from "react";
-import { Box, Button, Paper, Stack, Typography } from "@mui/material";
+import { Box, Button, Paper, Stack, Tooltip, Typography } from "@mui/material";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import { ProductRow } from "./ProductRow/ProductRow";
+
 const parseLocaleNumber = (value) => {
   const normalized = String(value ?? "")
     .trim()
@@ -10,6 +11,14 @@ const parseLocaleNumber = (value) => {
     .replace(",", ".");
   const n = Number(normalized);
   return Number.isFinite(n) ? n : 0;
+};
+
+const isRowComplete = (row) => {
+  const name = String(row?.itemName || "").trim();
+  const unit = String(row?.itemUnit || "").trim();
+  const cost = parseLocaleNumber(row?.itemCost);
+  const qty = parseLocaleNumber(row?.itemQuantity);
+  return name !== "" && unit !== "" && cost > 0 && qty >= 1;
 };
 
 export const ProductsSection = ({
@@ -29,7 +38,11 @@ export const ProductsSection = ({
   itemErrors = [],
   showRequiredError = false,
   defaultBusinessVatRate = 20,
-}) => (
+}) => {
+  const lastRow = itemList[itemList.length - 1];
+  const canAddRow = !lastRow || isRowComplete(lastRow);
+
+  return (
   <Paper
     variant="outlined"
     sx={{
@@ -91,28 +104,36 @@ export const ProductsSection = ({
       ) : (
         <Box />
       )}
-      <Button
-        type="button"
-        onClick={addRow}
-        sx={{
-          minHeight: 30,
-          px: 1.5,
-          py: 0.25,
-          textTransform: "none",
-          fontWeight: 700,
-          fontSize: "0.8rem",
-          lineHeight: 1.1,
-          color: "primary.contrastText",
-          bgcolor: "primary.main",
-          boxShadow: "none",
-          "&:hover": {
-            bgcolor: "primary.dark",
-            boxShadow: "none",
-          },
-        }}
+      <Tooltip
+        title={canAddRow ? "" : "Попълнете текущия ред, преди да добавите нов"}
+        disableHoverListener={canAddRow}
       >
-        + Нов ред
-      </Button>
+        <span>
+          <Button
+            type="button"
+            onClick={addRow}
+            disabled={!canAddRow}
+            sx={{
+              minHeight: 30,
+              px: 1.5,
+              py: 0.25,
+              textTransform: "none",
+              fontWeight: 700,
+              fontSize: "0.8rem",
+              lineHeight: 1.1,
+              color: "primary.contrastText",
+              bgcolor: "primary.main",
+              boxShadow: "none",
+              "&:hover": {
+                bgcolor: "primary.dark",
+                boxShadow: "none",
+              },
+            }}
+          >
+            + Нов ред
+          </Button>
+        </span>
+      </Tooltip>
     </Stack>
 
     <Box
@@ -186,4 +207,5 @@ export const ProductsSection = ({
       })}
     </Box>
   </Paper>
-);
+  );
+};
