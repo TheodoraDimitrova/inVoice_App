@@ -73,7 +73,9 @@ const ProductsTable = ({
           <TableCell sx={{ ...HEAD_SX, ...COL.qty }}>Кол-во</TableCell>
           <TableCell sx={{ ...HEAD_SX, ...COL.unit }}>Мярка</TableCell>
           <TableCell sx={{ ...HEAD_SX, ...COL.price }}>Нетна цена</TableCell>
-          <TableCell sx={{ ...HEAD_SX, ...COL.actions }}>Действия</TableCell>
+          <TableCell sx={{ ...HEAD_SX, ...COL.actions }}>
+            <Box sx={{ display: "flex", justifyContent: "flex-end" }}>Действия</Box>
+          </TableCell>
         </TableRow>
       </TableHead>
       <TableBody>
