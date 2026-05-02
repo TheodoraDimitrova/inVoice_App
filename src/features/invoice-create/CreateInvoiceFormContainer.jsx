@@ -1,9 +1,6 @@
-import React, {
-  useMemo,
-  useState,
-} from "react";
 import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useInvoiceCreationReady } from "../../contexts/InvoiceCreationReadyContext";
 import { useDispatch } from "react-redux";
 
@@ -16,6 +13,7 @@ import {
   useCreateInvoiceHydration,
   useCreateInvoiceFormSetup,
   useInvoiceCreationGate,
+  useInvoiceSavedCustomers,
   useItemListFormSync,
   useInvoiceRowFactory,
   useInvoiceNoteDefaults,
@@ -53,7 +51,8 @@ const CreateInvoiceFormContainer = () => {
   const [saveInProgress, setSaveInProgress] = useState(false);
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
   const [productsRequiredError, setProductsRequiredError] = useState(false);
-  const { loadInvoice, loadBusinessDocs, loadProducts } = useCreateInvoiceData();
+  const { loadInvoice, loadBusinessDocs, loadProducts } =
+    useCreateInvoiceData();
   const { ready: invoiceCreationReady, loading: invoiceGateLoading } =
     useInvoiceCreationReady();
   const {
@@ -100,14 +99,28 @@ const CreateInvoiceFormContainer = () => {
     invoiceNote,
   } = formValues;
 
-  const { customerIdRule, customerIdLabel, currencySign, vatRateOptions, invoiceItems } =
-    useCreateInvoiceViewModel({
-      customerCountry,
-      currency,
-      defaultBusinessVatRate,
-      isBusinessVatRegistered,
-      itemList,
-    });
+  const { savedCustomers } = useInvoiceSavedCustomers();
+  const savedCustomersForType = useMemo(
+    () =>
+      savedCustomers.filter(
+        (c) => Boolean(c?.customerType) && c.customerType === customerType,
+      ),
+    [customerType, savedCustomers],
+  );
+  const [selectedSavedCustomer, setSelectedSavedCustomer] = useState(null);
+  const {
+    customerIdRule,
+    customerIdLabel,
+    currencySign,
+    vatRateOptions,
+    invoiceItems,
+  } = useCreateInvoiceViewModel({
+    customerCountry,
+    currency,
+    defaultBusinessVatRate,
+    isBusinessVatRegistered,
+    itemList,
+  });
   useItemListFormSync({ itemList, setValue });
   useNormalizeVatRows({ isBusinessVatRegistered, setItemList });
   useInvoiceNoteDefaults({
@@ -181,6 +194,83 @@ const CreateInvoiceFormContainer = () => {
     vatExemptDefaultNote: VAT_EXEMPT_DEFAULT_NOTE,
   });
 
+  useEffect(() => {
+    setSelectedSavedCustomer(null);
+  }, [customerType]);
+
+  const applySavedCustomerToForm = useCallback(
+    (customer) => {
+      setField("customerName", String(customer.customerName || "").trim());
+      setField(
+        "customerCountry",
+        String(customer.customerCountry || "Bulgaria").trim() || "Bulgaria",
+      );
+      setField(
+        "customerAddress",
+        String(customer.customerAddress || "").trim(),
+      );
+      setField(
+        "customerPostCode",
+        String(customer.customerPostCode || "").trim(),
+      );
+      setField("customerCity", String(customer.customerCity || "").trim());
+      setField("customerEmail", String(customer.customerEmail || "").trim());
+
+      if (customer.customerType === "business") {
+        setField(
+          "companyIdentifier",
+          String(customer.companyIdentifier || "").trim(),
+        );
+        setField(
+          "customerVatRegistered",
+          Boolean(customer.customerVatRegistered),
+        );
+        setField(
+          "customerVatNumber",
+          String(customer.customerVatNumber || "")
+            .trim()
+            .toUpperCase(),
+        );
+      } else {
+        setField("companyIdentifier", "");
+        setField("customerVatRegistered", false);
+        setField("customerVatNumber", "");
+      }
+    },
+    [setField],
+  );
+
+  const handleCustomerNameAutocompleteChange = useCallback(
+    (_, newValue) => {
+      if (newValue && typeof newValue === "object" && newValue.id) {
+        setSelectedSavedCustomer(newValue);
+        applySavedCustomerToForm(newValue);
+        return;
+      }
+      setSelectedSavedCustomer(null);
+      if (newValue == null) {
+        setField("customerName", "");
+        return;
+      }
+      if (typeof newValue === "string") {
+        setField("customerName", newValue.trim());
+      }
+    },
+    [applySavedCustomerToForm, setField],
+  );
+
+  const handleCustomerNameAutocompleteInputChange = useCallback(
+    (_, inputValue, reason) => {
+      if (reason === "reset") return;
+      const next = typeof inputValue === "string" ? inputValue : "";
+      setField("customerName", next);
+      if (reason === "input" || reason === "clear") {
+        setSelectedSavedCustomer(null);
+      }
+    },
+    [setField],
+  );
+
   const previewData = useInvoicePreviewData({
     getValues,
     invoiceItems,
@@ -224,6 +314,11 @@ const CreateInvoiceFormContainer = () => {
     customerPostCode,
     customerCity,
     customerEmail,
+    savedCustomerOptions: savedCustomersForType,
+    selectedSavedCustomer,
+    onCustomerNameAutocompleteChange: handleCustomerNameAutocompleteChange,
+    onCustomerNameAutocompleteInputChange:
+      handleCustomerNameAutocompleteInputChange,
     products,
     currencySign,
     itemList,

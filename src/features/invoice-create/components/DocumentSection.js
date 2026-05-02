@@ -1,13 +1,33 @@
 import React from "react";
-import {
-  MenuItem,
-  TextField,
-} from "@mui/material";
+import { Button, MenuItem, TextField } from "@mui/material";
 import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
 import { FormFieldHelperText } from "../../../components/FormFieldHelperText";
 import { gridFieldSx, setupProfileFieldProps } from "../../../utils/muiFieldSx";
 
 const fieldProps = setupProfileFieldProps;
+const sectionClass =
+  "rounded-2xl border border-[rgba(15,23,42,0.08)] bg-[rgba(15,23,42,0.04)] p-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:p-5";
+const iconTileClass =
+  "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--color-brand-accent)] text-[var(--color-brand-primary)] shadow-[inset_0_0_0_1px_rgba(15,118,110,0.14),0_1px_2px_rgba(15,23,42,0.04)]";
+const customerTypeButtonSx = (active) => ({
+  px: 2.25,
+  py: 0.85,
+  borderRadius: 1.5,
+  minWidth: 0,
+  fontSize: "0.875rem",
+  fontWeight: 700,
+  textTransform: "none",
+  color: active ? "#ffffff" : "#475569",
+  bgcolor: active ? "var(--color-brand-primary)" : "transparent",
+  boxShadow: active
+    ? "0 6px 16px rgba(15, 118, 110, 0.18), 0 1px 2px rgba(15, 23, 42, 0.08)"
+    : "none",
+  "&:hover": {
+    bgcolor: active ? "var(--color-brand-primary-hover)" : "#ffffff",
+    color: active ? "#ffffff" : "var(--color-brand-primary)",
+  },
+});
+
 const formatInvoicePreviewNumber = (value) => {
   const raw = String(value ?? "").trim();
   if (!raw) return "-";
@@ -28,43 +48,35 @@ export const DocumentSection = ({
   currencyOptions,
   errors = {},
 }) => (
-  <section className="rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white p-4 sm:p-5">
+  <section className={sectionClass}>
     <div className="mb-5 flex items-center gap-4">
-      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--color-brand-accent)] text-[var(--color-brand-primary)]">
+      <div className={iconTileClass}>
         <DescriptionOutlinedIcon fontSize="small" />
       </div>
       <div>
         <h2 className="font-bold text-[var(--color-brand-primary)]">
           Данни за документа
         </h2>
-        <p className="text-xs text-slate-500">
-          Номер и дати на фактурата.
-        </p>
+        <p className="text-xs text-slate-500">Номер и дати на фактурата.</p>
       </div>
     </div>
     <div className="grid grid-cols-12 gap-4">
       <div className="col-span-12">
         <div className="space-y-2">
-          <p className="text-sm font-semibold text-slate-500">
-            Тип клиент
-          </p>
-          <div className="inline-flex overflow-hidden rounded-lg border border-slate-300">
+          <p className="text-sm font-semibold text-slate-500">Тип клиент</p>
+          <div className="inline-flex rounded-xl border border-slate-200 bg-slate-100/80 p-1 shadow-inner">
             {[
               ["business", "Фирма (B2B)"],
               ["individual", "Физическо лице (B2C)"],
             ].map(([value, label]) => (
-              <button
+              <Button
                 key={value}
                 type="button"
                 onClick={(event) => onCustomerTypeChange(event, value)}
-                className={`px-4 py-1.5 text-sm font-semibold transition-colors ${
-                  customerType === value
-                    ? "bg-[var(--color-brand-primary)] text-white"
-                    : "bg-white text-slate-700 hover:bg-slate-50"
-                }`}
+                sx={customerTypeButtonSx(customerType === value)}
               >
                 {label}
-              </button>
+              </Button>
             ))}
           </div>
           <p className="text-xs text-slate-500">

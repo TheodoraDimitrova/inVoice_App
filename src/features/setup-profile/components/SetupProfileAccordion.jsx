@@ -20,11 +20,11 @@ const SetupProfileAccordion = ({
       aria-expanded={isOpen}
       aria-controls={`setup-${panelId}-content`}
       id={`setup-${panelId}-header`}
-      className="flex w-full items-start justify-between gap-4 px-2 py-4 text-left opacity-90"
+      className="flex w-full items-start justify-between gap-4 rounded-xl px-2 py-4 text-left opacity-95 transition-colors hover:bg-white/50"
       onClick={() => setOpenPanels((prev) => ({ ...prev, [panelId]: !isOpen }))}
     >
       <div className="flex items-start gap-4">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--color-brand-accent)] text-[var(--color-brand-primary)]">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--color-brand-accent)] text-[var(--color-brand-primary)] shadow-[inset_0_0_0_1px_rgba(15,118,110,0.14),0_1px_2px_rgba(15,23,42,0.04)]">
           {icon}
         </div>
         <div className="min-w-0 flex-1">

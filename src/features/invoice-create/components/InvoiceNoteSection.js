@@ -8,7 +8,7 @@ export const InvoiceNoteSection = ({
   onToggle,
   onChange,
 }) => (
-  <section className="rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white p-4 sm:p-5">
+  <section className="rounded-2xl border border-[rgba(15,23,42,0.08)] bg-[rgba(15,23,42,0.04)] p-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:p-5">
     <div className="space-y-4">
       <label className="flex items-center gap-2 text-[0.95rem] font-semibold text-slate-900">
         <Checkbox size="small" checked={Boolean(includeInvoiceNote)} onChange={onToggle} />

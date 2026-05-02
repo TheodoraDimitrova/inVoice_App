@@ -21,6 +21,11 @@ const isRowComplete = (row) => {
   return name !== "" && unit !== "" && cost > 0 && qty >= 1;
 };
 
+const sectionClass =
+  "rounded-2xl border border-[rgba(15,23,42,0.08)] bg-[rgba(15,23,42,0.04)] px-4 py-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:px-5 sm:py-6";
+const iconTileClass =
+  "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--color-brand-accent)] text-[var(--color-brand-primary)] shadow-[inset_0_0_0_1px_rgba(15,118,110,0.14),0_1px_2px_rgba(15,23,42,0.04)]";
+
 export const ProductsSection = ({
   inlineCellSx,
   products,
@@ -41,9 +46,9 @@ export const ProductsSection = ({
   const canAddRow = !lastRow || isRowComplete(lastRow);
 
   return (
-  <section className="rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white px-4 py-5 sm:px-5 sm:py-6">
+  <section className={sectionClass}>
     <div className="mb-4 flex items-center gap-3">
-      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--color-brand-accent)] text-[var(--color-brand-primary)]">
+      <div className={iconTileClass}>
         <Inventory2OutlinedIcon fontSize="small" />
       </div>
       <div>

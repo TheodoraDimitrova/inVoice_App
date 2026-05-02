@@ -23,6 +23,7 @@ export * from "./hooks/useNormalizeVatRows";
 export * from "./hooks/useInvoiceNoteDefaults";
 export * from "./hooks/useCreateInvoiceSectionProps";
 export * from "./hooks/useInvoicePreviewData";
+export * from "./hooks/useInvoiceSavedCustomers";
 export * from "./services/invoiceService";
 export * from "./services/businessService";
 export * from "./services/productService";

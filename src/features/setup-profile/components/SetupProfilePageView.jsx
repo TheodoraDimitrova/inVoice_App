@@ -85,9 +85,11 @@ const SetupProfilePageView = ({
                     </div>
                   ) : null}
 
-                  <CompanySection form={form} />
+                  <section className="rounded-2xl border border-[rgba(15,23,42,0.08)] bg-[rgba(15,23,42,0.04)] p-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:p-5">
+                    <CompanySection form={form} />
+                  </section>
 
-                  <div className="mt-8 rounded-2xl border border-[rgba(15,23,42,0.08)] bg-[rgba(15,23,42,0.04)] p-4 sm:p-5">
+                  <div className="mt-8 rounded-2xl border border-[rgba(15,23,42,0.08)] bg-[rgba(15,23,42,0.04)] p-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:p-5">
                     <SetupProfileAccordion
                       panelId="address"
                       first
