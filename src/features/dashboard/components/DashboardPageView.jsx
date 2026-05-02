@@ -1,16 +1,7 @@
 import React from "react";
-import {
-  Alert,
-  Box,
-  Button,
-  Grid,
-  Paper,
-  Stack,
-  Typography,
-} from "@mui/material";
+import { Button } from "@mui/material";
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import Table from "../../../components/Table";
-import { tableSurfaceSx } from "../../../utils/tableStyles";
 import { AverageInvoiceCard } from "./metrics/AverageInvoiceCard";
 import { InvoicesCard } from "./metrics/InvoicesCard";
 import { PaymentStatusCard } from "./metrics/PaymentStatusCard";
@@ -30,75 +21,42 @@ const DashboardPageView = ({
   averageInvoiceLabel,
 }) => {
   return (
-    <Box
-      sx={{
-        px: { xs: 2, sm: 3 },
-        py: { xs: 2, sm: 2.5 },
-        maxWidth: 1100,
-        mx: "auto",
-      }}
-    >
+    <main className="mx-auto max-w-[1100px] px-4 py-4 sm:px-6 sm:py-6">
       {!invoiceGateLoading && !canCreateInvoice ? (
-        <Alert
-          severity="warning"
-          sx={{ mb: 2.5, alignItems: "center" }}
-          action={
+        <div className="mb-6 flex flex-col gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 sm:flex-row sm:items-center sm:justify-between">
+          <p>
+            За да създавате фактури, добавете <strong>данъчни настройки</strong>{" "}
+            (ДДС), <strong>фирмен идентификатор</strong> и{" "}
+            <strong>банкови данни</strong> в „Профил“, или включете опцията{" "}
+            <strong>"Не ми трябват банкови данни във фактурите"</strong>. Данните
+            за фирма и адрес са достатъчни за достъп до таблото.
+          </p>
+          <div className="shrink-0">
             <Button color="inherit" size="small" onClick={onOpenProfile}>
               Настройки на профила
             </Button>
-          }
-        >
-          За да създавате фактури, добавете <strong>данъчни настройки</strong>{" "}
-          (ДДС), <strong>фирмен идентификатор</strong> и{" "}
-          <strong>банкови данни</strong> в „Профил“, или включете опцията{" "}
-          <strong>"Не ми трябват банкови данни във фактурите"</strong>. Данните
-          за фирма и адрес са достатъчни за достъп до таблото.
-        </Alert>
+          </div>
+        </div>
       ) : null}
 
-      <Stack
-        direction={{ xs: "column", sm: "row" }}
-        alignItems={{ xs: "stretch", sm: "center" }}
-        justifyContent="space-between"
-        spacing={2}
-        sx={{ mb: 2.5 }}
-      >
-        <Box sx={{ minWidth: 0 }}>
-          <Typography
-            variant="h6"
-            component="h1"
-            sx={{
-              fontWeight: 600,
-              color: "var(--color-brand-charcoal)",
-              letterSpacing: "-0.02em",
-              fontSize: { xs: "1.1rem", sm: "1.2rem" },
-              lineHeight: 1.3,
-            }}
-          >
+      <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+        <div className="min-w-0">
+          <h1 className="text-lg font-semibold leading-snug tracking-[-0.02em] text-[var(--color-brand-charcoal)] sm:text-xl">
             Табло
-          </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.25 }}>
+          </h1>
+          <p className="mt-1 text-sm text-slate-500">
             {businessName
               ? businessName
               : "Преглед на текущия месец и последна активност."}
-          </Typography>
+          </p>
           {companyEmail ? (
-            <Typography
-              variant="caption"
-              color="text.secondary"
-              sx={{ mt: 0.75, display: "block" }}
-            >
+            <p className="mt-2 block text-xs text-slate-500">
               Фирмен имейл: {companyEmail}
-            </Typography>
+            </p>
           ) : null}
-        </Box>
+        </div>
 
-        <Stack
-          direction="row"
-          spacing={1}
-          justifyContent="flex-end"
-          flexShrink={0}
-        >
+        <div className="flex shrink-0 justify-end gap-2">
           <Button
             type="button"
             variant="outlined"
@@ -116,48 +74,34 @@ const DashboardPageView = ({
           >
             Всички фактури
           </Button>
-        </Stack>
-      </Stack>
+        </div>
+      </div>
 
-      <Grid container spacing={2} sx={{ mb: 3 }}>
-        <Grid item xs={12} sm={6} lg={3}>
+      <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div>
           <RevenueCard revenueLabel={revenueLabel} />
-        </Grid>
-        <Grid item xs={12} sm={6} lg={3}>
+        </div>
+        <div>
           <InvoicesCard issuedCount={metrics.issuedCount} />
-        </Grid>
-        <Grid item xs={12} sm={6} lg={3}>
+        </div>
+        <div>
           <PaymentStatusCard
             paidCount={metrics.paidCount}
             unpaidCount={metrics.unpaidCount}
           />
-        </Grid>
-        <Grid item xs={12} sm={6} lg={3}>
+        </div>
+        <div>
           <AverageInvoiceCard averageInvoiceLabel={averageInvoiceLabel} />
-        </Grid>
-      </Grid>
+        </div>
+      </div>
 
-      <Paper
-        variant="outlined"
-        sx={{
-          ...tableSurfaceSx,
-          maxWidth: "100%",
-          p: { xs: 1.5, sm: 2 },
-        }}
-      >
-        <Typography
-          sx={{
-            fontWeight: 700,
-            fontSize: "0.95rem",
-            color: "#334155",
-            mb: 1,
-          }}
-        >
+      <section className="max-w-full overflow-hidden rounded-3xl border border-slate-300/60 bg-gradient-to-b from-white/95 to-slate-50/95 p-4 shadow-[0_10px_28px_rgba(15,23,42,0.08)]">
+        <h2 className="mb-3 text-[0.95rem] font-bold text-slate-700">
           Последни фактури
-        </Typography>
+        </h2>
         <Table invoices={recentInvoices} defaultVatRate={vatRate} />
-      </Paper>
-    </Box>
+      </section>
+    </main>
   );
 };
 export default DashboardPageView;

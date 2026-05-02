@@ -1,19 +1,11 @@
 import React, { useState } from "react";
 import {
-  Box,
   Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  Paper,
-  Stack,
-  Typography,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import ProductsTable from "./ProductsTable";
+import { Modal } from "../../../components/ui/layout";
 
 const ProductsPageView = ({
   sortedProducts,
@@ -44,27 +36,11 @@ const ProductsPageView = ({
   };
 
   return (
-    <Box
-      sx={{
-        px: { xs: 2, sm: 3 },
-        py: { xs: 2, sm: 2.5 },
-        maxWidth: 1100,
-        mx: "auto",
-      }}
-    >
-      <Stack
-        direction="row"
-        alignItems="center"
-        justifyContent="space-between"
-        sx={{ mb: 2.5 }}
-      >
-        <Typography
-          variant="h6"
-          component="h1"
-          sx={{ fontWeight: 700, color: "var(--color-brand-charcoal)" }}
-        >
+    <main className="mx-auto max-w-[1100px] px-4 py-4 sm:px-6 sm:py-6">
+      <div className="mb-6 flex items-center justify-between gap-4">
+        <h1 className="text-lg font-bold text-[var(--color-brand-charcoal)]">
           Продукти или услуги
-        </Typography>
+        </h1>
         <Button
           variant="contained"
           color="primary"
@@ -83,7 +59,7 @@ const ProductsPageView = ({
         >
           Добави продукт
         </Button>
-      </Stack>
+      </div>
 
       {sortedProducts.length > 0 ? (
         <ProductsTable
@@ -99,58 +75,49 @@ const ProductsPageView = ({
           onDeleteRequest={requestDelete}
         />
       ) : (
-        <Paper
-          variant="outlined"
-          sx={{
-            borderRadius: 2,
-            p: { xs: 3, sm: 4 },
-            textAlign: "center",
-            borderStyle: "dashed",
-            borderColor: "rgba(15, 23, 42, 0.18)",
-            bgcolor: "rgba(15, 23, 42, 0.02)",
-          }}
-        >
+        <section className="rounded-2xl border border-dashed border-[rgba(15,23,42,0.18)] bg-[rgba(15,23,42,0.02)] p-8 text-center sm:p-10">
           <Inventory2OutlinedIcon
             sx={{ fontSize: 48, color: "var(--color-brand-primary)", mb: 1 }}
           />
-          <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 0.5 }}>
+          <h2 className="mb-1 text-base font-bold text-slate-900">
             Нямате добавени продукти
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
+          </h2>
+          <p className="text-sm text-slate-500">
             Спестете време при фактуриране! Добавете първия си продукт и той ще
             се попълва автоматично.
-          </Typography>
-        </Paper>
+          </p>
+        </section>
       )}
 
-      <Dialog
+      <Modal
         open={Boolean(pendingDeleteId)}
         onClose={cancelDelete}
-        maxWidth="xs"
-        fullWidth
+        title="Изтриване на продукт"
+        size="xs"
+        footer={
+          <>
+            <Button onClick={cancelDelete} disabled={deleting}>
+              Отказ
+            </Button>
+            <Button
+              variant="contained"
+              color="error"
+              onClick={confirmDelete}
+              disabled={deleting}
+            >
+              Изтрий
+            </Button>
+          </>
+        }
       >
-        <DialogTitle>Изтриване на продукт</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
+        <div className="p-5">
+          <p className="text-sm text-slate-600">
             Сигурни ли сте, че искате да изтриете този продукт? Действието не
             може да бъде отменено.
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2.5, gap: 1 }}>
-          <Button onClick={cancelDelete} disabled={deleting}>
-            Отказ
-          </Button>
-          <Button
-            variant="contained"
-            color="error"
-            onClick={confirmDelete}
-            disabled={deleting}
-          >
-            Изтрий
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Box>
+          </p>
+        </div>
+      </Modal>
+    </main>
   );
 };
 

@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Button, Paper, Stack, Tooltip, Typography } from "@mui/material";
+import { Button } from "@mui/material";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import { ProductRow } from "./ProductRow/ProductRow";
@@ -22,8 +22,6 @@ const isRowComplete = (row) => {
 };
 
 export const ProductsSection = ({
-  sectionShellSx,
-  sectionIconBoxSx,
   inlineCellSx,
   products,
   currencySign,
@@ -43,106 +41,70 @@ export const ProductsSection = ({
   const canAddRow = !lastRow || isRowComplete(lastRow);
 
   return (
-  <Paper
-    variant="outlined"
-    sx={{
-      ...sectionShellSx,
-      px: { xs: 1, sm: 1.25 },
-      py: { xs: 1.25, sm: 1.5 },
-      borderColor: sectionShellSx.borderColor,
-      boxShadow: "none",
-    }}
-  >
-    <Stack direction="row" spacing={1.25} alignItems="center" sx={{ mb: 1 }}>
-      <Box sx={sectionIconBoxSx}>
+  <section className="rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white px-4 py-5 sm:px-5 sm:py-6">
+    <div className="mb-4 flex items-center gap-3">
+      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--color-brand-accent)] text-[var(--color-brand-primary)]">
         <Inventory2OutlinedIcon fontSize="small" />
-      </Box>
-      <Box>
-        <Typography
-          sx={{
-            fontWeight: 700,
-            color: showRequiredError
-              ? "error.main"
-              : "var(--color-brand-primary)",
-          }}
+      </div>
+      <div>
+        <h2
+          className={`font-bold ${
+            showRequiredError ? "text-red-600" : "text-[var(--color-brand-primary)]"
+          }`}
         >
           Продукти
-        </Typography>
-        <Typography variant="caption" sx={{ color: "text.secondary" }}>
+        </h2>
+        <p className="text-xs text-slate-500">
           Задължителен е поне един артикул. Полето за име предлага записаните
           продукти и услуги.
-        </Typography>
-      </Box>
-    </Stack>
+        </p>
+      </div>
+    </div>
     {showRequiredError ? (
-      <Typography variant="body2" color="error" sx={{ mb: 1, fontWeight: 600 }}>
+      <p className="mb-4 text-sm font-semibold text-red-600">
         Добавете поне един продукт или услуга, за да издадете фактура.
-      </Typography>
+      </p>
     ) : null}
-    <Stack
-      direction="row"
-      justifyContent="space-between"
-      alignItems="center"
-      sx={{ mb: 0.75 }}
-    >
+    <div className="mb-3 flex items-center justify-between gap-3">
       {!showVatField ? (
-        <Stack
-          direction="row"
-          spacing={0.75}
-          alignItems="center"
-          sx={{ color: "text.disabled" }}
-        >
-          <InfoOutlinedIcon sx={{ fontSize: 16, color: "text.disabled" }} />
-          <Typography
-            variant="body2"
-            sx={{ color: "text.disabled", fontWeight: 500 }}
-          >
+        <div className="flex items-center gap-2 text-sm font-medium text-slate-400">
+          <InfoOutlinedIcon sx={{ fontSize: 16 }} />
+          <p>
             Фирмата не е регистрирана по ДДС, затова артикулите се добавят без
             данък
-          </Typography>
-        </Stack>
+          </p>
+        </div>
       ) : (
-        <Box />
+        <div />
       )}
-      <Tooltip
-        title={canAddRow ? "" : "Попълнете текущия ред, преди да добавите нов"}
-        disableHoverListener={canAddRow}
-      >
-        <span>
-          <Button
-            type="button"
-            onClick={addRow}
-            disabled={!canAddRow}
-            sx={{
-              minHeight: 30,
-              px: 1.5,
-              py: 0.25,
-              textTransform: "none",
-              fontWeight: 700,
-              fontSize: "0.8rem",
-              lineHeight: 1.1,
-              color: "primary.contrastText",
-              bgcolor: "primary.main",
+      <span title={canAddRow ? "" : "Попълнете текущия ред, преди да добавите нов"}>
+        <Button
+          type="button"
+          onClick={addRow}
+          disabled={!canAddRow}
+          sx={{
+            minHeight: 30,
+            px: 1.5,
+            py: 0.25,
+            textTransform: "none",
+            fontWeight: 700,
+            fontSize: "0.8rem",
+            lineHeight: 1.1,
+            color: "primary.contrastText",
+            bgcolor: "primary.main",
+            boxShadow: "none",
+            "&:hover": {
+              bgcolor: "primary.dark",
               boxShadow: "none",
-              "&:hover": {
-                bgcolor: "primary.dark",
-                boxShadow: "none",
-              },
-            }}
-          >
-            + Нов ред
-          </Button>
-        </span>
-      </Tooltip>
-    </Stack>
+            },
+          }}
+        >
+          + Нов ред
+        </Button>
+      </span>
+    </div>
 
-    <Box
-      sx={{
-        border: "1px solid rgba(15, 23, 42, 0.08)",
-        borderRadius: 2,
-        overflow: "hidden",
-      }}
-    >
+    <div className="overflow-hidden rounded-2xl border border-[rgba(15,23,42,0.08)]">
       {itemList.map((row, idx) => {
         const rowErrors =
           (Array.isArray(itemErrors) ? itemErrors[idx] : itemErrors?.[idx]) ||
@@ -205,7 +167,7 @@ export const ProductsSection = ({
           />
         );
       })}
-    </Box>
-  </Paper>
+    </div>
+  </section>
   );
 };

@@ -1,6 +1,6 @@
 import React from "react";
 import { Controller, useWatch } from "react-hook-form";
-import { Box, FormControlLabel, Grid, Switch, TextField, Typography } from "@mui/material";
+import { Switch, TextField } from "@mui/material";
 import AccountBalanceOutlinedIcon from "@mui/icons-material/AccountBalanceOutlined";
 import { FormFieldHelperText } from "../../../components/FormFieldHelperText";
 import { gridFieldSx, setupProfileFieldProps } from "../../../utils/muiFieldSx";
@@ -24,13 +24,12 @@ export const BankSection = ({ form, showTitle = true }) => {
           subtitle="Име на банка, IBAN и SWIFT са задължителни, освен ако включите опцията без банкови данни във фактурите."
         />
       )}
-      <Box sx={{ mb: 2 }}>
+      <div className="mb-4">
         <Controller
           name="noBankDetailsOnInvoices"
           control={control}
           render={({ field }) => (
-            <FormControlLabel
-              control={
+            <label className="flex items-start gap-2">
                 <Switch
                   checked={Boolean(field.value)}
                   onChange={(e) => {
@@ -44,23 +43,20 @@ export const BankSection = ({ form, showTitle = true }) => {
                   }}
                   color="primary"
                 />
-              }
-              label={
-                <Box>
-                  <Typography variant="body2" fontWeight={600}>
+                <div>
+                  <span className="block text-sm font-semibold text-slate-900">
                     Не ми трябват банкови данни във фактурите
-                  </Typography>
-                  <Typography variant="caption" color="text.secondary" display="block">
+                  </span>
+                  <span className="block text-xs text-slate-500">
                     При включване създаването на фактура не изисква банка, IBAN или SWIFT.
-                  </Typography>
-                </Box>
-              }
-            />
+                  </span>
+                </div>
+            </label>
           )}
         />
-      </Box>
-      <Grid container spacing={3} sx={{ alignItems: "flex-start" }}>
-        <Grid item xs={12} sx={{ minWidth: 0 }}>
+      </div>
+      <div className="grid grid-cols-12 items-start gap-6">
+        <div className="col-span-12 min-w-0">
           <Controller
             name="bankName"
             control={control}
@@ -92,8 +88,8 @@ export const BankSection = ({ form, showTitle = true }) => {
               />
             )}
           />
-        </Grid>
-        <Grid item xs={12} sm={6} sx={{ minWidth: 0 }}>
+        </div>
+        <div className="col-span-12 min-w-0 sm:col-span-6">
           <Controller
             name="iban"
             control={control}
@@ -127,8 +123,8 @@ export const BankSection = ({ form, showTitle = true }) => {
               />
             )}
           />
-        </Grid>
-        <Grid item xs={12} sm={6} sx={{ minWidth: 0 }}>
+        </div>
+        <div className="col-span-12 min-w-0 sm:col-span-6">
           <Controller
             name="swift"
             control={control}
@@ -161,8 +157,8 @@ export const BankSection = ({ form, showTitle = true }) => {
               />
             )}
           />
-        </Grid>
-      </Grid>
+        </div>
+      </div>
     </>
   );
 };

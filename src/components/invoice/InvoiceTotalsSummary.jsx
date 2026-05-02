@@ -1,5 +1,4 @@
 import React from "react";
-import { Box, Stack, Typography, Divider } from "@mui/material";
 
 export const InvoiceTotalsSummary = ({
   currencyLabel,
@@ -28,77 +27,48 @@ export const InvoiceTotalsSummary = ({
   const negativeSecondaryDiscount = secondaryDiscount ? `-${secondaryDiscount}` : "";
 
   const Row = ({ label, value, currency, secondary, isTotal = false }) => (
-    <Stack
-      direction="row"
-      justifyContent="flex-end"
-      spacing={2}
-      sx={{
-        alignItems: "baseline",
-        py: 0,
-        paddingTop: 0.5,
-      }}
-    >
-      <Typography
-        variant="body2"
-        sx={{
-          fontWeight: isTotal ? 800 : 400,
-          color: isTotal ? "text.primary" : "text.secondary",
-          textAlign: "right",
-          width: "200px",
-          textTransform: isTotal ? "uppercase" : "none",
-          letterSpacing: isTotal ? 0.5 : 0,
-          lineHeight: 1,
-        }}
+    <div className="flex items-baseline justify-end gap-4 pt-1">
+      <span
+        className={`w-[200px] text-right text-sm leading-none ${
+          isTotal
+            ? "font-extrabold uppercase tracking-wide text-slate-900"
+            : "font-normal text-slate-500"
+        }`}
       >
         {label}
-      </Typography>
+      </span>
 
-      <Stack alignItems="flex-end" sx={{ width: "125px", lineHeight: 1 }}>
-        <Stack direction="row" alignItems="baseline" spacing={0.2}>
-          <Typography
-            sx={{
-              fontWeight: isTotal ? 900 : 700,
-              fontSize: isTotal ? "1.2rem" : "1rem",
-              lineHeight: 0.2,
-              color: "#111827",
-              fontFamily: "'Roboto Mono', monospace",
-            }}
+      <span className="flex w-[125px] flex-col items-end leading-none">
+        <span className="flex items-baseline gap-1">
+          <span
+            className={`font-mono text-slate-900 ${
+              isTotal ? "text-xl font-black" : "text-base font-bold"
+            }`}
           >
             {value}
-          </Typography>
-          <Typography
-            sx={{
-              fontWeight: isTotal ? 700 : 600,
-              fontSize: isTotal ? "1rem" : "0.85rem",
-              color: isTotal ? "#111827" : "text.primary",
-            }}
+          </span>
+          <span
+            className={`${isTotal ? "text-base font-bold text-slate-900" : "text-[0.85rem] font-semibold text-slate-700"}`}
           >
             {currency}
-          </Typography>
-        </Stack>
+          </span>
+        </span>
         {secondary && (
-          <Typography
-            variant="caption"
-            sx={{
-              color: "text.disabled",
-              fontWeight: 600,
-              fontSize: isTotal ? "0.85rem" : "0.75rem",
-              fontFamily: "'Roboto Mono', monospace",
-              marginTop: "0px",
-              lineHeight: 1,
-              display: "block",
-            }}
+          <span
+            className={`block font-mono font-semibold leading-none text-slate-400 ${
+              isTotal ? "text-[0.85rem]" : "text-xs"
+            }`}
           >
             {secondary}
-          </Typography>
+          </span>
         )}
-      </Stack>
-    </Stack>
+      </span>
+    </div>
   );
 
   return (
-    <Box sx={{ mt: 2, ml: "auto", pr: 0 }}>
-      <Stack spacing={0}>
+    <div className="ml-auto mt-4 pr-0">
+      <div>
         <Row
           label="Междинна сума"
           value={subtotal.toFixed(2)}
@@ -122,16 +92,9 @@ export const InvoiceTotalsSummary = ({
           secondary={showVatAmount ? secondaryVat : null}
         />
 
-        <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-          <Divider
-            sx={{
-              my: 1,
-              width: "100%",
-              maxWidth: 320,
-              borderColor: "rgba(0,0,0,0.15)",
-            }}
-          />
-        </Box>
+        <div className="flex justify-end">
+          <hr className="my-2 w-full max-w-[320px] border-black/15" />
+        </div>
 
         <Row
           label="Крайна сума"
@@ -140,7 +103,7 @@ export const InvoiceTotalsSummary = ({
           secondary={secondaryGrand}
           isTotal
         />
-      </Stack>
-    </Box>
+      </div>
+    </div>
   );
 };

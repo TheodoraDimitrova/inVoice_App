@@ -1,13 +1,6 @@
 import React from "react";
 import {
-  Box,
   Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Grid,
-  Typography,
 } from "@mui/material";
 import {
   ProductNameField,
@@ -17,6 +10,7 @@ import {
   COMMON_UNIT_OPTIONS,
   productRowFieldSx,
 } from "../../../components/product-row-fields";
+import { Modal } from "../../../components/ui/layout";
 
 const ProductsDialog = ({
   open,
@@ -29,45 +23,23 @@ const ProductsDialog = ({
   updateRow,
   patchRow,
 }) => (
-  <Dialog
+  <Modal
     open={open}
     onClose={onClose}
-    maxWidth="md"
-    fullWidth
-    scroll="paper"
-    PaperProps={{
-      sx: {
-        borderRadius: 2.5,
-        overflow: "hidden",
-        bgcolor: "#f8fafc",
-        border: "1px solid rgba(15,23,42,0.08)",
-        boxShadow: "0 16px 44px rgba(2,6,23,0.18)",
-      },
-    }}
+    title="Добавяне на продукт"
+    size="md"
   >
-    <DialogTitle
-      sx={{
-        pb: 1.5,
-        pt: 2,
-        px: { xs: 2, sm: 3 },
-        fontWeight: 700,
-        bgcolor: "#fff",
-        borderBottom: "1px solid rgba(15,23,42,0.08)",
-      }}
-    >
-      Добавяне на продукт
-    </DialogTitle>
-    <Box component="form" onSubmit={onSubmit} noValidate>
-      <DialogContent sx={{ pt: 2.5, px: { xs: 2, sm: 3 }, pb: 2.5, overflowX: "hidden", bgcolor: "#f8fafc" }}>
-        <Grid container spacing={2.25}>
+    <form onSubmit={onSubmit} noValidate>
+      <div className="overflow-x-hidden bg-[#f8fafc] px-4 py-5 sm:px-6">
+        <div className="grid grid-cols-12 gap-5">
           {formErrors._form ? (
-            <Grid item xs={12}>
-              <Typography variant="body2" color="error">
+            <div className="col-span-12">
+              <p className="text-sm text-red-600">
                 {formErrors._form}
-              </Typography>
-            </Grid>
+              </p>
+            </div>
           ) : null}
-          <Grid item xs={12}>
+          <div className="col-span-12">
             <ProductNameField
               row={formRow}
               products={sortedProducts}
@@ -76,28 +48,28 @@ const ProductsDialog = ({
               patchRow={patchRow}
               error={formErrors.name}
             />
-          </Grid>
-          <Grid item xs={12} sm={4}>
+          </div>
+          <div className="col-span-12 sm:col-span-4">
             <QuantityField row={formRow} lineSx={productRowFieldSx} updateRow={updateRow} error={formErrors.itemQuantity} />
-          </Grid>
-          <Grid item xs={12} sm={4}>
+          </div>
+          <div className="col-span-12 sm:col-span-4">
             <UnitField row={formRow} lineSx={productRowFieldSx} unitOptions={COMMON_UNIT_OPTIONS} updateRow={updateRow} error={formErrors.itemUnit} />
-          </Grid>
-          <Grid item xs={12} sm={4}>
+          </div>
+          <div className="col-span-12 sm:col-span-4">
             <PriceField row={formRow} lineSx={productRowFieldSx} currencySign="EUR" updateRow={updateRow} error={formErrors.priceNet} />
-          </Grid>
-        </Grid>
-      </DialogContent>
-      <DialogActions sx={{ px: { xs: 2, sm: 3 }, py: 2, bgcolor: "#fff", borderTop: "1px solid rgba(15,23,42,0.08)" }}>
+          </div>
+        </div>
+      </div>
+      <div className="flex justify-end gap-2 border-t border-[rgba(15,23,42,0.08)] bg-white px-4 py-4 sm:px-6">
         <Button onClick={onClose} disabled={saving}>
           Отказ
         </Button>
         <Button type="submit" variant="contained" disabled={saving}>
           Добави продукт
         </Button>
-      </DialogActions>
-    </Box>
-  </Dialog>
+      </div>
+    </form>
+  </Modal>
 );
 
 export default ProductsDialog;

@@ -1,26 +1,19 @@
 import React from "react";
 import LocalPrintshopIcon from "@mui/icons-material/LocalPrintshop";
-import IconButton from "@mui/material/IconButton";
-import Tooltip from "@mui/material/Tooltip";
 import { ComponentToPrint } from "../print/ComponentToPrint";
 
 const ViewInvoicePage = ({ invoice, business, printRef, onPrint, isPreview }) => {
   return (
     <div className="w-full flex items-center md:justify-start justify-center relative">
-      <Tooltip title="Печат на фактура">
-        <IconButton
-          onClick={onPrint}
-          sx={{
-            position: "absolute",
-            top: "0",
-            right: "20px",
-            zIndex: 1000,
-            color: "#F7CCAC",
-          }}
-        >
-          <LocalPrintshopIcon sx={{ fontSize: "40px" }} />
-        </IconButton>
-      </Tooltip>
+      <button
+        type="button"
+        title="Печат на фактура"
+        aria-label="Печат на фактура"
+        onClick={onPrint}
+        className="absolute right-5 top-0 z-[1000] rounded-full p-2 text-[#F7CCAC] transition-colors hover:bg-slate-100"
+      >
+        <LocalPrintshopIcon sx={{ fontSize: "40px" }} />
+      </button>
 
       <ComponentToPrint
         ref={printRef}

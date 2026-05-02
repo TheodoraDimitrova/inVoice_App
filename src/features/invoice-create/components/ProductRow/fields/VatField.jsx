@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, MenuItem, TextField } from "@mui/material";
+import { MenuItem, TextField } from "@mui/material";
 import { setupProfileFieldProps } from "../../../../../utils/muiFieldSx";
 import { FormFieldHelperText } from "../../../../../components/FormFieldHelperText";
 
@@ -34,5 +34,5 @@ export const VatField = ({
       ))}
     </TextField>
   ) : (
-    <Box sx={{ minHeight: 40 }} />
+    <div className="min-h-[40px]" />
   );

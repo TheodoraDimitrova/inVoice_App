@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, InputAdornment, MenuItem, Stack, TextField } from "@mui/material";
+import { Button, InputAdornment, MenuItem, TextField } from "@mui/material";
 import { setupProfileFieldProps } from "../../../../utils/muiFieldSx";
 import { RowTotal } from "./RowTotal";
 
@@ -20,14 +20,8 @@ export const ProductRowDiscountFields = ({
 }) => {
   if (showDiscountEditor) {
     return (
-      <Stack
-        direction="row"
-        justifyContent="space-between"
-        alignItems="center"
-        spacing={0.75}
-        sx={{ pt: 0 }}
-      >
-        <Stack direction="row" spacing={1} alignItems="flex-start" sx={{ flex: 1, minWidth: 0 }}>
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex min-w-0 flex-1 items-start gap-2">
           <TextField
             {...fieldProps}
             select
@@ -70,19 +64,19 @@ export const ProductRowDiscountFields = ({
               },
             }}
           />
-        </Stack>
+        </div>
         <RowTotal
           currencySign={currencySign}
           rowTotal={rowTotal}
           isEmpty={isEmpty}
           onDelete={onDelete}
         />
-      </Stack>
+      </div>
     );
   }
 
   return (
-    <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={0.5} sx={{ pt: 0 }}>
+    <div className="flex items-center justify-between gap-2">
       <Button
         type="button"
         variant="text"
@@ -98,6 +92,6 @@ export const ProductRowDiscountFields = ({
         isEmpty={isEmpty}
         onDelete={onDelete}
       />
-    </Stack>
+    </div>
   );
 };

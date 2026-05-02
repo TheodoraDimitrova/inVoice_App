@@ -1,14 +1,10 @@
 import React from "react";
 import { Controller, useWatch } from "react-hook-form";
 import {
-  Box,
-  FormControlLabel,
-  Grid,
   InputAdornment,
   MenuItem,
   Switch,
   TextField,
-  Typography,
 } from "@mui/material";
 import GavelOutlinedIcon from "@mui/icons-material/GavelOutlined";
 import { FormFieldHelperText } from "../../../components/FormFieldHelperText";
@@ -42,13 +38,12 @@ export const TaxSection = ({ form, showTitle = true }) => {
         />
       )}
 
-      <Box sx={{ mb: 2 }}>
+      <div className="mb-4">
         <Controller
           name="isVatRegistered"
           control={control}
           render={({ field }) => (
-            <FormControlLabel
-              control={
+            <label className="flex items-start gap-2">
                 <Switch
                   checked={Boolean(field.value)}
                   onChange={(e) => {
@@ -63,29 +58,22 @@ export const TaxSection = ({ form, showTitle = true }) => {
                   }}
                   color="primary"
                 />
-              }
-              label={
-                <Box>
-                  <Typography variant="body2" fontWeight={600}>
+                <div>
+                  <span className="block text-sm font-semibold text-slate-900">
                     Регистриран по ДДС
-                  </Typography>
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    display="block"
-                  >
+                  </span>
+                  <span className="block text-xs text-slate-500">
                     ДДС статус, ДДС номер (задължителен само при регистрация по
                     ДДС)
-                  </Typography>
-                </Box>
-              }
-            />
+                  </span>
+                </div>
+            </label>
           )}
         />
-      </Box>
+      </div>
 
-      <Grid container spacing={3} sx={{ alignItems: "flex-start" }}>
-        <Grid item xs={12} sm={6} sx={{ minWidth: 0 }}>
+      <div className="grid grid-cols-12 items-start gap-6">
+        <div className="col-span-12 min-w-0 sm:col-span-6">
           <Controller
             name="vat"
             control={control}
@@ -112,8 +100,8 @@ export const TaxSection = ({ form, showTitle = true }) => {
               />
             )}
           />
-        </Grid>
-        <Grid item xs={12} sm={6} sx={{ minWidth: 0 }}>
+        </div>
+        <div className="col-span-12 min-w-0 sm:col-span-6">
           <Controller
             name="tic"
             control={control}
@@ -148,8 +136,8 @@ export const TaxSection = ({ form, showTitle = true }) => {
               />
             )}
           />
-        </Grid>
-        <Grid item xs={12} sm={6} sx={{ minWidth: 0 }}>
+        </div>
+        <div className="col-span-12 min-w-0 sm:col-span-6">
           <Controller
             name="currency"
             control={control}
@@ -185,9 +173,9 @@ export const TaxSection = ({ form, showTitle = true }) => {
               </TextField>
             )}
           />
-        </Grid>
+        </div>
         {isVatRegistered ? (
-          <Grid item xs={12} sm={6} sx={{ minWidth: 0 }}>
+          <div className="col-span-12 min-w-0 sm:col-span-6">
             <Controller
               name="vatRate"
               control={control}
@@ -229,9 +217,9 @@ export const TaxSection = ({ form, showTitle = true }) => {
                 />
               )}
             />
-          </Grid>
+          </div>
         ) : null}
-      </Grid>
+      </div>
     </>
   );
 };

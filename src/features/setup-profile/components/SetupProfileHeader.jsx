@@ -1,37 +1,18 @@
 import React from "react";
-import { Box, Typography } from "@mui/material";
 
 const SetupProfileHeader = () => (
-  <Box sx={{ mb: 3, textAlign: "left" }}>
-    <Typography
-      variant="overline"
-      sx={{
-        display: "block",
-        color: "primary.main",
-        fontWeight: 600,
-        letterSpacing: "0.12em",
-        mb: 1,
-      }}
-    >
+  <header className="mb-8 text-left">
+    <p className="mb-2 block text-xs font-semibold uppercase tracking-[0.12em] text-[var(--color-brand-primary)]">
       Още една стъпка
-    </Typography>
-    <Typography
-      variant="h4"
-      component="h1"
-      sx={{
-        fontWeight: 600,
-        color: "var(--color-brand-charcoal)",
-        letterSpacing: "-0.03em",
-        mb: 1,
-      }}
-    >
+    </p>
+    <h1 className="mb-2 text-3xl font-semibold tracking-[-0.03em] text-[var(--color-brand-charcoal)]">
       Настройте бизнеса си
-    </Typography>
-    <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 640 }}>
+    </h1>
+    <p className="max-w-2xl text-base text-slate-500">
       Попълнете основните данни за вашия бизнес. След това ще можете да издавате
       фактури веднага.
-    </Typography>
-  </Box>
+    </p>
+  </header>
 );
 
 export default SetupProfileHeader;

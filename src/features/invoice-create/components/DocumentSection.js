@@ -1,14 +1,7 @@
 import React from "react";
 import {
-  Box,
-  Grid,
   MenuItem,
-  Paper,
-  Stack,
   TextField,
-  ToggleButton,
-  ToggleButtonGroup,
-  Typography,
 } from "@mui/material";
 import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
 import { FormFieldHelperText } from "../../../components/FormFieldHelperText";
@@ -23,8 +16,6 @@ const formatInvoicePreviewNumber = (value) => {
 };
 
 export const DocumentSection = ({
-  sectionShellSx,
-  sectionIconBoxSx,
   customerType,
   onCustomerTypeChange,
   invoiceNumberPreview,
@@ -37,54 +28,51 @@ export const DocumentSection = ({
   currencyOptions,
   errors = {},
 }) => (
-  <Paper variant="outlined" sx={sectionShellSx}>
-    <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 1.5 }}>
-      <Box sx={sectionIconBoxSx}>
+  <section className="rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white p-4 sm:p-5">
+    <div className="mb-5 flex items-center gap-4">
+      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--color-brand-accent)] text-[var(--color-brand-primary)]">
         <DescriptionOutlinedIcon fontSize="small" />
-      </Box>
-      <Box>
-        <Typography
-          sx={{ fontWeight: 700, color: "var(--color-brand-primary)" }}
-        >
+      </div>
+      <div>
+        <h2 className="font-bold text-[var(--color-brand-primary)]">
           Данни за документа
-        </Typography>
-        <Typography variant="caption" sx={{ color: "text.secondary" }}>
+        </h2>
+        <p className="text-xs text-slate-500">
           Номер и дати на фактурата.
-        </Typography>
-      </Box>
-    </Stack>
-    <Grid container spacing={2}>
-      <Grid item xs={12}>
-        <Stack spacing={0.75}>
-          <Typography
-            variant="body2"
-            sx={{ fontWeight: 600, color: "text.secondary" }}
-          >
+        </p>
+      </div>
+    </div>
+    <div className="grid grid-cols-12 gap-4">
+      <div className="col-span-12">
+        <div className="space-y-2">
+          <p className="text-sm font-semibold text-slate-500">
             Тип клиент
-          </Typography>
-          <ToggleButtonGroup
-            value={customerType}
-            exclusive
-            onChange={onCustomerTypeChange}
-            size="small"
-            sx={{
-              width: "fit-content",
-              "& .MuiToggleButton-root": {
-                px: 2,
-                textTransform: "none",
-                fontWeight: 600,
-              },
-            }}
-          >
-            <ToggleButton value="business">Фирма (B2B)</ToggleButton>
-            <ToggleButton value="individual">Физическо лице (B2C)</ToggleButton>
-          </ToggleButtonGroup>
-          <Typography variant="caption" color="text.secondary">
+          </p>
+          <div className="inline-flex overflow-hidden rounded-lg border border-slate-300">
+            {[
+              ["business", "Фирма (B2B)"],
+              ["individual", "Физическо лице (B2C)"],
+            ].map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                onClick={(event) => onCustomerTypeChange(event, value)}
+                className={`px-4 py-1.5 text-sm font-semibold transition-colors ${
+                  customerType === value
+                    ? "bg-[var(--color-brand-primary)] text-white"
+                    : "bg-white text-slate-700 hover:bg-slate-50"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          <p className="text-xs text-slate-500">
             Изберете категорията на клиента за тази фактура.
-          </Typography>
-        </Stack>
-      </Grid>
-      <Grid item xs={12} md={3}>
+          </p>
+        </div>
+      </div>
+      <div className="col-span-12 md:col-span-3">
         <TextField
           {...fieldProps}
           label="Номер на фактура"
@@ -97,8 +85,8 @@ export const DocumentSection = ({
           FormHelperTextProps={{ component: "div" }}
           sx={gridFieldSx}
         />
-      </Grid>
-      <Grid item xs={12} md={3}>
+      </div>
+      <div className="col-span-12 md:col-span-3">
         <TextField
           {...fieldProps}
           label="Дата на издаване"
@@ -115,8 +103,8 @@ export const DocumentSection = ({
           FormHelperTextProps={{ component: "div" }}
           sx={gridFieldSx}
         />
-      </Grid>
-      <Grid item xs={12} md={3}>
+      </div>
+      <div className="col-span-12 md:col-span-3">
         <TextField
           {...fieldProps}
           label="Падеж"
@@ -133,8 +121,8 @@ export const DocumentSection = ({
           FormHelperTextProps={{ component: "div" }}
           sx={gridFieldSx}
         />
-      </Grid>
-      <Grid item xs={12} md={3}>
+      </div>
+      <div className="col-span-12 md:col-span-3">
         <TextField
           {...fieldProps}
           select
@@ -157,7 +145,7 @@ export const DocumentSection = ({
             </MenuItem>
           ))}
         </TextField>
-      </Grid>
-    </Grid>
-  </Paper>
+      </div>
+    </div>
+  </section>
 );

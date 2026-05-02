@@ -1,5 +1,4 @@
 import React from "react";
-import { Box } from "@mui/material";
 import { InvoiceTotalsSummary } from "../../../components/invoice/InvoiceTotalsSummary";
 import InvoiceHeader from "../components/InvoiceHeader";
 import InvoiceCustomerBlock from "../components/InvoiceCustomerBlock";
@@ -59,9 +58,9 @@ export const ComponentToPrint = React.forwardRef(
           />
         </div>
 
-        <Box sx={{ mt: 2, breakInside: "avoid" }}>
+        <div className="mt-2 break-inside-avoid">
           <InvoiceFooter business={businessData} invoice={invoiceData} />
-        </Box>
+        </div>
       </div>
     );
   },

@@ -1,27 +1,26 @@
 import React from "react";
-import { Box, Paper, Stack, Typography } from "@mui/material";
 import TrendingUpOutlinedIcon from "@mui/icons-material/TrendingUpOutlined";
-import { metricPaperSx } from "../styles";
+import { metricCardClass, metricIconClasses } from "../styles";
 
 export function RevenueCard({ revenueLabel }) {
   return (
-    <Paper elevation={0} sx={metricPaperSx}>
-      <Stack direction="row" alignItems="flex-start" spacing={1.5}>
-        <Box sx={metricPaperSx.iconGreen}>
+    <article className={metricCardClass}>
+      <div className="flex items-start gap-4">
+        <div className={metricIconClasses.green}>
           <TrendingUpOutlinedIcon sx={{ fontSize: 20 }} />
-        </Box>
-        <Box sx={{ minWidth: 0 }}>
-          <Typography variant="caption" color="text.secondary" fontWeight={600}>
+        </div>
+        <div className="min-w-0">
+          <p className="text-xs font-semibold text-slate-500">
             Общ приход (месец)
-          </Typography>
-          <Typography variant="h6" sx={{ fontWeight: 700, color: "#0f172a", mt: 0.25 }}>
+          </p>
+          <p className="mt-1 text-xl font-bold text-slate-900">
             {revenueLabel}
-          </Typography>
-          <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 0.5 }}>
+          </p>
+          <p className="mt-1 block text-xs text-slate-500">
             Сбор от издадени фактури за текущия месец
-          </Typography>
-        </Box>
-      </Stack>
-    </Paper>
+          </p>
+        </div>
+      </div>
+    </article>
   );
 }

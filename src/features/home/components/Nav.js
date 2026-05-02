@@ -1,67 +1,36 @@
-import { AppBar, Typography, Box, Toolbar, Button } from "@mui/material";
+import { Button } from "@mui/material";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 import React from "react";
-import ElevationScroll from "../../../components/ElevationScroll";
-import { useTheme } from "@mui/material/styles";
-import useMediaQuery from "@mui/material/useMediaQuery";
 import { Link } from "react-router-dom";
 
 const Nav = ({ loggedIn, onSignOut, ...props }) => {
-  const theme = useTheme();
-  const matches = useMediaQuery(theme.breakpoints.down("sm"));
+  void props;
 
   return (
-    <Box sx={{ marginBottom: { xs: "56px", sm: "64px" } }}>
-      <ElevationScroll {...props}>
-        <AppBar
-          position="fixed"
-          sx={{
-            backgroundColor: "#ffffff",
-            color: "var(--color-brand-charcoal)",
-          }}
-        >
-          <Toolbar
-            disableGutters
-            sx={{
-              minHeight: { xs: "56px", sm: "64px" },
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              p: 0,
-              width: "100%",
-              backgroundColor: "#ffffff",
-            }}
-          >
-            <Box className="page-shell flex items-center justify-between min-h-[56px] sm:min-h-[64px]">
+    <div className="mb-[56px] sm:mb-[64px]">
+      <header className="fixed inset-x-0 top-0 z-50 bg-white text-[var(--color-brand-charcoal)] shadow-sm">
+        <div className="flex min-h-[56px] w-full items-center justify-center bg-white sm:min-h-[64px]">
+            <div className="page-shell flex min-h-[56px] items-center justify-between sm:min-h-[64px]">
               <Link
                 to={loggedIn ? "/dashboard" : "/"}
                 className="inline-flex items-center leading-none no-underline"
               >
-                <Typography
-                  variant={matches ? "h6" : "h5"}
-                  component="span"
-                  sx={{
-                    margin: 0,
-                    lineHeight: 1.15,
-                    color: "var(--color-brand-charcoal)",
-                    cursor: "pointer",
-                  }}
-                >
+                <span className="m-0 cursor-pointer text-xl leading-tight text-[var(--color-brand-charcoal)] sm:text-2xl">
                   Invoicer
-                </Typography>
+                </span>
               </Link>
 
-              <Box sx={{ display: "flex", alignItems: "center", flexShrink: 0 }}>
+              <div className="flex shrink-0 items-center">
                 {loggedIn ? (
                   <Button
                     type="button"
                     variant="text"
                     color="inherit"
                     onClick={onSignOut}
-                    startIcon={<LogoutOutlinedIcon sx={{ fontSize: matches ? 20 : 22 }} />}
+                    startIcon={<LogoutOutlinedIcon sx={{ fontSize: { xs: 20, sm: 22 } }} />}
                     sx={{
                       textTransform: "none",
-                      fontSize: matches ? "0.95rem" : "1rem",
+                      fontSize: { xs: "0.95rem", sm: "1rem" },
                       color: "var(--color-brand-charcoal)",
                       px: 1,
                       minWidth: 0,
@@ -75,25 +44,16 @@ const Nav = ({ loggedIn, onSignOut, ...props }) => {
                   </Button>
                 ) : (
                   <Link to="/login">
-                    <Typography
-                      sx={{
-                        fontSize: matches ? "0.95rem" : "1rem",
-                        color: "var(--color-brand-charcoal)",
-                        cursor: "pointer",
-                        transition: "color 0.2s ease",
-                        "&:hover": { color: "var(--color-brand-primary)" },
-                      }}
-                    >
+                    <span className="cursor-pointer text-[0.95rem] text-[var(--color-brand-charcoal)] transition-colors hover:text-[var(--color-brand-primary)] sm:text-base">
                       Вход
-                    </Typography>
+                    </span>
                   </Link>
                 )}
-              </Box>
-            </Box>
-          </Toolbar>
-        </AppBar>
-      </ElevationScroll>
-    </Box>
+              </div>
+            </div>
+        </div>
+      </header>
+    </div>
   );
 };
 

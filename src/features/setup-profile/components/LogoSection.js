@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Button, Stack, Typography } from "@mui/material";
+import { Button } from "@mui/material";
 import CloudUploadOutlinedIcon from "@mui/icons-material/CloudUploadOutlined";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
@@ -23,18 +23,7 @@ export const LogoSection = ({
   compact,
   showTitle = true,
 }) => (
-  <Box
-    sx={{
-      width: "100%",
-      maxWidth: "100%",
-      boxSizing: "border-box",
-      height: "100%",
-      display: "flex",
-      flexDirection: "column",
-      minWidth: 0,
-      alignSelf: "stretch",
-    }}
-  >
+  <div className="flex h-full w-full min-w-0 max-w-full flex-col self-stretch">
     {showTitle ? (
       <SectionTitle
         icon={ImageOutlinedIcon}
@@ -51,106 +40,50 @@ export const LogoSection = ({
       name="logo"
       onChange={onFileChange}
     />
-    <Box
+    <div
       onDrop={onDrop}
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
-      sx={{
-        flex: 1,
-        width: "100%",
-        maxWidth: "100%",
-        boxSizing: "border-box",
-        alignSelf: "stretch",
-        borderRadius: 2,
-        overflow: "hidden",
-        border: "2px dashed",
-        borderColor: logoDragActive
-          ? "var(--color-brand-primary)"
-          : "var(--color-border-soft)",
-        bgcolor: logoDragActive
-          ? "rgba(15, 118, 110, 0.06)"
-          : "rgba(248, 250, 252, 0.9)",
-        transition: "border-color 0.2s ease, background-color 0.2s ease",
-        minHeight: compact ? 200 : undefined,
-      }}
+      className={`w-full max-w-full flex-1 self-stretch overflow-hidden rounded-2xl border-2 border-dashed transition-colors ${
+        compact ? "min-h-[200px]" : ""
+      } ${
+        logoDragActive
+          ? "border-[var(--color-brand-primary)] bg-[rgba(15,118,110,0.06)]"
+          : "border-[var(--color-border-soft)] bg-[rgba(248,250,252,0.9)]"
+      }`}
     >
-      <Box
-        component="label"
+      <label
         htmlFor="logo-upload"
-        sx={{
-          display: "block",
-          cursor: "pointer",
-          p: compact ? { xs: 2, sm: 2 } : { xs: 2.5, sm: 3 },
-          height: "100%",
-          "&:focus-within": {
-            outline: "2px solid",
-            outlineColor: "primary.main",
-            outlineOffset: 2,
-          },
-        }}
+        className={`block h-full cursor-pointer focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-[var(--color-brand-primary)] ${
+          compact ? "p-4" : "p-5 sm:p-6"
+        }`}
       >
         {hasCustomLogo ? (
-          <Stack
-            direction="column"
-            spacing={2}
-            alignItems="center"
-            sx={{ py: compact ? 1 : 0 }}
-          >
-            <Box
-              sx={{
-                width: "100%",
-                maxWidth: compact ? 200 : 280,
-                height: compact ? 100 : 140,
-                borderRadius: 2,
-                bgcolor: "#fff",
-                border: "1px solid",
-                borderColor: "var(--color-border-soft)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                p: 1.5,
-              }}
+          <div className={`flex flex-col items-center gap-4 ${compact ? "py-1" : ""}`}>
+            <div
+              className={`flex w-full items-center justify-center rounded-2xl border border-[var(--color-border-soft)] bg-white p-3 ${
+                compact ? "h-[100px] max-w-[200px]" : "h-[140px] max-w-[280px]"
+              }`}
             >
-              <Box
-                component="img"
+              <img
                 src={logo}
                 alt="Преглед на лого"
-                sx={{
-                  maxWidth: "100%",
-                  maxHeight: compact ? 80 : 108,
-                  objectFit: "contain",
-                }}
+                className={`max-w-full object-contain ${
+                  compact ? "max-h-[80px]" : "max-h-[108px]"
+                }`}
               />
-            </Box>
-            <Stack spacing={1} sx={{ width: "100%", minWidth: 0 }}>
-              <Stack
-                direction="row"
-                spacing={1}
-                alignItems="center"
-                justifyContent="center"
-              >
+            </div>
+            <div className="w-full min-w-0 space-y-2">
+              <div className="flex items-center justify-center gap-2">
                 <CheckCircleOutlineIcon color="primary" sx={{ fontSize: 20 }} />
-                <Typography variant="subtitle2" fontWeight={600}>
+                <p className="text-sm font-semibold text-slate-900">
                   Изображението е готово
-                </Typography>
-              </Stack>
-              <Typography
-                variant="caption"
-                color="text.secondary"
-                sx={{
-                  wordBreak: "break-all",
-                  textAlign: "center",
-                  display: "block",
-                }}
-              >
+                </p>
+              </div>
+              <p className="block break-all text-center text-xs text-slate-500">
                 {logoFileName || "Избрано изображение"}
-              </Typography>
-              <Stack
-                direction="row"
-                spacing={1}
-                justifyContent="center"
-                flexWrap="wrap"
-              >
+              </p>
+              <div className="flex flex-wrap justify-center gap-2">
                 <Button
                   type="button"
                   size="small"
@@ -175,44 +108,24 @@ export const LogoSection = ({
                 >
                   Премахни
                 </Button>
-              </Stack>
-            </Stack>
-          </Stack>
+              </div>
+            </div>
+          </div>
         ) : (
-          <Stack
-            alignItems="center"
-            spacing={compact ? 1 : 1.5}
-            sx={{ py: compact ? 2 : { xs: 3, sm: 4 }, px: 1 }}
-          >
-            <Box
-              sx={{
-                width: compact ? 48 : 64,
-                height: compact ? 48 : 64,
-                borderRadius: "50%",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                bgcolor: "var(--color-brand-accent)",
-                color: "var(--color-brand-primary)",
-              }}
+          <div className={`flex flex-col items-center px-2 ${compact ? "gap-2 py-4" : "gap-3 py-8 sm:py-10"}`}>
+            <div
+              className={`flex items-center justify-center rounded-full bg-[var(--color-brand-accent)] text-[var(--color-brand-primary)] ${
+                compact ? "h-12 w-12" : "h-16 w-16"
+              }`}
             >
               <CloudUploadOutlinedIcon sx={{ fontSize: compact ? 28 : 34 }} />
-            </Box>
-            <Typography
-              variant={compact ? "body2" : "subtitle1"}
-              fontWeight={600}
-              textAlign="center"
-            >
+            </div>
+            <p className={`${compact ? "text-sm" : "text-base"} text-center font-semibold text-slate-900`}>
               Пуснете лого тук или натиснете
-            </Typography>
-            <Typography
-              variant="caption"
-              color="text.secondary"
-              textAlign="center"
-              sx={{ maxWidth: 280, lineHeight: 1.4 }}
-            >
+            </p>
+            <p className="max-w-[280px] text-center text-xs leading-snug text-slate-500">
               {uploadHint}
-            </Typography>
+            </p>
             <Button
               type="button"
               variant="contained"
@@ -227,9 +140,9 @@ export const LogoSection = ({
             >
               Избери файл
             </Button>
-          </Stack>
+          </div>
         )}
-      </Box>
-    </Box>
-  </Box>
+      </label>
+    </div>
+  </div>
 );

@@ -1,6 +1,6 @@
 import React from "react";
 import { Controller } from "react-hook-form";
-import { Grid, TextField } from "@mui/material";
+import { TextField } from "@mui/material";
 import BusinessOutlinedIcon from "@mui/icons-material/BusinessOutlined";
 import { FormFieldHelperText } from "../../../components/FormFieldHelperText";
 import { gridFieldSx, setupProfileFieldProps } from "../../../utils/muiFieldSx";
@@ -18,8 +18,8 @@ export const CompanySection = ({ form }) => {
         title="Фирма и контакт"
         subtitle="Търговско/юридическо име и фирмен имейл са задължителни; телефонът е по избор."
       />
-      <Grid container spacing={3} sx={{ alignItems: "flex-start" }}>
-        <Grid item xs={12} sm={6} sx={{ minWidth: 0 }}>
+      <div className="grid grid-cols-12 items-start gap-6">
+        <div className="col-span-12 min-w-0 sm:col-span-6">
           <Controller
             name="businessName"
             control={control}
@@ -47,8 +47,8 @@ export const CompanySection = ({ form }) => {
               />
             )}
           />
-        </Grid>
-        <Grid item xs={12} sm={6} sx={{ minWidth: 0 }}>
+        </div>
+        <div className="col-span-12 min-w-0 sm:col-span-6">
           <Controller
             name="email"
             control={control}
@@ -71,8 +71,8 @@ export const CompanySection = ({ form }) => {
               />
             )}
           />
-        </Grid>
-        <Grid item xs={12} sx={{ minWidth: 0 }}>
+        </div>
+        <div className="col-span-12 min-w-0">
           <Controller
             name="phone"
             control={control}
@@ -99,8 +99,8 @@ export const CompanySection = ({ form }) => {
               />
             )}
           />
-        </Grid>
-      </Grid>
+        </div>
+      </div>
     </>
   );
 };

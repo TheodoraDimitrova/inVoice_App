@@ -1,16 +1,6 @@
 import React from "react";
 import DashboardActionsSvg from "./DashboardActionsSvg";
 import { convertTimestamp } from "../utils/functions";
-import {
-  Box,
-  Table as MuiTable,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-  Typography,
-} from "@mui/material";
-import { dataTableSx, numericCellSx } from "../utils/tableStyles";
 import { computeInvoiceGrandTotalNumber } from "../utils/invoiceMetrics";
 
 const formatInvoiceBadge = (invoiceData) => {
@@ -23,28 +13,28 @@ const formatInvoiceBadge = (invoiceData) => {
 const Table = ({ invoices, defaultVatRate = 0 }) => {
   if (!Array.isArray(invoices) || invoices.length === 0) {
     return (
-      <Typography variant="body2" color="text.secondary" sx={{ py: 1 }}>
+      <p className="py-1 text-sm text-slate-500">
         Няма налични фактури.
-      </Typography>
+      </p>
     );
   }
 
   return (
-    <Box sx={{ overflowX: "auto" }}>
-      <MuiTable size="small" sx={{ ...dataTableSx, minWidth: 560 }}>
-        <TableHead>
-          <TableRow>
-            <TableCell sx={{ fontWeight: 700 }}>Дата</TableCell>
-            <TableCell sx={{ fontWeight: 700 }}>Клиент</TableCell>
-            <TableCell className="table-number-cell" sx={{ ...numericCellSx, fontWeight: 700 }}>
+    <div className="overflow-x-auto">
+      <table className="min-w-[560px] text-sm">
+        <thead className="bg-gradient-to-b from-slate-50/95 to-slate-100/95">
+          <tr>
+            <th className="px-4 py-3 font-bold text-slate-700">Дата</th>
+            <th className="px-4 py-3 font-bold text-slate-700">Клиент</th>
+            <th className="px-4 py-3 text-right font-mono font-bold tabular-nums text-slate-700">
               Сума
-            </TableCell>
-            <TableCell className="table-actions-cell" sx={{ fontWeight: 700, textAlign: "right" }}>
+            </th>
+            <th className="w-[122px] whitespace-nowrap px-4 py-3 text-right font-bold text-slate-700">
               Действия
-            </TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
           {invoices.map((invoice) => {
             const invoiceData = invoice.data || {};
             const rowCurrency = String(invoiceData.currency || "EUR").toUpperCase();
@@ -55,59 +45,37 @@ const Table = ({ invoices, defaultVatRate = 0 }) => {
             );
 
             return (
-              <TableRow key={invoice.id} hover>
-                <TableCell sx={{ whiteSpace: "nowrap" }}>
-                  <Box
-                    sx={{
-                      display: "inline-flex",
-                      flexDirection: "column",
-                      alignItems: "flex-start",
-                      gap: 0.35,
-                    }}
-                  >
-                    <Box
-                      component="span"
-                      sx={{
-                        color: "#111827",
-                        fontWeight: 600,
-                        fontSize: "0.87rem",
-                        lineHeight: 1.28,
-                      }}
-                    >
+              <tr
+                key={invoice.id}
+                className="transition-colors hover:bg-emerald-500/5"
+              >
+                <td className="whitespace-nowrap px-4 py-3">
+                  <span className="inline-flex flex-col items-start gap-1">
+                    <span className="text-[0.87rem] font-semibold leading-tight text-slate-900">
                       {convertTimestamp(invoiceData.timestamp)}
-                    </Box>
-                    <Box
-                      component="span"
-                      sx={{
-                        ...numericCellSx,
-                        display: "block",
-                        color: "#4B5563",
-                        fontSize: "0.79rem",
-                        fontWeight: 500,
-                        lineHeight: 1.22,
-                      }}
-                    >
+                    </span>
+                    <span className="block font-mono text-[0.79rem] font-medium leading-tight tabular-nums text-slate-600">
                       № {formatInvoiceBadge(invoiceData)}
-                    </Box>
-                  </Box>
-                </TableCell>
-                <TableCell sx={{ whiteSpace: "nowrap", color: "#1A1A1A", fontWeight: 600 }}>
+                    </span>
+                  </span>
+                </td>
+                <td className="whitespace-nowrap px-4 py-3 font-semibold text-[#1A1A1A]">
                   {invoiceData.customerName || "—"}
-                </TableCell>
-                <TableCell className="table-number-cell" sx={{ ...numericCellSx, color: "#6B7280" }}>
+                </td>
+                <td className="px-4 py-3 text-right font-mono tabular-nums text-slate-500">
                   {computedTotal.toFixed(2)} {rowCurrency}
-                </TableCell>
-                <TableCell className="table-actions-cell">
-                  <Box className="table-actions-wrap">
+                </td>
+                <td className="w-[122px] whitespace-nowrap px-4 py-3 text-right">
+                  <div className="flex w-full items-center justify-end gap-1">
                     <DashboardActionsSvg invoiceId={invoice.id} />
-                  </Box>
-                </TableCell>
-              </TableRow>
+                  </div>
+                </td>
+              </tr>
             );
           })}
-        </TableBody>
-      </MuiTable>
-    </Box>
+        </tbody>
+      </table>
+    </div>
   );
 };
 

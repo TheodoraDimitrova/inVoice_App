@@ -1,14 +1,8 @@
 import React from "react";
 import {
-  Box,
-  FormControlLabel,
-  Grid,
   MenuItem,
-  Paper,
-  Stack,
   Switch,
   TextField,
-  Typography,
 } from "@mui/material";
 import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
 import { FormFieldHelperText } from "../../../components/FormFieldHelperText";
@@ -17,8 +11,6 @@ import { gridFieldSx, setupProfileFieldProps } from "../../../utils/muiFieldSx";
 const fieldProps = setupProfileFieldProps;
 
 export const CustomerSection = ({
-  sectionShellSx,
-  sectionIconBoxSx,
   countries,
   customerType,
   customerIdLabel,
@@ -43,24 +35,22 @@ export const CustomerSection = ({
   onCustomerEmailChange,
   errors = {},
 }) => (
-  <Paper variant="outlined" sx={sectionShellSx}>
-    <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 1.5 }}>
-      <Box sx={sectionIconBoxSx}>
+  <section className="rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white p-4 sm:p-5">
+    <div className="mb-5 flex items-center gap-4">
+      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--color-brand-accent)] text-[var(--color-brand-primary)]">
         <PersonOutlineOutlinedIcon fontSize="small" />
-      </Box>
-      <Box>
-        <Typography
-          sx={{ fontWeight: 700, color: "var(--color-brand-primary)" }}
-        >
+      </div>
+      <div>
+        <h2 className="font-bold text-[var(--color-brand-primary)]">
           Клиент
-        </Typography>
-        <Typography variant="caption" sx={{ color: "text.secondary" }}>
+        </h2>
+        <p className="text-xs text-slate-500">
           Данни за идентификация и контакт за фактуриране.
-        </Typography>
-      </Box>
-    </Stack>
-    <Grid container spacing={2}>
-      <Grid item xs={12} md={6}>
+        </p>
+      </div>
+    </div>
+    <div className="grid grid-cols-12 gap-4">
+      <div className="col-span-12 md:col-span-6">
         <TextField
           {...fieldProps}
           label="Име на клиент"
@@ -79,8 +69,8 @@ export const CustomerSection = ({
           FormHelperTextProps={{ component: "div" }}
           sx={gridFieldSx}
         />
-      </Grid>
-      <Grid item xs={12} md={3}>
+      </div>
+      <div className="col-span-12 md:col-span-3">
         <TextField
           {...fieldProps}
           select
@@ -108,10 +98,10 @@ export const CustomerSection = ({
             </MenuItem>
           ))}
         </TextField>
-      </Grid>
+      </div>
       {customerType === "business" ? (
         <>
-          <Grid item xs={12} md={3}>
+          <div className="col-span-12 md:col-span-3">
             <TextField
               {...fieldProps}
               label={customerIdLabel}
@@ -129,27 +119,24 @@ export const CustomerSection = ({
               FormHelperTextProps={{ component: "div" }}
               sx={gridFieldSx}
             />
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <Stack spacing={0.5}>
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={Boolean(customerVatRegistered)}
-                    onChange={onCustomerVatRegisteredChange}
-                    color="primary"
-                  />
-                }
-                label="Фирмата е регистрирана по ДДС"
-                sx={{ mx: 0 }}
-              />
-              <Typography variant="caption" color="text.secondary">
+          </div>
+          <div className="col-span-12 md:col-span-4">
+            <div className="space-y-1">
+              <label className="flex items-center gap-2 text-sm font-medium text-slate-800">
+                <Switch
+                  checked={Boolean(customerVatRegistered)}
+                  onChange={onCustomerVatRegisteredChange}
+                  color="primary"
+                />
+                <span>Фирмата е регистрирана по ДДС</span>
+              </label>
+              <p className="text-xs text-slate-500">
                 Показваме ДДС номер само за регистрирани фирми.
-              </Typography>
-            </Stack>
-          </Grid>
+              </p>
+            </div>
+          </div>
           {customerVatRegistered ? (
-            <Grid item xs={12} md={4}>
+            <div className="col-span-12 md:col-span-4">
               <TextField
                 {...fieldProps}
                 label="ДДС номер"
@@ -167,11 +154,11 @@ export const CustomerSection = ({
                 FormHelperTextProps={{ component: "div" }}
                 sx={gridFieldSx}
               />
-            </Grid>
+            </div>
           ) : null}
         </>
       ) : (
-        <Grid item xs={12} md={3}>
+        <div className="col-span-12 md:col-span-3">
           <TextField
             {...fieldProps}
             label="Личен идентификатор (по избор)"
@@ -184,9 +171,9 @@ export const CustomerSection = ({
             FormHelperTextProps={{ component: "div" }}
             sx={gridFieldSx}
           />
-        </Grid>
+        </div>
       )}
-      <Grid item xs={12} md={6}>
+      <div className="col-span-12 md:col-span-6">
         <TextField
           {...fieldProps}
           label="Адрес на клиента"
@@ -198,8 +185,8 @@ export const CustomerSection = ({
           FormHelperTextProps={{ component: "div" }}
           sx={gridFieldSx}
         />
-      </Grid>
-      <Grid item xs={12} md={3}>
+      </div>
+      <div className="col-span-12 md:col-span-3">
         <TextField
           {...fieldProps}
           label="Пощенски код"
@@ -210,8 +197,8 @@ export const CustomerSection = ({
           FormHelperTextProps={{ component: "div" }}
           sx={gridFieldSx}
         />
-      </Grid>
-      <Grid item xs={12} md={3}>
+      </div>
+      <div className="col-span-12 md:col-span-3">
         <TextField
           {...fieldProps}
           label="Град"
@@ -222,8 +209,8 @@ export const CustomerSection = ({
           FormHelperTextProps={{ component: "div" }}
           sx={gridFieldSx}
         />
-      </Grid>
-      <Grid item xs={12} md={6}>
+      </div>
+      <div className="col-span-12 md:col-span-6">
         <TextField
           {...fieldProps}
           label="Имейл на клиента"
@@ -239,7 +226,7 @@ export const CustomerSection = ({
           FormHelperTextProps={{ component: "div" }}
           sx={gridFieldSx}
         />
-      </Grid>
-    </Grid>
-  </Paper>
+      </div>
+    </div>
+  </section>
 );

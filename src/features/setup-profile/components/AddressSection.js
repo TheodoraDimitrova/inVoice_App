@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { Controller } from "react-hook-form";
-import { Grid, TextField } from "@mui/material";
+import { TextField } from "@mui/material";
 import PlaceOutlinedIcon from "@mui/icons-material/PlaceOutlined";
 import { FormFieldHelperText } from "../../../components/FormFieldHelperText";
 import { gridFieldSx, setupProfileFieldProps } from "../../../utils/muiFieldSx";
@@ -29,8 +29,8 @@ export const AddressSection = ({ form, showTitle = true }) => {
           subtitle="Улица и град за фактури и записи са задължителни; пощенският код е по избор (държава: България)."
         />
       ) : null}
-      <Grid container spacing={3} sx={{ alignItems: "flex-start" }}>
-        <Grid item xs={12} sx={{ minWidth: 0 }}>
+      <div className="grid grid-cols-12 items-start gap-6">
+        <div className="col-span-12 min-w-0">
           <Controller
             name="businessAddress"
             control={control}
@@ -51,8 +51,8 @@ export const AddressSection = ({ form, showTitle = true }) => {
               />
             )}
           />
-        </Grid>
-        <Grid item xs={12} sm={4} sx={{ minWidth: 0 }}>
+        </div>
+        <div className="col-span-12 min-w-0 sm:col-span-4">
           <Controller
             name="postCode"
             control={control}
@@ -74,8 +74,8 @@ export const AddressSection = ({ form, showTitle = true }) => {
               />
             )}
           />
-        </Grid>
-        <Grid item xs={12} sm={4} sx={{ minWidth: 0 }}>
+        </div>
+        <div className="col-span-12 min-w-0 sm:col-span-4">
           <Controller
             name="city"
             control={control}
@@ -97,8 +97,8 @@ export const AddressSection = ({ form, showTitle = true }) => {
               />
             )}
           />
-        </Grid>
-        <Grid item xs={12} sm={4} sx={{ minWidth: 0 }}>
+        </div>
+        <div className="col-span-12 min-w-0 sm:col-span-4">
           <Controller
             name="country"
             control={control}
@@ -128,8 +128,8 @@ export const AddressSection = ({ form, showTitle = true }) => {
               />
             )}
           />
-        </Grid>
-      </Grid>
+        </div>
+      </div>
     </>
   );
 };

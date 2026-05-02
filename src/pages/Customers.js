@@ -1,43 +1,24 @@
 import React from "react";
-import { Box, Paper, Typography } from "@mui/material";
 import PeopleOutlineOutlinedIcon from "@mui/icons-material/PeopleOutlineOutlined";
 
 const Customers = () => (
-  <Box sx={{ px: { xs: 2, sm: 3 }, py: { xs: 2, sm: 2.5 }, maxWidth: 560 }}>
-    <Typography
-      variant="h6"
-      component="h1"
-      sx={{
-        fontWeight: 600,
-        color: "var(--color-brand-charcoal)",
-        letterSpacing: "-0.02em",
-        mb: 0.5,
-      }}
-    >
+  <main className="max-w-xl px-4 py-4 sm:px-6 sm:py-6">
+    <h1 className="mb-1 text-lg font-semibold tracking-[-0.02em] text-[var(--color-brand-charcoal)]">
       Customers
-    </Typography>
-    <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+    </h1>
+    <p className="mb-8 text-sm text-slate-500">
       Manage client records and reuse them on invoices.
-    </Typography>
-    <Paper
-      elevation={0}
-      sx={{
-        p: 3,
-        borderRadius: 2,
-        border: "1px solid",
-        borderColor: "var(--color-border-soft)",
-        textAlign: "center",
-      }}
-    >
+    </p>
+    <section className="rounded-2xl border border-[var(--color-border-soft)] bg-white p-8 text-center">
       <PeopleOutlineOutlinedIcon sx={{ fontSize: 40, color: "var(--color-brand-primary)", mb: 1 }} />
-      <Typography variant="subtitle1" fontWeight={600}>
+      <h2 className="text-base font-semibold text-slate-900">
         Coming soon
-      </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+      </h2>
+      <p className="mt-2 text-sm text-slate-500">
         Customer directory will be available in a future update.
-      </Typography>
-    </Paper>
-  </Box>
+      </p>
+    </section>
+  </main>
 );
 
 export default Customers;

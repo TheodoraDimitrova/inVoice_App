@@ -1,40 +1,9 @@
 import React from "react";
-import {
-  Box,
-  IconButton,
-  InputAdornment,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TextField,
-  Tooltip,
-  Typography,
-} from "@mui/material";
+import { InputAdornment, TextField } from "@mui/material";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
-import { dataTableSx, numericCellSx } from "../../../utils/tableStyles";
-
-const HEAD_SX = {
-  fontSize: "0.72rem",
-  fontWeight: 700,
-  letterSpacing: "0.06em",
-  textTransform: "uppercase",
-  color: "#475569",
-};
-
-const COL = {
-  name: { width: "38%" },
-  qty: { width: "10%", ...numericCellSx },
-  unit: { width: "10%" },
-  price: { width: "24%", ...numericCellSx },
-  actions: { width: "118px", whiteSpace: "nowrap", textAlign: "right" },
-};
 
 const inlineSx = {
   "& .MuiOutlinedInput-root": {
@@ -58,6 +27,12 @@ const inlineNumericSx = {
   },
 };
 
+const headCellClass =
+  "px-4 py-3 text-left text-[0.72rem] font-bold uppercase tracking-[0.06em] text-slate-600";
+const numericCellClass = "text-right font-mono tabular-nums";
+const iconButtonClass =
+  "inline-flex rounded-full p-1 transition-colors disabled:cursor-not-allowed disabled:opacity-40";
+
 const ProductsTable = ({
   sortedProducts,
   editingId,
@@ -70,39 +45,32 @@ const ProductsTable = ({
   onUpdateField,
   onDeleteRequest,
 }) => (
-  <TableContainer
-    component={Paper}
-    variant="outlined"
-    sx={{ maxWidth: "100%", overflowX: "auto" }}
-  >
-    <Table
-      size="small"
-      sx={{ ...dataTableSx, minWidth: 620, tableLayout: "fixed" }}
-    >
-      <TableHead>
-        <TableRow>
-          <TableCell sx={{ ...HEAD_SX, ...COL.name }}>Наименование</TableCell>
-          <TableCell sx={{ ...HEAD_SX, ...COL.qty }}>Кол-во</TableCell>
-          <TableCell sx={{ ...HEAD_SX, ...COL.unit }}>Мярка</TableCell>
-          <TableCell sx={{ ...HEAD_SX, ...COL.price }}>Нетна цена</TableCell>
-          <TableCell sx={{ ...HEAD_SX, ...COL.actions }}>
-            <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+  <div className="max-w-full overflow-x-auto rounded-2xl border border-slate-200 bg-white">
+    <table className="min-w-[620px] table-fixed text-sm">
+      <thead className="bg-gradient-to-b from-slate-50/95 to-slate-100/95">
+        <tr>
+          <th className={`${headCellClass} w-[38%]`}>Наименование</th>
+          <th className={`${headCellClass} ${numericCellClass} w-[10%]`}>Кол-во</th>
+          <th className={`${headCellClass} w-[10%]`}>Мярка</th>
+          <th className={`${headCellClass} ${numericCellClass} w-[24%]`}>Нетна цена</th>
+          <th className={`${headCellClass} w-[118px] whitespace-nowrap text-right`}>
+            <div className="flex justify-end">
               Действия
-            </Box>
-          </TableCell>
-        </TableRow>
-      </TableHead>
-      <TableBody>
+            </div>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
         {sortedProducts.map((product) => {
           const isEditing = editingId === product.id;
 
           if (isEditing && editData) {
             return (
-              <TableRow
+              <tr
                 key={product.id}
-                sx={{ bgcolor: "rgba(16,185,129,0.04)" }}
+                className="bg-emerald-500/5"
               >
-                <TableCell sx={COL.name}>
+                <td className="px-4 py-3">
                   <TextField
                     autoFocus
                     size="small"
@@ -115,8 +83,8 @@ const ProductsTable = ({
                     sx={inlineSx}
                     disabled={inlineSaving}
                   />
-                </TableCell>
-                <TableCell sx={COL.qty}>
+                </td>
+                <td className="px-4 py-3">
                   <TextField
                     size="small"
                     type="number"
@@ -132,8 +100,8 @@ const ProductsTable = ({
                     sx={inlineNumericSx}
                     disabled={inlineSaving}
                   />
-                </TableCell>
-                <TableCell sx={COL.unit}>
+                </td>
+                <td className="px-4 py-3">
                   <TextField
                     size="small"
                     fullWidth
@@ -145,8 +113,8 @@ const ProductsTable = ({
                     sx={inlineSx}
                     disabled={inlineSaving}
                   />
-                </TableCell>
-                <TableCell sx={COL.price}>
+                </td>
+                <td className="px-4 py-3">
                   <TextField
                     size="small"
                     type="number"
@@ -172,146 +140,87 @@ const ProductsTable = ({
                     sx={inlineNumericSx}
                     disabled={inlineSaving}
                   />
-                </TableCell>
-                <TableCell sx={COL.actions}>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "flex-end",
-                      gap: 0.5,
-                    }}
-                  >
-                    <Tooltip title="Запази">
-                      <span>
-                        <IconButton
-                          size="small"
-                          onClick={onSaveEdit}
-                          disabled={inlineSaving}
-                          sx={{
-                            color: "var(--color-brand-primary)",
-                            "&:hover": { bgcolor: "rgba(16,185,129,0.1)" },
-                          }}
-                        >
-                          <CheckIcon fontSize="small" />
-                        </IconButton>
-                      </span>
-                    </Tooltip>
-                    <Tooltip title="Откажи">
-                      <span>
-                        <IconButton
-                          size="small"
-                          onClick={onCancelEdit}
-                          disabled={inlineSaving}
-                          sx={{
-                            color: "#9CA3AF",
-                            "&:hover": {
-                              color: "#374151",
-                              bgcolor: "rgba(15,23,42,0.06)",
-                            },
-                          }}
-                        >
-                          <CloseIcon fontSize="small" />
-                        </IconButton>
-                      </span>
-                    </Tooltip>
-                  </Box>
-                </TableCell>
-              </TableRow>
+                </td>
+                <td className="w-[118px] whitespace-nowrap px-4 py-3 text-right">
+                  <div className="flex justify-end gap-1">
+                    <button
+                      type="button"
+                      title="Запази"
+                      aria-label="Запази"
+                      onClick={onSaveEdit}
+                      disabled={inlineSaving}
+                      className={`${iconButtonClass} text-[var(--color-brand-primary)] hover:bg-emerald-500/10`}
+                    >
+                      <CheckIcon fontSize="small" />
+                    </button>
+                    <button
+                      type="button"
+                      title="Откажи"
+                      aria-label="Откажи"
+                      onClick={onCancelEdit}
+                      disabled={inlineSaving}
+                      className={`${iconButtonClass} text-slate-400 hover:bg-slate-100 hover:text-slate-700`}
+                    >
+                      <CloseIcon fontSize="small" />
+                    </button>
+                  </div>
+                </td>
+              </tr>
             );
           }
 
           return (
-            <TableRow
+            <tr
               key={product.id}
-              hover
-              sx={{ opacity: editingId && !isEditing ? 0.45 : 1 }}
+              className={`transition-colors hover:bg-emerald-500/5 ${
+                editingId && !isEditing ? "opacity-45" : "opacity-100"
+              }`}
             >
-              <TableCell
-                sx={{
-                  ...COL.name,
-                  color: "#111827",
-                  fontWeight: 600,
-                  fontSize: "0.875rem",
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                }}
-              >
-                <Tooltip
-                  title={product.name}
-                  placement="top-start"
-                  enterDelay={600}
-                >
-                  <span>{product.name}</span>
-                </Tooltip>
-              </TableCell>
-              <TableCell sx={{ ...COL.qty, color: "#374151" }}>
+              <td className="overflow-hidden text-ellipsis whitespace-nowrap px-4 py-3 text-[0.875rem] font-semibold text-slate-900" title={product.name}>
+                {product.name}
+              </td>
+              <td className={`px-4 py-3 text-slate-700 ${numericCellClass}`}>
                 {Number(product.quantityDefault || 1).toFixed(2)}
-              </TableCell>
-              <TableCell
-                sx={{ ...COL.unit, color: "#6B7280", whiteSpace: "nowrap" }}
-              >
+              </td>
+              <td className="whitespace-nowrap px-4 py-3 text-slate-500">
                 {product.unit}
-              </TableCell>
-              <TableCell sx={{ ...COL.price, color: "#374151" }}>
+              </td>
+              <td className={`px-4 py-3 text-slate-700 ${numericCellClass}`}>
                 {Number(product.price).toFixed(2)}
-                <Typography
-                  component="span"
-                  sx={{ color: "#9CA3AF", ml: 0.5, fontSize: "0.75rem" }}
-                >
+                <span className="ml-1 text-xs text-slate-400">
                   EUR
-                </Typography>
-              </TableCell>
-              <TableCell sx={COL.actions}>
-                <Box
-                  sx={{ display: "flex", justifyContent: "flex-end", gap: 0.5 }}
-                >
-                  <Tooltip title="Редактирай">
-                    <span>
-                      <IconButton
-                        size="small"
-                        onClick={() => onStartEdit(product)}
-                        disabled={Boolean(editingId)}
-                        aria-label="Редакция на продукт"
-                        sx={{
-                          color: "#475569",
-                          "&:hover": {
-                            color: "var(--color-brand-primary)",
-                            bgcolor: "rgba(16,185,129,0.08)",
-                          },
-                        }}
-                      >
-                        <EditOutlinedIcon fontSize="small" />
-                      </IconButton>
-                    </span>
-                  </Tooltip>
-                  <Tooltip title="Изтрий">
-                    <span>
-                      <IconButton
-                        size="small"
-                        onClick={() => onDeleteRequest(product.id)}
-                        disabled={Boolean(editingId)}
-                        aria-label="Изтрий продукт"
-                        sx={{
-                          color: "#9CA3AF",
-                          "&:hover": {
-                            color: "error.main",
-                            bgcolor: "rgba(239,68,68,0.08)",
-                          },
-                        }}
-                      >
-                        <DeleteOutlineIcon fontSize="small" />
-                      </IconButton>
-                    </span>
-                  </Tooltip>
-                </Box>
-              </TableCell>
-            </TableRow>
+                </span>
+              </td>
+              <td className="w-[118px] whitespace-nowrap px-4 py-3 text-right">
+                <div className="flex justify-end gap-1">
+                  <button
+                    type="button"
+                    title="Редактирай"
+                    onClick={() => onStartEdit(product)}
+                    disabled={Boolean(editingId)}
+                    aria-label="Редакция на продукт"
+                    className={`${iconButtonClass} text-slate-600 hover:bg-emerald-500/10 hover:text-[var(--color-brand-primary)]`}
+                  >
+                    <EditOutlinedIcon fontSize="small" />
+                  </button>
+                  <button
+                    type="button"
+                    title="Изтрий"
+                    onClick={() => onDeleteRequest(product.id)}
+                    disabled={Boolean(editingId)}
+                    aria-label="Изтрий продукт"
+                    className={`${iconButtonClass} text-slate-400 hover:bg-red-500/10 hover:text-red-600`}
+                  >
+                    <DeleteOutlineIcon fontSize="small" />
+                  </button>
+                </div>
+              </td>
+            </tr>
           );
         })}
-      </TableBody>
-    </Table>
-  </TableContainer>
+      </tbody>
+    </table>
+  </div>
 );
 
 export default ProductsTable;

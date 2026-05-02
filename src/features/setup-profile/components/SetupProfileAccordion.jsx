@@ -1,43 +1,5 @@
 import React from "react";
-import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
-  Box,
-  Chip,
-  Stack,
-  Typography,
-} from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-
-const accordionIconBoxSx = {
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  width: 40,
-  height: 40,
-  borderRadius: 2,
-  bgcolor: "var(--color-brand-accent)",
-  color: "var(--color-brand-primary)",
-  flexShrink: 0,
-};
-
-const optionalAccordionSx = {
-  bgcolor: "transparent",
-  boxShadow: "none",
-  "&:before": { display: "none" },
-};
-
-const setupAccordionWithDividerSx = {
-  ...optionalAccordionSx,
-  borderTop: "1px solid rgba(15, 23, 42, 0.08)",
-};
-
-const accordionHeadingSx = (isOpen) => ({
-  fontWeight: isOpen ? 800 : 700,
-  fontSize: "1.05rem",
-  color: isOpen ? "var(--color-brand-primary)" : "#334155",
-});
 
 const SetupProfileAccordion = ({
   panelId,
@@ -49,45 +11,55 @@ const SetupProfileAccordion = ({
   description,
   first = false,
   children,
-}) => (
-  <Accordion
-    expanded={openPanels[panelId]}
-    onChange={(_, expanded) =>
-      setOpenPanels((prev) => ({ ...prev, [panelId]: expanded }))
-    }
-    sx={first ? optionalAccordionSx : setupAccordionWithDividerSx}
-  >
-    <AccordionSummary
-      expandIcon={<ExpandMoreIcon />}
+}) => {
+  const isOpen = Boolean(openPanels[panelId]);
+  return (
+  <section className={first ? "" : "border-t border-[rgba(15,23,42,0.08)]"}>
+    <button
+      type="button"
+      aria-expanded={isOpen}
       aria-controls={`setup-${panelId}-content`}
       id={`setup-${panelId}-header`}
-      sx={{ px: 1, opacity: 0.92 }}
+      className="flex w-full items-start justify-between gap-4 px-2 py-4 text-left opacity-90"
+      onClick={() => setOpenPanels((prev) => ({ ...prev, [panelId]: !isOpen }))}
     >
-      <Stack direction="row" spacing={1.5} alignItems="flex-start">
-        <Box sx={accordionIconBoxSx}>{icon}</Box>
-        <Box sx={{ minWidth: 0, flex: 1 }}>
-          <Stack direction="row" alignItems="center" spacing={1} flexWrap="wrap">
-            <Typography sx={accordionHeadingSx(openPanels[panelId])}>{title}</Typography>
+      <div className="flex items-start gap-4">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--color-brand-accent)] text-[var(--color-brand-primary)]">
+          {icon}
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <h3
+              className={`text-[1.05rem] ${
+                openPanels[panelId]
+                  ? "font-extrabold text-[var(--color-brand-primary)]"
+                  : "font-bold text-slate-700"
+              }`}
+            >
+              {title}
+            </h3>
             {panelHasError(panelId) ? (
-              <Chip
-                label="Поправка"
-                size="small"
-                color="error"
-                variant="outlined"
-                sx={{ height: 22 }}
-              />
+              <span className="inline-flex h-[22px] items-center rounded-full border border-red-300 px-2 text-xs font-medium text-red-600">
+                Поправка
+              </span>
             ) : null}
-          </Stack>
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.25 }}>
+          </div>
+          <p className="mt-1 text-sm text-slate-500">
             {description}
-          </Typography>
-        </Box>
-      </Stack>
-    </AccordionSummary>
-    <AccordionDetails sx={{ px: { xs: 1, sm: 2 }, pt: 0, pb: 2 }}>
-      {children}
-    </AccordionDetails>
-  </Accordion>
-);
+          </p>
+        </div>
+      </div>
+      <ExpandMoreIcon
+        className={`mt-2 shrink-0 transition-transform ${isOpen ? "rotate-180" : ""}`}
+      />
+    </button>
+    {isOpen ? (
+      <div id={`setup-${panelId}-content`} className="px-2 pb-4 sm:px-4">
+        {children}
+      </div>
+    ) : null}
+  </section>
+  );
+};
 
 export default SetupProfileAccordion;

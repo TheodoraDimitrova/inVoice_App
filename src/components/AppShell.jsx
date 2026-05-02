@@ -1,20 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  Box,
-  Drawer,
-  IconButton,
-  List,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Toolbar,
-  Typography,
-  Button,
-  Divider,
-  Tooltip,
-  useMediaQuery,
-  useTheme,
-} from "@mui/material";
+import { Button } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
 import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
@@ -36,28 +21,20 @@ import {
 
 const DRAWER_WIDTH = 240;
 
-const navLinkSx = {
-  mx: 1,
-  borderRadius: 2,
-  mb: 0.25,
-  color: "var(--color-brand-charcoal)",
-  "&.Mui-selected": {
-    bgcolor: "rgba(15, 118, 110, 0.1)",
-    color: "var(--color-brand-primary)",
-    fontWeight: 600,
-    "& .MuiListItemIcon-root": {
-      color: "var(--color-brand-primary)",
-    },
-  },
-  "&:hover": {
-    bgcolor: "rgba(15, 23, 42, 0.04)",
-  },
-};
+const navItemBaseClass =
+  "mx-2 mb-1 flex w-[calc(100%-1rem)] items-center gap-3 rounded-2xl px-3 py-2 text-left text-[0.9375rem] transition-colors";
+const navItemClass = (selected) =>
+  `${navItemBaseClass} ${
+    selected
+      ? "bg-[rgba(15,118,110,0.1)] font-semibold text-[var(--color-brand-primary)]"
+      : "text-[var(--color-brand-charcoal)] hover:bg-[rgba(15,23,42,0.04)]"
+  }`;
 
 const AppShellContent = () => {
-  const theme = useTheme();
-  const isSmDown = useMediaQuery(theme.breakpoints.down("md"));
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isSmDown, setIsSmDown] = useState(() =>
+    typeof window !== "undefined" ? window.matchMedia("(max-width: 767px)").matches : false
+  );
   const [userEmail, setUserEmail] = useState("");
   const navigate = useNavigate();
   const pathname = useLocation().pathname;
@@ -73,6 +50,15 @@ const AppShellContent = () => {
       setUserEmail(user?.email ?? "");
     });
     return () => unsub();
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return undefined;
+    const query = window.matchMedia("(max-width: 767px)");
+    const update = () => setIsSmDown(query.matches);
+    update();
+    query.addEventListener("change", update);
+    return () => query.removeEventListener("change", update);
   }, []);
 
   const go = (path) => {
@@ -97,243 +83,123 @@ const AppShellContent = () => {
   };
 
   const drawer = (
-    <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
-      <Toolbar
-        sx={{
-          minHeight: 56,
-          px: 2,
-          borderBottom: "1px solid var(--color-border-soft)",
-        }}
-      >
-        <NavLink to="/dashboard" className="no-underline" style={{ color: "inherit" }}>
-          <Typography
-            variant="h6"
-            sx={{
-              fontWeight: 600,
-              color: "var(--color-brand-charcoal)",
-              letterSpacing: "-0.02em",
-            }}
-          >
-            Invoicer
-          </Typography>
+    <aside className="flex h-full flex-col bg-white">
+      <div className="flex min-h-[56px] items-center border-b border-[var(--color-border-soft)] px-4">
+        <NavLink to="/dashboard" className="text-lg font-semibold tracking-[-0.02em] text-[var(--color-brand-charcoal)] no-underline">
+          Invoicer
         </NavLink>
-      </Toolbar>
-      <List sx={{ px: 0.5, pt: 1.5, flex: 1 }}>
-        <ListItemButton
-          selected={pathname === "/dashboard"}
-          onClick={() => go("/dashboard")}
-          sx={navLinkSx}
-        >
-          <ListItemIcon sx={{ minWidth: 40 }}>
-            <DashboardOutlinedIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText primary="Табло" primaryTypographyProps={{ fontSize: "0.9375rem" }} />
-        </ListItemButton>
-        <ListItemButton
-          selected={pathname === "/invoices"}
-          onClick={() => go("/invoices")}
-          sx={navLinkSx}
-        >
-          <ListItemIcon sx={{ minWidth: 40 }}>
-            <ReceiptLongOutlinedIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText primary="Фактури" primaryTypographyProps={{ fontSize: "0.9375rem" }} />
-        </ListItemButton>
-        <ListItemButton
-          selected={pathname === "/products"}
-          onClick={() => go("/products")}
-          sx={navLinkSx}
-        >
-          <ListItemIcon sx={{ minWidth: 40 }}>
-            <Inventory2OutlinedIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText primary="Продукти" primaryTypographyProps={{ fontSize: "0.9375rem" }} />
-        </ListItemButton>
-        <ListItemButton
-          selected={pathname === "/customers"}
-          onClick={() => go("/customers")}
-          sx={navLinkSx}
-        >
-          <ListItemIcon sx={{ minWidth: 40 }}>
-            <PeopleOutlineOutlinedIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText primary="Клиенти" primaryTypographyProps={{ fontSize: "0.9375rem" }} />
-        </ListItemButton>
-        <ListItemButton disabled sx={{ mx: 1, borderRadius: 2, opacity: 0.55 }}>
-          <ListItemIcon sx={{ minWidth: 40 }}>
-            <AssessmentOutlinedIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText
-            primary="Отчети"
-            secondary="Очаквайте скоро"
-            primaryTypographyProps={{ fontSize: "0.9375rem" }}
-            secondaryTypographyProps={{ fontSize: "0.7rem" }}
-          />
-        </ListItemButton>
-      </List>
-      <Divider sx={{ borderColor: "rgba(15, 23, 42, 0.12)" }} />
-      <List sx={{ px: 0.5, py: 1 }}>
-        <ListItemButton
-          selected={pathname === "/profile"}
-          onClick={() => go("/profile")}
-          sx={navLinkSx}
-        >
-          <ListItemIcon sx={{ minWidth: 40 }}>
-            <SettingsOutlinedIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText primary="Настройки на профила" primaryTypographyProps={{ fontSize: "0.9375rem" }} />
-        </ListItemButton>
-      </List>
+      </div>
+      <nav className="flex-1 px-1 pt-4" aria-label="основна навигация">
+        <button type="button" className={navItemClass(pathname === "/dashboard")} onClick={() => go("/dashboard")}>
+          <DashboardOutlinedIcon fontSize="small" />
+          <span>Табло</span>
+        </button>
+        <button type="button" className={navItemClass(pathname === "/invoices")} onClick={() => go("/invoices")}>
+          <ReceiptLongOutlinedIcon fontSize="small" />
+          <span>Фактури</span>
+        </button>
+        <button type="button" className={navItemClass(pathname === "/products")} onClick={() => go("/products")}>
+          <Inventory2OutlinedIcon fontSize="small" />
+          <span>Продукти</span>
+        </button>
+        <button type="button" className={navItemClass(pathname === "/customers")} onClick={() => go("/customers")}>
+          <PeopleOutlineOutlinedIcon fontSize="small" />
+          <span>Клиенти</span>
+        </button>
+        <button type="button" className={`${navItemBaseClass} cursor-not-allowed opacity-55`} disabled>
+          <AssessmentOutlinedIcon fontSize="small" />
+          <span className="flex flex-col">
+            <span>Отчети</span>
+            <span className="text-[0.7rem] text-slate-500">Очаквайте скоро</span>
+          </span>
+        </button>
+      </nav>
+      <div className="border-t border-[rgba(15,23,42,0.12)] px-1 py-2">
+        <button type="button" className={navItemClass(pathname === "/profile")} onClick={() => go("/profile")}>
+          <SettingsOutlinedIcon fontSize="small" />
+          <span>Настройки на профила</span>
+        </button>
+      </div>
       {userEmail ? (
-        <Box
-          sx={{
-            pt: 2,
-            px: 2,
-            borderTop: "1px solid var(--color-border-soft)",
-            paddingBottom: (theme) =>
-              `calc(${theme.spacing(4)} + env(safe-area-inset-bottom, 0px))`,
-          }}
-        >
-          <Typography variant="caption" color="text.secondary" sx={{ display: "block", fontWeight: 600 }}>
-            Вписан
-          </Typography>
-          <Typography
-            variant="body2"
-            color="text.secondary"
-            sx={{
-              wordBreak: "break-all",
-              lineHeight: 1.35,
-              fontSize: "0.8125rem",
-            }}
-            title={userEmail}
-          >
+        <div className="border-t border-[var(--color-border-soft)] px-4 pb-[calc(2rem+env(safe-area-inset-bottom,0px))] pt-4">
+          <span className="block text-xs font-semibold text-slate-500">Вписан</span>
+          <span className="block break-all text-[0.8125rem] leading-snug text-slate-500" title={userEmail}>
             {userEmail}
-          </Typography>
-        </Box>
+          </span>
+        </div>
       ) : null}
-    </Box>
+    </aside>
   );
 
   return (
-    <Box sx={{ display: "flex", minHeight: "100vh", bgcolor: "#f8fafc" }}>
-      <Box
-        component="nav"
-        sx={{ width: { md: DRAWER_WIDTH }, flexShrink: { md: 0 } }}
-        aria-label="основна навигация"
+    <div className="flex min-h-screen bg-[#f8fafc]">
+      <div
+        className="hidden w-[240px] shrink-0 border-r border-[var(--color-border-soft)] md:fixed md:inset-y-0 md:block"
+        style={{ width: DRAWER_WIDTH }}
       >
-        {isSmDown ? (
-          <Drawer
-            variant="temporary"
-            open={mobileOpen}
-            onClose={handleDrawerToggle}
-            ModalProps={{ keepMounted: true }}
-            sx={{
-              display: { xs: "block", md: "none" },
-              "& .MuiDrawer-paper": {
-                boxSizing: "border-box",
-                width: DRAWER_WIDTH,
-                borderRight: "1px solid var(--color-border-soft)",
-              },
-            }}
-          >
+        {drawer}
+      </div>
+      {isSmDown && mobileOpen ? (
+        <div className="fixed inset-0 z-50 md:hidden">
+          <button
+            type="button"
+            aria-label="затвори меню"
+            className="absolute inset-0 bg-slate-900/35"
+            onClick={handleDrawerToggle}
+          />
+          <div className="relative h-full border-r border-[var(--color-border-soft)]" style={{ width: DRAWER_WIDTH }}>
             {drawer}
-          </Drawer>
-        ) : (
-          <Drawer
-            variant="permanent"
-            sx={{
-              display: { xs: "none", md: "block" },
-              "& .MuiDrawer-paper": {
-                boxSizing: "border-box",
-                width: DRAWER_WIDTH,
-                borderRight: "1px solid var(--color-border-soft)",
-              },
-            }}
-            open
-          >
-            {drawer}
-          </Drawer>
-        )}
-      </Box>
+          </div>
+        </div>
+      ) : null}
 
-      <Box
-        component="main"
-        sx={{
-          flexGrow: 1,
-          minWidth: 0,
-          display: "flex",
-          flexDirection: "column",
-        }}
-      >
-        <Toolbar
-          sx={{
-            minHeight: 56,
-            px: { xs: 1.5, sm: 2 },
-            borderBottom: "1px solid var(--color-border-soft)",
-            bgcolor: "#ffffff",
-            display: "flex",
-            alignItems: "center",
-            gap: { xs: 1, sm: 1.5 },
-          }}
-        >
+      <main className="flex min-w-0 flex-1 flex-col md:ml-[240px]">
+        <header className="flex min-h-[56px] items-center gap-3 border-b border-[var(--color-border-soft)] bg-white px-4 sm:px-5">
           {isSmDown && (
-            <IconButton
-              color="inherit"
+            <button
+              type="button"
               aria-label="отвори меню"
-              edge="start"
               onClick={handleDrawerToggle}
-              sx={{ color: "var(--color-brand-charcoal)" }}
+              className="inline-flex rounded-full p-2 text-[var(--color-brand-charcoal)] hover:bg-slate-100"
             >
               <MenuIcon />
-            </IconButton>
+            </button>
           )}
-          <Box sx={{ flexGrow: 1 }} />
+          <div className="flex-1" />
           {userEmail ? (
-            <Typography
-              component="span"
-              variant="body2"
-              color="text.secondary"
-              sx={{
-                display: { xs: "none", sm: "block" },
-                mr: { sm: 2.5, md: 3.5 },
-                maxWidth: { sm: 200, md: 280 },
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-                fontSize: "0.8125rem",
-                lineHeight: 1.25,
-                alignSelf: "center",
-              }}
+            <span
+              className="mr-3 hidden max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap self-center text-[0.8125rem] leading-tight text-slate-500 sm:block md:mr-4 md:max-w-[280px]"
               title={userEmail}
             >
               {userEmail}
-            </Typography>
-          ) : null}
-          <Tooltip
-            disableHoverListener={invoiceGateLoading || canCreateInvoice}
-            title={'Добавете данъчни настройки (ДДС), фирмен идентификатор и банкови данни в "Профил", или включете "Не ми трябват банкови данни във фактурите".'}
-          >
-            <span>
-              <Button
-                variant="contained"
-                color="primary"
-                size="small"
-                startIcon={<AddIcon />}
-                disabled={invoiceGateLoading || !canCreateInvoice}
-                onClick={() => navigate("/invoices/new")}
-                sx={{
-                  minHeight: 40,
-                  px: 1.75,
-                  fontWeight: 600,
-                  textTransform: "none",
-                  boxShadow:
-                    "0 2px 12px rgba(15, 118, 110, 0.12), 0 1px 4px rgba(15, 23, 42, 0.06)",
-                }}
-              >
-                Нова фактура
-              </Button>
             </span>
-          </Tooltip>
+          ) : null}
+          <span
+            title={
+              invoiceGateLoading || canCreateInvoice
+                ? ""
+                : 'Добавете данъчни настройки (ДДС), фирмен идентификатор и банкови данни в "Профил", или включете "Не ми трябват банкови данни във фактурите".'
+            }
+          >
+            <Button
+              variant="contained"
+              color="primary"
+              size="small"
+              startIcon={<AddIcon />}
+              disabled={invoiceGateLoading || !canCreateInvoice}
+              onClick={() => navigate("/invoices/new")}
+              sx={{
+                minHeight: 40,
+                px: 1.75,
+                fontWeight: 600,
+                textTransform: "none",
+                boxShadow:
+                  "0 2px 12px rgba(15, 118, 110, 0.12), 0 1px 4px rgba(15, 23, 42, 0.06)",
+              }}
+            >
+              Нова фактура
+            </Button>
+          </span>
           <Button
             variant="text"
             color="inherit"
@@ -349,19 +215,12 @@ const AppShellContent = () => {
           >
             Изход
           </Button>
-        </Toolbar>
-        <Box
-          sx={{
-            flex: 1,
-            overflow: "auto",
-            backgroundImage:
-              "linear-gradient(180deg, #e6faf1 0%, #f8fafc 28%, #f8fafc 100%)",
-          }}
-        >
+        </header>
+        <div className="flex-1 overflow-auto bg-[linear-gradient(180deg,#e6faf1_0%,#f8fafc_28%,#f8fafc_100%)]">
           <Outlet />
-        </Box>
-      </Box>
-    </Box>
+        </div>
+      </main>
+    </div>
   );
 };
 

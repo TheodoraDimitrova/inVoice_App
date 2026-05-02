@@ -1,12 +1,6 @@
 import React from "react";
-import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-} from "@mui/material";
+import { Button } from "@mui/material";
+import { Modal } from "../../../components/ui/layout";
 
 export const SaveInvoiceDialog = ({
   open,
@@ -15,24 +9,30 @@ export const SaveInvoiceDialog = ({
   onIssue,
   saveInProgress = false,
 }) => (
-  <Dialog open={open} onClose={() => !saveInProgress && onClose()} maxWidth="sm" fullWidth>
-    <DialogTitle>Как искате да запазите фактурата?</DialogTitle>
-    <DialogContent>
-      <DialogContentText>
+  <Modal
+    open={open}
+    onClose={() => !saveInProgress && onClose()}
+    title="Как искате да запазите фактурата?"
+    size="sm"
+    footer={
+      <>
+        <Button onClick={onClose} disabled={saveInProgress}>
+          Отказ
+        </Button>
+        <Button variant="outlined" onClick={onSaveDraft} disabled={saveInProgress}>
+          Запази като чернова
+        </Button>
+        <Button variant="contained" onClick={onIssue} disabled={saveInProgress}>
+          Издай фактурата
+        </Button>
+      </>
+    }
+  >
+    <div className="p-5">
+      <p className="text-sm text-slate-600">
         Изберете дали да издадете официална фактура с пореден номер, или да
         запазите като чернова за по-късно.
-      </DialogContentText>
-    </DialogContent>
-    <DialogActions sx={{ px: 3, pb: 2.5, pt: 0.5, gap: 1 }}>
-      <Button onClick={onClose} disabled={saveInProgress}>
-        Отказ
-      </Button>
-      <Button variant="outlined" onClick={onSaveDraft} disabled={saveInProgress}>
-        Запази като чернова
-      </Button>
-      <Button variant="contained" onClick={onIssue} disabled={saveInProgress}>
-        Издай фактурата
-      </Button>
-    </DialogActions>
-  </Dialog>
+      </p>
+    </div>
+  </Modal>
 );

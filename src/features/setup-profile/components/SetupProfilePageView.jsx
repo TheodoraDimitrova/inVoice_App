@@ -1,5 +1,5 @@
 import React from "react";
-import { Alert, Box, Button, Container, Grid, Paper, Typography } from "@mui/material";
+import { Button } from "@mui/material";
 import GavelOutlinedIcon from "@mui/icons-material/GavelOutlined";
 import AccountBalanceOutlinedIcon from "@mui/icons-material/AccountBalanceOutlined";
 import PlaceOutlinedIcon from "@mui/icons-material/PlaceOutlined";
@@ -20,15 +20,6 @@ import {
 import SetupProfileAccordion from "./SetupProfileAccordion";
 import SetupProfileHeader from "./SetupProfileHeader";
 import SetupProfileSidebar from "./SetupProfileSidebar";
-
-const setupAccordionsShellSx = {
-  mt: 3,
-  p: { xs: 1.5, sm: 2 },
-  borderRadius: 2,
-  bgcolor: "rgba(15, 23, 42, 0.04)",
-  border: "1px solid",
-  borderColor: "rgba(15, 23, 42, 0.08)",
-};
 
 const SetupProfilePageView = ({
   form,
@@ -59,41 +50,21 @@ const SetupProfilePageView = ({
     {loading ? (
       <Loading />
     ) : (
-      <Box
-        sx={{
-          minHeight: "100vh",
-          bgcolor: "#f8fafc",
-          backgroundImage:
-            "linear-gradient(180deg, #e6faf1 0%, #f8fafc 42%, #f8fafc 100%)",
-          pb: 6,
-        }}
-      >
-        <Container maxWidth="lg" sx={{ pt: { xs: 3, sm: 4 }, px: { xs: 2, sm: 3 } }}>
-          <Grid container spacing={{ xs: 3, lg: 4 }} alignItems="flex-start">
-            <Grid item xs={12} lg={8}>
+      <main className="min-h-screen bg-[#f8fafc] bg-[linear-gradient(180deg,#e6faf1_0%,#f8fafc_42%,#f8fafc_100%)] pb-12">
+        <div className="mx-auto max-w-6xl px-4 pt-6 sm:px-6 sm:pt-8">
+          <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12">
+            <div className="lg:col-span-8">
               <SetupProfileHeader />
 
-              <Paper
-                elevation={0}
-                sx={{
-                  borderRadius: 3,
-                  border: "1px solid",
-                  borderColor: "var(--color-border-soft)",
-                  boxShadow:
-                    "0 4px 24px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04)",
-                  overflow: "hidden",
-                }}
-              >
-                <Box
-                  component="form"
+              <section className="overflow-hidden rounded-3xl border border-[var(--color-border-soft)] bg-white shadow-[0_4px_24px_rgba(15,23,42,0.06),0_1px_2px_rgba(15,23,42,0.04)]">
+                <form
                   noValidate
                   onSubmit={submitHandler}
-                  sx={{ px: { xs: 2, sm: 3, md: 4 }, py: { xs: 3, sm: 4 } }}
+                  className="px-4 py-6 sm:px-6 sm:py-8 md:px-8"
                 >
                   {showValidationBanner ? (
-                    <Box ref={validationBannerRef} sx={{ mb: 2 }}>
-                      <Alert severity="error">
-                        <Typography variant="body2" component="div">
+                    <div ref={validationBannerRef} className="mb-4">
+                      <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
                           <strong>Някои полета все още изискват внимание.</strong>
                           {erroredPanels.length > 0 ? (
                             <>
@@ -110,14 +81,13 @@ const SetupProfilePageView = ({
                               формата.
                             </>
                           ) : null}
-                        </Typography>
-                      </Alert>
-                    </Box>
+                      </div>
+                    </div>
                   ) : null}
 
                   <CompanySection form={form} />
 
-                  <Box sx={setupAccordionsShellSx}>
+                  <div className="mt-8 rounded-2xl border border-[rgba(15,23,42,0.08)] bg-[rgba(15,23,42,0.04)] p-4 sm:p-5">
                     <SetupProfileAccordion
                       panelId="address"
                       first
@@ -182,9 +152,9 @@ const SetupProfilePageView = ({
                         showTitle={false}
                       />
                     </SetupProfileAccordion>
-                  </Box>
+                  </div>
 
-                  <Box sx={{ mt: 4 }}>
+                  <div className="mt-8">
                     <Button
                       type="submit"
                       variant="contained"
@@ -205,16 +175,16 @@ const SetupProfilePageView = ({
                           ? "Запази промените"
                           : "Завърши настройката и отиди в таблото"}
                     </Button>
-                  </Box>
-                </Box>
-              </Paper>
-            </Grid>
-            <Grid item xs={12} lg={4}>
+                  </div>
+                </form>
+              </section>
+            </div>
+            <div className="lg:col-span-4">
               <SetupProfileSidebar />
-            </Grid>
-          </Grid>
-        </Container>
-      </Box>
+            </div>
+          </div>
+        </div>
+      </main>
     )}
   </>
 );

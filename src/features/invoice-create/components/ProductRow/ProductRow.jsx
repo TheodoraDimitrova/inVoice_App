@@ -1,5 +1,4 @@
 import React from "react";
-import { Box, Grid, Stack } from "@mui/material";
 import { lineTotalWithVat } from "../../../../utils/invoiceLineNet";
 import { invoiceLineFieldSx, COMMON_UNIT_OPTIONS } from "./styles";
 import { ProductNameField } from "./fields/ProductNameField";
@@ -33,23 +32,14 @@ export const ProductRow = ({
   const onDelete = (e) => deleteRow(e, row._rowId);
 
   return (
-    <Box
-      sx={{
-        px: { xs: 1, sm: 1.25 },
-        pt: { xs: 0.9, md: 1.5 },
-        pb: { xs: 0.9, md: 0.9 },
-        borderTop: idx === 0 ? "none" : "1px solid rgba(15, 23, 42, 0.06)",
-        bgcolor: "#fff",
-      }}
+    <div
+      className={`bg-white px-4 py-4 md:pt-6 ${
+        idx === 0 ? "" : "border-t border-[rgba(15,23,42,0.06)]"
+      }`}
     >
-      <Stack spacing={0.75}>
-        <Grid
-          container
-          spacing={1}
-          alignItems="flex-start"
-          columns={{ xs: 12, sm: 12, md: 100 }}
-        >
-          <Grid item xs={12} md={40}>
+      <div className="space-y-3">
+        <div className="grid grid-cols-12 items-start gap-2">
+          <div className="col-span-12 md:col-span-5">
             <ProductNameField
               row={row}
               products={products}
@@ -58,16 +48,16 @@ export const ProductRow = ({
               patchRow={patchRow}
               error={resolveFieldError("itemName")}
             />
-          </Grid>
-          <Grid item xs={6} sm={3} md={15} sx={{ minWidth: { md: 88 } }}>
+          </div>
+          <div className="col-span-6 min-w-0 sm:col-span-3 md:col-span-2 md:min-w-[88px]">
             <QuantityField
               row={row}
               lineSx={lineSx}
               updateRow={updateRow}
               error={resolveFieldError("itemQuantity")}
             />
-          </Grid>
-          <Grid item xs={6} sm={3} md={15} sx={{ minWidth: { md: 88 } }}>
+          </div>
+          <div className="col-span-6 min-w-0 sm:col-span-3 md:col-span-2 md:min-w-[88px]">
             <UnitField
               row={row}
               lineSx={lineSx}
@@ -75,8 +65,8 @@ export const ProductRow = ({
               updateRow={updateRow}
               error={resolveFieldError("itemUnit")}
             />
-          </Grid>
-          <Grid item xs={6} sm={3} md={15} sx={{ minWidth: { md: 88 } }}>
+          </div>
+          <div className="col-span-6 min-w-0 sm:col-span-3 md:col-span-2 md:min-w-[88px]">
             <PriceField
               row={row}
               lineSx={lineSx}
@@ -85,8 +75,8 @@ export const ProductRow = ({
               error={resolveFieldError("itemCost")}
               fieldName="itemCost"
             />
-          </Grid>
-          <Grid item xs={6} sm={3} md={15} sx={{ minWidth: { md: 88 } }}>
+          </div>
+          <div className="col-span-6 min-w-0 sm:col-span-3 md:col-span-1 md:min-w-[88px]">
             <VatField
               row={row}
               lineSx={lineSx}
@@ -95,8 +85,8 @@ export const ProductRow = ({
               updateRow={updateRow}
               error={resolveFieldError("itemVatRate")}
             />
-          </Grid>
-        </Grid>
+          </div>
+        </div>
 
         <DiscountEditor
           row={row}
@@ -107,7 +97,7 @@ export const ProductRow = ({
           onDelete={onDelete}
           lineSx={lineSx}
         />
-      </Stack>
-    </Box>
+      </div>
+    </div>
   );
 };

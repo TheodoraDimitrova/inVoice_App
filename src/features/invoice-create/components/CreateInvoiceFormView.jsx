@@ -1,12 +1,5 @@
 import React from "react";
-import {
-  Box,
-  Button,
-  Container,
-  Paper,
-  Stack,
-  Typography,
-} from "@mui/material";
+import { Button } from "@mui/material";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import Loading from "../../../components/Loading";
 import {
@@ -44,30 +37,16 @@ const CreateInvoiceFormView = ({
     {loading || invoiceGateLoading || blockNewInvoice ? (
       <Loading />
     ) : (
-      <Container maxWidth="lg" sx={{ py: { xs: 2, sm: 2.5 } }}>
-        <Paper
-          elevation={0}
-          sx={{
-            p: { xs: 2, sm: 3 },
-            borderRadius: 3,
-            border: "1px solid rgba(15, 23, 42, 0.08)",
-            bgcolor: "#fff",
-          }}
-        >
-          <Typography
-            variant="h5"
-            sx={{ fontWeight: 800, color: "var(--color-brand-primary)" }}
-          >
+      <main className="mx-auto max-w-6xl px-4 py-4 sm:px-6 sm:py-6">
+        <section className="rounded-3xl border border-[rgba(15,23,42,0.08)] bg-white p-4 sm:p-6">
+          <h1 className="text-2xl font-extrabold text-[var(--color-brand-primary)]">
             Създай фактура
-          </Typography>
-          <Typography
-            variant="body2"
-            sx={{ color: "text.secondary", mt: 0.75, mb: 3 }}
-          >
+          </h1>
+          <p className="mb-8 mt-2 text-sm text-slate-500">
             Попълнете данни за документа, клиента и продуктите.
-          </Typography>
+          </p>
 
-          <Box component="form" sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
+          <form className="flex flex-col gap-6">
             <DocumentSection {...documentSectionProps} />
             <CustomerSection {...customerSectionProps} />
             <ProductsSection {...productsSectionProps} />
@@ -75,11 +54,7 @@ const CreateInvoiceFormView = ({
 
             {showTotals && <TotalsSection {...totalsProps} />}
 
-            <Stack
-              direction={{ xs: "column", sm: "row" }}
-              spacing={1.25}
-              sx={{ mt: 1 }}
-            >
+            <div className="mt-2 flex flex-col gap-3 sm:flex-row">
               <Button
                 type="button"
                 variant="outlined"
@@ -102,10 +77,10 @@ const CreateInvoiceFormView = ({
               >
                 ЗАПАЗИ ФАКТУРА
               </Button>
-            </Stack>
-          </Box>
-        </Paper>
-      </Container>
+            </div>
+          </form>
+        </section>
+      </main>
     )}
 
     <SaveInvoiceDialog

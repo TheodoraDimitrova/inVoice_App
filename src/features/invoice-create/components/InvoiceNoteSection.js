@@ -1,5 +1,5 @@
 import React from "react";
-import { Checkbox, FormControlLabel, Paper, Stack, TextField } from "@mui/material";
+import { Checkbox, TextField } from "@mui/material";
 
 export const InvoiceNoteSection = ({
   includeInvoiceNote,
@@ -8,27 +8,12 @@ export const InvoiceNoteSection = ({
   onToggle,
   onChange,
 }) => (
-  <Paper
-    variant="outlined"
-    sx={{
-      p: { xs: 1, sm: 1.25 },
-      borderRadius: 2,
-      borderColor: "rgba(15, 23, 42, 0.08)",
-      bgcolor: "#fff",
-    }}
-  >
-    <Stack spacing={1}>
-      <FormControlLabel
-        sx={{
-          m: 0,
-          "& .MuiFormControlLabel-label": {
-            fontSize: "0.95rem",
-            fontWeight: 600,
-          },
-        }}
-        control={<Checkbox size="small" checked={Boolean(includeInvoiceNote)} onChange={onToggle} />}
-        label="Добави забележка към фактурата"
-      />
+  <section className="rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white p-4 sm:p-5">
+    <div className="space-y-4">
+      <label className="flex items-center gap-2 text-[0.95rem] font-semibold text-slate-900">
+        <Checkbox size="small" checked={Boolean(includeInvoiceNote)} onChange={onToggle} />
+        <span>Добави забележка към фактурата</span>
+      </label>
       {includeInvoiceNote ? (
         <TextField
           size="small"
@@ -47,6 +32,6 @@ export const InvoiceNoteSection = ({
           }}
         />
       ) : null}
-    </Stack>
-  </Paper>
+    </div>
+  </section>
 );
