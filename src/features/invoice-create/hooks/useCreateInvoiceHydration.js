@@ -1,6 +1,8 @@
 import { useEffect } from "react";
 import { showToast } from "../../../utils/functions";
+import { INVOICE_DUE_DAYS_AFTER_ISSUE } from "../constants/invoiceConstants";
 import { getBusinessMetaFromDoc } from "../services/businessService";
+import { addCalendarDaysToDateInput } from "../utils/date";
 
 export const useCreateInvoiceHydration = ({
   invoiceId,
@@ -29,6 +31,8 @@ export const useCreateInvoiceHydration = ({
       try {
         const inv = await loadInvoice(invoiceId);
         if (!inv) return;
+        const resolvedIssue =
+          inv.issueDate || toDateInput(new Date());
         reset({
           ...defaultFormValues,
           customerName: inv.customerName || "",
@@ -42,8 +46,13 @@ export const useCreateInvoiceHydration = ({
           customerVatRegistered: Boolean(inv.customerVatRegistered),
           customerVatNumber: inv.customerVatNumber ?? "",
           currency: (inv.currency || "EUR").toUpperCase(),
-          issueDate: inv.issueDate || toDateInput(new Date()),
-          dueDate: inv.dueDate || inv.issueDate || toDateInput(new Date()),
+          issueDate: resolvedIssue,
+          dueDate:
+            inv.dueDate ||
+            addCalendarDaysToDateInput(
+              resolvedIssue,
+              INVOICE_DUE_DAYS_AFTER_ISSUE,
+            ),
           includeInvoiceNote: Boolean(inv.includeInvoiceNote),
           invoiceNote: inv.invoiceNote || "",
         });

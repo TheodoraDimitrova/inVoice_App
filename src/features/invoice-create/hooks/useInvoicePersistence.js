@@ -2,7 +2,8 @@ import { useCallback } from "react";
 import { serverTimestamp } from "@firebase/firestore";
 import { auth } from "../../../firebase";
 import { showToast } from "../../../utils/functions";
-import { toDateInput } from "../utils/date";
+import { INVOICE_DUE_DAYS_AFTER_ISSUE } from "../constants/invoiceConstants";
+import { addCalendarDaysToDateInput, toDateInput } from "../utils/date";
 import { usePersistDraftInvoice } from "./usePersistDraftInvoice";
 import { usePersistIssuedInvoice } from "./usePersistIssuedInvoice";
 
@@ -53,7 +54,11 @@ export const useInvoicePersistence = ({
       const issueDateToPersist =
         (formData.issueDate || "").trim() || toDateInput(new Date());
       const dueDateToPersist =
-        (formData.dueDate || "").trim() || issueDateToPersist;
+        (formData.dueDate || "").trim() ||
+        addCalendarDaysToDateInput(
+          issueDateToPersist,
+          INVOICE_DUE_DAYS_AFTER_ISSUE,
+        );
 
       const basePayload = {
         user_id: auth.currentUser.uid,
@@ -77,7 +82,9 @@ export const useInvoicePersistence = ({
         dueDate: dueDateToPersist,
         status: isIssued ? "issued" : "draft",
         finalizedAt: isIssued ? serverTimestamp() : null,
-        timestamp: serverTimestamp(),
+        ...(isEditing
+          ? { updatedAt: serverTimestamp() }
+          : { timestamp: serverTimestamp() }),
       };
 
       try {

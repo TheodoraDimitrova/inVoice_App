@@ -14,6 +14,7 @@ function normalizeBusiness(business) {
       email: "",
       currency: "EUR",
       vatRate: 20,
+      isVatRegistered: true,
     };
   }
 
@@ -32,6 +33,7 @@ function normalizeBusiness(business) {
         ? business.currency.trim()
         : fallbackCurrency,
     vatRate: Number.isFinite(parsedVatRate) ? parsedVatRate : 20,
+    isVatRegistered: business.isVatRegistered !== false,
   };
 }
 
@@ -47,6 +49,7 @@ export function buildDashboardViewModel(snapshot) {
   const metrics = calculateDashboardMetrics(
     snapshot.invoices,
     business.vatRate,
+    business.isVatRegistered,
   );
   const currency = business.currency || "EUR";
 
@@ -56,6 +59,9 @@ export function buildDashboardViewModel(snapshot) {
     metrics,
     recentInvoices: snapshot.invoices.slice(0, 7),
     revenueLabel: formatMoney(currency, metrics.monthlyRevenue),
+    revenueNetLabel: business.isVatRegistered
+      ? formatMoney(currency, metrics.monthlyRevenueNet)
+      : "",
     averageInvoiceLabel: formatMoney(currency, metrics.averageInvoiceValue),
   };
 }

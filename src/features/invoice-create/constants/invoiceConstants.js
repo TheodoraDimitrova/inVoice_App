@@ -1,4 +1,7 @@
-import { toDateInput } from "../utils/date";
+import { addCalendarDaysToDateInput, toDateInput } from "../utils/date";
+
+/** Default payment term: due date = issue date + N calendar days. */
+export const INVOICE_DUE_DAYS_AFTER_ISSUE = 7;
 
 export const CURRENCY_SYMBOLS = {
   EUR: "\u20ac",
@@ -39,21 +42,24 @@ export const sectionShellSx = {
   borderColor: "rgba(15, 23, 42, 0.08)",
 };
 
-export const createDefaultInvoiceFormValues = () => ({
-  customerType: "business",
-  issueDate: toDateInput(new Date()),
-  dueDate: toDateInput(new Date()),
-  currency: "EUR",
-  customerName: "",
-  customerCountry: "Bulgaria",
-  companyIdentifier: "",
-  customerVatRegistered: false,
-  customerVatNumber: "",
-  customerAddress: "",
-  customerPostCode: "",
-  customerCity: "",
-  customerEmail: "",
-  includeInvoiceNote: false,
-  invoiceNote: "",
-  itemList: [],
-});
+export const createDefaultInvoiceFormValues = () => {
+  const issueDate = toDateInput(new Date());
+  return {
+    customerType: "business",
+    issueDate,
+    dueDate: addCalendarDaysToDateInput(issueDate, INVOICE_DUE_DAYS_AFTER_ISSUE),
+    currency: "EUR",
+    customerName: "",
+    customerCountry: "Bulgaria",
+    companyIdentifier: "",
+    customerVatRegistered: false,
+    customerVatNumber: "",
+    customerAddress: "",
+    customerPostCode: "",
+    customerCity: "",
+    customerEmail: "",
+    includeInvoiceNote: false,
+    invoiceNote: "",
+    itemList: [],
+  };
+};

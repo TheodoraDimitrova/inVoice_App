@@ -39,6 +39,7 @@ export const usePersistDraftInvoice = ({ isEditing, invoiceId, dispatch }) =>
       await updateInvoice(invoiceId, {
         ...basePayload,
         id: existingInvoiceNumber,
+        issueDate: currentInvoiceData.issueDate ?? basePayload.issueDate,
       });
     },
     [dispatch, invoiceId, isEditing],

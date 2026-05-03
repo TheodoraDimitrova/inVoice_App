@@ -5,9 +5,11 @@ import { useInvoiceCreationReady } from "../../contexts/InvoiceCreationReadyCont
 import { useDispatch } from "react-redux";
 
 import {
+  addCalendarDaysToDateInput,
   createDefaultInvoiceFormValues,
   getValidInvoiceNumber,
   hasRowInput,
+  INVOICE_DUE_DAYS_AFTER_ISSUE,
   toDateInput,
   useCreateInvoiceData,
   useCreateInvoiceHydration,
@@ -98,6 +100,20 @@ const CreateInvoiceFormContainer = () => {
     includeInvoiceNote,
     invoiceNote,
   } = formValues;
+
+  const handleIssueDateChange = useCallback(
+    (e) => {
+      const value = typeof e?.target?.value === "string" ? e.target.value : "";
+      setField("issueDate", value);
+      if (!isEditing && value) {
+        setField(
+          "dueDate",
+          addCalendarDaysToDateInput(value, INVOICE_DUE_DAYS_AFTER_ISSUE),
+        );
+      }
+    },
+    [isEditing, setField],
+  );
 
   const { savedCustomers } = useInvoiceSavedCustomers();
   const savedCustomersForType = useMemo(
@@ -297,10 +313,12 @@ const CreateInvoiceFormContainer = () => {
     customerType,
     handleCustomerTypeChange,
     invoiceNumberPreview,
+    isEditing,
     issueDate,
     dueDate,
     currency,
     setFieldFromEvent,
+    onIssueDateChange: handleIssueDateChange,
     formErrors,
     customerIdLabel,
     customerIdRule,

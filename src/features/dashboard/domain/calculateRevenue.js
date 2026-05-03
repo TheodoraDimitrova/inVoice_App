@@ -1,11 +1,16 @@
-import { computeInvoiceGrandTotalNumber } from "../../../utils/invoiceMetrics";
+import { parseIssueDateLocalMs } from "../../../utils/invoiceIssueDateMs";
+import {
+  computeInvoiceGrandTotalNumber,
+  computeInvoiceNetTotalNumber,
+} from "../../../utils/invoiceMetrics";
 
-export function calculateMonthlyRevenue(invoices, vatRate) {
+export function calculateMonthlyRevenue(invoices, vatRate, isVatRegistered) {
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
   const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 1).getTime();
 
   let monthlyRevenue = 0;
+  let monthlyRevenueNet = 0;
   let issuedCount = 0;
   let paidCount = 0;
   let unpaidCount = 0;
@@ -14,12 +19,20 @@ export function calculateMonthlyRevenue(invoices, vatRate) {
     const data = invoice?.data;
     if (!data || data.status === "draft") continue;
 
-    const ts = data.timestamp?.seconds ? data.timestamp.seconds * 1000 : Number.NaN;
-    const isCurrentMonth = Number.isFinite(ts) && ts >= monthStart && ts < monthEnd;
+    const issueMs = parseIssueDateLocalMs(data.issueDate);
+    const isCurrentMonth =
+      Number.isFinite(issueMs) && issueMs >= monthStart && issueMs < monthEnd;
     if (!isCurrentMonth) continue;
 
     issuedCount += 1;
-    monthlyRevenue += computeInvoiceGrandTotalNumber(data.itemList, vatRate);
+    if (isVatRegistered) {
+      monthlyRevenue += computeInvoiceGrandTotalNumber(data.itemList, vatRate);
+      monthlyRevenueNet += computeInvoiceNetTotalNumber(data.itemList);
+    } else {
+      const netOnly = computeInvoiceNetTotalNumber(data.itemList);
+      monthlyRevenue += netOnly;
+      monthlyRevenueNet += netOnly;
+    }
 
     const paymentStatus = String(data.paymentStatus || "").toLowerCase();
     const isPaid =
@@ -33,6 +46,7 @@ export function calculateMonthlyRevenue(invoices, vatRate) {
 
   return {
     monthlyRevenue,
+    monthlyRevenueNet,
     issuedCount,
     paidCount,
     unpaidCount,

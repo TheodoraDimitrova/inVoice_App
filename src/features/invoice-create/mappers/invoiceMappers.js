@@ -1,3 +1,5 @@
+import { INVOICE_DUE_DAYS_AFTER_ISSUE } from "../constants/invoiceConstants";
+import { addCalendarDaysToDateInput } from "../utils/date";
 import { parseLocaleNumber } from "../utils/number";
 
 export const toInvoiceItem = (row, isBusinessVatRegistered) => {
@@ -56,7 +58,12 @@ export const toPreviewData = ({
       : "",
     currency: (formData.currency || "EUR").toUpperCase(),
     issueDate: formData.issueDate,
-    dueDate: (formData.dueDate || "").trim() || formData.issueDate,
+    dueDate:
+      (formData.dueDate || "").trim() ||
+      addCalendarDaysToDateInput(
+        formData.issueDate,
+        INVOICE_DUE_DAYS_AFTER_ISSUE,
+      ),
     itemList: invoiceItems,
     timestamp: {
       seconds: Math.floor(nowMs / 1000),

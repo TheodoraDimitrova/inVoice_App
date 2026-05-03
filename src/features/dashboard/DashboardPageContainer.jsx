@@ -27,6 +27,8 @@ const DashboardPageContainer = () => {
       vatRate={dashboard.business?.vatRate ?? 20}
       metrics={dashboard.metrics}
       revenueLabel={dashboard.revenueLabel}
+      revenueNetLabel={dashboard.revenueNetLabel}
+      isBusinessVatRegistered={dashboard.business.isVatRegistered}
       averageInvoiceLabel={dashboard.averageInvoiceLabel}
     />
   );

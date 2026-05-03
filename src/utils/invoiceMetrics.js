@@ -1,3 +1,4 @@
+import { parseIssueDateLocalMs } from "./invoiceIssueDateMs";
 import { lineNetBeforeVat, lineVatAmount } from "./invoiceLineNet";
 
 /**
@@ -14,11 +15,25 @@ export function computeInvoiceGrandTotalNumber(itemList, vatRate) {
   return total;
 }
 
+/** Sum of line nets (discount-adjusted), excludes VAT — за разбивка „без ДДС“. */
+export function computeInvoiceNetTotalNumber(itemList) {
+  if (!Array.isArray(itemList) || itemList.length === 0) return 0;
+  let total = 0;
+  for (let i = 0; i < itemList.length; i++) {
+    total += lineNetBeforeVat(itemList[i]);
+  }
+  return total;
+}
+
 /**
  * @param {Array<{ data: object, id: string }>} invoices
  * @param {number|string} defaultVatRate from business profile
  */
-export function aggregateDashboardMetrics(invoices, defaultVatRate) {
+export function aggregateDashboardMetrics(
+  invoices,
+  defaultVatRate,
+  isVatRegistered = true,
+) {
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
   const monthEnd = new Date(
@@ -28,6 +43,7 @@ export function aggregateDashboardMetrics(invoices, defaultVatRate) {
   ).getTime();
 
   let monthlyRevenue = 0;
+  let monthlyRevenueNet = 0;
   let currency = "EUR";
   let issuedCount = 0;
   let paidCount = 0;
@@ -41,14 +57,20 @@ export function aggregateDashboardMetrics(invoices, defaultVatRate) {
       currency = d.currency;
     }
 
-    const ts = d.timestamp?.seconds
-      ? d.timestamp.seconds * 1000
-      : Number.NaN;
-    const isCurrentMonth = Number.isFinite(ts) && ts >= monthStart && ts < monthEnd;
+    const issueMs = parseIssueDateLocalMs(d.issueDate);
+    const isCurrentMonth =
+      Number.isFinite(issueMs) && issueMs >= monthStart && issueMs < monthEnd;
     if (!isCurrentMonth) continue;
 
     issuedCount += 1;
-    monthlyRevenue += computeInvoiceGrandTotalNumber(d.itemList, defaultVatRate);
+    if (isVatRegistered) {
+      monthlyRevenue += computeInvoiceGrandTotalNumber(d.itemList, defaultVatRate);
+      monthlyRevenueNet += computeInvoiceNetTotalNumber(d.itemList);
+    } else {
+      const netOnly = computeInvoiceNetTotalNumber(d.itemList);
+      monthlyRevenue += netOnly;
+      monthlyRevenueNet += netOnly;
+    }
 
     const paymentStatus = String(d.paymentStatus || "").toLowerCase();
     const isPaid =
@@ -66,6 +88,7 @@ export function aggregateDashboardMetrics(invoices, defaultVatRate) {
 
   return {
     monthlyRevenue,
+    monthlyRevenueNet,
     averageInvoiceValue,
     currency,
     issuedCount,
