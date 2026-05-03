@@ -23,7 +23,6 @@ export const useEditIssuedInvoice = ({ getNextBusinessInvoiceNumber, invoiceId }
       await updateInvoice(invoiceId, {
         ...basePayload,
         id: generatedInvoiceNumber,
-        issueDate: currentInvoiceData.issueDate ?? basePayload.issueDate,
       });
 
       if (!hasInvoiceNumber && businessDocId) {

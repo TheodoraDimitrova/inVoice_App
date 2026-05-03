@@ -1,5 +1,9 @@
 import { parseIssueDateLocalMs } from "../../../utils/invoiceIssueDateMs";
 import {
+  INVOICE_STATUS,
+  normalizeInvoiceLifecycleStatus,
+} from "../../../utils/invoiceLifecycle";
+import {
   computeInvoiceGrandTotalNumber,
   computeInvoiceNetTotalNumber,
 } from "../../../utils/invoiceMetrics";
@@ -17,7 +21,9 @@ export function calculateMonthlyRevenue(invoices, vatRate, isVatRegistered) {
 
   for (const invoice of invoices) {
     const data = invoice?.data;
-    if (!data || data.status === "draft") continue;
+    if (!data) continue;
+    const life = normalizeInvoiceLifecycleStatus(data);
+    if (life === INVOICE_STATUS.DRAFT) continue;
 
     const issueMs = parseIssueDateLocalMs(data.issueDate);
     const isCurrentMonth =
@@ -34,10 +40,7 @@ export function calculateMonthlyRevenue(invoices, vatRate, isVatRegistered) {
       monthlyRevenueNet += netOnly;
     }
 
-    const paymentStatus = String(data.paymentStatus || "").toLowerCase();
-    const isPaid =
-      paymentStatus === "paid" || paymentStatus === "completed" || data.paid === true;
-    if (isPaid) {
+    if (life === INVOICE_STATUS.PAID) {
       paidCount += 1;
     } else {
       unpaidCount += 1;

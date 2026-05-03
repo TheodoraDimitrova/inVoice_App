@@ -2,6 +2,7 @@ import { useCallback } from "react";
 import { serverTimestamp } from "@firebase/firestore";
 import { auth } from "../../../firebase";
 import { showToast } from "../../../utils/functions";
+import { INVOICE_STATUS } from "../../../utils/invoiceLifecycle";
 import { INVOICE_DUE_DAYS_AFTER_ISSUE } from "../constants/invoiceConstants";
 import { addCalendarDaysToDateInput, toDateInput } from "../utils/date";
 import { usePersistDraftInvoice } from "./usePersistDraftInvoice";
@@ -20,6 +21,7 @@ export const useInvoicePersistence = ({
   setSaveInProgress,
   navigate,
   dispatch,
+  invoiceLifecycleStatus,
 }) => {
   const persistDraftInvoice = usePersistDraftInvoice({
     isEditing,
@@ -45,6 +47,25 @@ export const useInvoicePersistence = ({
       if (!hasInvoiceItems) {
         setSaveDialogOpen(false);
         showToast("error", "Добавете поне един артикул.");
+        return;
+      }
+
+      if (
+        isEditing &&
+        invoiceLifecycleStatus === INVOICE_STATUS.ISSUED &&
+        action === "draft"
+      ) {
+        setSaveDialogOpen(false);
+        showToast(
+          "error",
+          "Издадена фактура не може да се връща към чернова.",
+        );
+        return;
+      }
+
+      if (isEditing && invoiceLifecycleStatus === INVOICE_STATUS.PAID) {
+        setSaveDialogOpen(false);
+        showToast("error", "Платена фактура не може да се променя.");
         return;
       }
 
@@ -94,11 +115,18 @@ export const useInvoicePersistence = ({
           await persistDraftInvoice({ basePayload, formData, invoiceItems });
         }
 
+        const updatingIssuedOnly =
+          isIssued &&
+          isEditing &&
+          invoiceLifecycleStatus === INVOICE_STATUS.ISSUED;
+
         showToast(
           "success",
-          isIssued
-            ? "Фактурата е издадена успешно!📜"
-            : "Черновата е запазена успешно.",
+          updatingIssuedOnly
+            ? "Промените по издадената фактура са запазени."
+            : isIssued
+              ? "Фактурата е издадена успешно!📜"
+              : "Черновата е запазена успешно.",
         );
         setSaveDialogOpen(false);
         navigate("/dashboard");
@@ -121,6 +149,8 @@ export const useInvoicePersistence = ({
       navigate,
       persistDraftInvoice,
       persistIssuedInvoice,
+      invoiceLifecycleStatus,
+      isEditing,
     ],
   );
 };

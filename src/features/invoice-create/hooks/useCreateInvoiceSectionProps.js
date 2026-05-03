@@ -12,7 +12,6 @@ export const useCreateInvoiceSectionProps = ({
   customerType,
   handleCustomerTypeChange,
   invoiceNumberPreview,
-  isEditing,
   issueDate,
   dueDate,
   currency,
@@ -63,7 +62,6 @@ export const useCreateInvoiceSectionProps = ({
         customerType,
         onCustomerTypeChange: handleCustomerTypeChange,
         invoiceNumberPreview,
-        issueDateReadOnly: Boolean(isEditing),
         issueDate,
         onIssueDateChange:
           onIssueDateChange ?? setFieldFromEvent("issueDate"),
@@ -174,7 +172,6 @@ export const useCreateInvoiceSectionProps = ({
       invoiceNote,
       invoiceNumberPreview,
       isBusinessVatRegistered,
-      isEditing,
       issueDate,
       itemList,
       patchRow,

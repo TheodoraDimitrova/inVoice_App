@@ -1,10 +1,27 @@
+import {
+  INVOICE_STATUS,
+  normalizeInvoiceLifecycleStatus,
+} from "../../../utils/invoiceLifecycle";
+
 export const EUR_TO_BGN_RATE = 1.95583;
 
 export const formatInvoiceBadge = (invoiceData) => {
   const n = Number(invoiceData?.id);
   const hasNumber = Number.isFinite(n) && n > 0;
-  if (!hasNumber || invoiceData?.status === "draft") return "Чернова";
+  if (
+    !hasNumber ||
+    normalizeInvoiceLifecycleStatus(invoiceData) === INVOICE_STATUS.DRAFT
+  ) {
+    return "Чернова";
+  }
   return String(n).padStart(10, "0");
+};
+
+export const formatInvoiceLifecycleLabel = (invoiceData) => {
+  const s = normalizeInvoiceLifecycleStatus(invoiceData);
+  if (s === INVOICE_STATUS.PAID) return "Платена";
+  if (s === INVOICE_STATUS.DRAFT) return "Чернова";
+  return "Издадена";
 };
 
 export const formatStoredDate = (value, fallbackTimestamp) => {

@@ -1,9 +1,9 @@
 import { parseIssueDateLocalMs } from "./invoiceIssueDateMs";
+import {
+  INVOICE_STATUS,
+  normalizeInvoiceLifecycleStatus,
+} from "./invoiceLifecycle";
 import { lineNetBeforeVat, lineVatAmount } from "./invoiceLineNet";
-
-/**
- * Line totals aligned with ViewInvoice / findGrandTotal logic (VAT on net after discounts).
- */
 
 export function computeInvoiceGrandTotalNumber(itemList, vatRate) {
   if (!Array.isArray(itemList) || itemList.length === 0) return 0;
@@ -36,11 +36,7 @@ export function aggregateDashboardMetrics(
 ) {
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
-  const monthEnd = new Date(
-    now.getFullYear(),
-    now.getMonth() + 1,
-    1
-  ).getTime();
+  const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 1).getTime();
 
   let monthlyRevenue = 0;
   let monthlyRevenueNet = 0;
@@ -51,7 +47,9 @@ export function aggregateDashboardMetrics(
 
   for (const inv of invoices) {
     const d = inv.data;
-    if (!d || d.status === "draft") continue;
+    if (!d) continue;
+    const life = normalizeInvoiceLifecycleStatus(d);
+    if (life === INVOICE_STATUS.DRAFT) continue;
 
     if (d.currency && typeof d.currency === "string") {
       currency = d.currency;
@@ -64,7 +62,10 @@ export function aggregateDashboardMetrics(
 
     issuedCount += 1;
     if (isVatRegistered) {
-      monthlyRevenue += computeInvoiceGrandTotalNumber(d.itemList, defaultVatRate);
+      monthlyRevenue += computeInvoiceGrandTotalNumber(
+        d.itemList,
+        defaultVatRate,
+      );
       monthlyRevenueNet += computeInvoiceNetTotalNumber(d.itemList);
     } else {
       const netOnly = computeInvoiceNetTotalNumber(d.itemList);
@@ -72,19 +73,15 @@ export function aggregateDashboardMetrics(
       monthlyRevenueNet += netOnly;
     }
 
-    const paymentStatus = String(d.paymentStatus || "").toLowerCase();
-    const isPaid =
-      paymentStatus === "paid" ||
-      paymentStatus === "completed" ||
-      d.paid === true;
-    if (isPaid) {
+    if (life === INVOICE_STATUS.PAID) {
       paidCount += 1;
     } else {
       unpaidCount += 1;
     }
   }
 
-  const averageInvoiceValue = issuedCount > 0 ? monthlyRevenue / issuedCount : 0;
+  const averageInvoiceValue =
+    issuedCount > 0 ? monthlyRevenue / issuedCount : 0;
 
   return {
     monthlyRevenue,

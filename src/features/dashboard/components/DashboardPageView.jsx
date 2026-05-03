@@ -41,24 +41,24 @@ const DashboardPageView = ({
         </div>
       ) : null}
 
-      <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-        <div className="min-w-0">
+      <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="min-w-0 flex-1">
           <h1 className="text-lg font-semibold leading-snug tracking-[-0.02em] text-[var(--color-brand-charcoal)] sm:text-xl">
             Табло
           </h1>
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-sm text-[var(--color-text-muted)]">
             {businessName
               ? businessName
               : "Преглед на текущия месец и последна активност."}
           </p>
           {companyEmail ? (
-            <p className="mt-2 block text-xs text-slate-500">
+            <p className="mt-2 block text-xs text-[var(--color-text-muted)]">
               Фирмен имейл: {companyEmail}
             </p>
           ) : null}
         </div>
 
-        <div className="flex shrink-0 justify-end gap-2">
+        <div className="flex w-full shrink-0 md:w-auto md:justify-end">
           <Button
             type="button"
             variant="outlined"
@@ -68,10 +68,14 @@ const DashboardPageView = ({
             onClick={onOpenInvoices}
             sx={{
               minHeight: 40,
+              width: "100%",
               textTransform: "none",
               fontWeight: 600,
               borderColor: "var(--color-brand-primary)",
               color: "var(--color-brand-primary)",
+              "@media (min-width: 768px)": {
+                width: "auto",
+              },
             }}
           >
             Всички фактури
@@ -79,24 +83,24 @@ const DashboardPageView = ({
         </div>
       </div>
 
-      <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div>
+      <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 min-[1400px]:grid-cols-4 min-[1400px]:gap-4">
+        <div className="h-full min-w-0">
           <RevenueCard
             isVatRegistered={isBusinessVatRegistered}
             revenueLabel={revenueLabel}
             revenueNetLabel={revenueNetLabel}
           />
         </div>
-        <div>
+        <div className="h-full min-w-0">
           <InvoicesCard issuedCount={metrics.issuedCount} />
         </div>
-        <div>
+        <div className="h-full min-w-0">
           <PaymentStatusCard
             paidCount={metrics.paidCount}
             unpaidCount={metrics.unpaidCount}
           />
         </div>
-        <div>
+        <div className="h-full min-w-0">
           <AverageInvoiceCard averageInvoiceLabel={averageInvoiceLabel} />
         </div>
       </div>

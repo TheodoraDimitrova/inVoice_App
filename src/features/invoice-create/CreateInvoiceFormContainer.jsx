@@ -32,6 +32,7 @@ import {
 } from "./index";
 import CreateInvoiceFormView from "./components/CreateInvoiceFormView";
 import { InvoicePreviewContent } from "../invoice-view";
+import { INVOICE_STATUS } from "../../utils/invoiceLifecycle";
 
 const CreateInvoiceFormContainer = () => {
   const defaultFormValues = useMemo(() => createDefaultInvoiceFormValues(), []);
@@ -39,6 +40,9 @@ const CreateInvoiceFormContainer = () => {
   const [products, setProducts] = useState([]);
   const { invoiceId } = useParams();
   const [isEditing, setIsEditing] = useState(false);
+  const [invoiceLifecycleStatus, setInvoiceLifecycleStatus] = useState(
+    INVOICE_STATUS.DRAFT,
+  );
 
   const [defaultBusinessVatRate, setDefaultBusinessVatRate] = useState(20);
   const [isBusinessVatRegistered, setIsBusinessVatRegistered] = useState(true);
@@ -105,14 +109,14 @@ const CreateInvoiceFormContainer = () => {
     (e) => {
       const value = typeof e?.target?.value === "string" ? e.target.value : "";
       setField("issueDate", value);
-      if (!isEditing && value) {
+      if (invoiceLifecycleStatus === INVOICE_STATUS.DRAFT && value) {
         setField(
           "dueDate",
           addCalendarDaysToDateInput(value, INVOICE_DUE_DAYS_AFTER_ISSUE),
         );
       }
     },
-    [isEditing, setField],
+    [invoiceLifecycleStatus, setField],
   );
 
   const { savedCustomers } = useInvoiceSavedCustomers();
@@ -171,6 +175,8 @@ const CreateInvoiceFormContainer = () => {
     setDefaultBusinessVatRate,
     setInvoiceNumberPreview,
     setLoading,
+    setInvoiceLifecycleStatus,
+    navigate,
     defaultFormValues,
     getValidInvoiceNumber,
     hasRowInput,
@@ -191,6 +197,7 @@ const CreateInvoiceFormContainer = () => {
     setSaveInProgress,
     navigate,
     dispatch,
+    invoiceLifecycleStatus,
   });
 
   const {
@@ -209,6 +216,12 @@ const CreateInvoiceFormContainer = () => {
     isBusinessVatRegistered,
     vatExemptDefaultNote: VAT_EXEMPT_DEFAULT_NOTE,
   });
+
+  useEffect(() => {
+    if (invoiceLifecycleStatus === INVOICE_STATUS.ISSUED) {
+      setSaveDialogOpen(false);
+    }
+  }, [invoiceLifecycleStatus]);
 
   useEffect(() => {
     setSelectedSavedCustomer(null);
@@ -313,7 +326,6 @@ const CreateInvoiceFormContainer = () => {
     customerType,
     handleCustomerTypeChange,
     invoiceNumberPreview,
-    isEditing,
     issueDate,
     dueDate,
     currency,
@@ -375,6 +387,8 @@ const CreateInvoiceFormContainer = () => {
       onCloseSaveDialog={() => setSaveDialogOpen(false)}
       onSaveDraft={() => persistInvoice("draft")}
       onIssue={() => persistInvoice("issued")}
+      onPersistIssuedDirect={() => persistInvoice("issued")}
+      invoiceLifecycleStatus={invoiceLifecycleStatus}
       saveInProgress={saveInProgress}
       previewModalOpen={previewModalOpen}
       onClosePreview={() => setPreviewModalOpen(false)}

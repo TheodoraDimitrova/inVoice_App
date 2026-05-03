@@ -38,7 +38,6 @@ export const DocumentSection = ({
   onCustomerTypeChange,
   invoiceNumberPreview,
   issueDate,
-  issueDateReadOnly = false,
   onIssueDateChange,
   dueDate,
   onDueDateChange,
@@ -104,16 +103,11 @@ export const DocumentSection = ({
           type="date"
           value={issueDate}
           onChange={onIssueDateChange}
-          disabled={issueDateReadOnly}
           error={Boolean(errors.issueDate)}
           helperText={
             <FormFieldHelperText
               errorMessage={errors.issueDate?.message}
-              hint={
-                issueDateReadOnly
-                  ? "Фиксирана след създаване; метриките следват тази дата."
-                  : "При нужда може да редактирате датата преди първо записване."
-              }
+              hint="Таблото групира приходите по тази дата (не по час на запис)."
             />
           }
           FormHelperTextProps={{ component: "div" }}

@@ -11,6 +11,7 @@ import {
   SaveInvoiceDialog,
   InvoicePreviewDialog,
 } from ".";
+import { INVOICE_STATUS } from "../../../utils/invoiceLifecycle";
 
 const CreateInvoiceFormView = ({
   loading,
@@ -28,6 +29,8 @@ const CreateInvoiceFormView = ({
   onCloseSaveDialog,
   onSaveDraft,
   onIssue,
+  onPersistIssuedDirect,
+  invoiceLifecycleStatus,
   saveInProgress,
   previewModalOpen,
   onClosePreview,
@@ -73,9 +76,15 @@ const CreateInvoiceFormView = ({
                 fullWidth
                 size="large"
                 sx={{ height: 48, fontWeight: 700 }}
-                onClick={onOpenSaveDialog}
+                onClick={
+                  invoiceLifecycleStatus === INVOICE_STATUS.ISSUED
+                    ? onPersistIssuedDirect
+                    : onOpenSaveDialog
+                }
               >
-                ЗАПАЗИ ФАКТУРА
+                {invoiceLifecycleStatus === INVOICE_STATUS.ISSUED
+                  ? "Запази промените"
+                  : "ЗАПАЗИ ФАКТУРА"}
               </Button>
             </div>
           </form>
@@ -84,7 +93,7 @@ const CreateInvoiceFormView = ({
     )}
 
     <SaveInvoiceDialog
-      open={saveDialogOpen}
+      open={saveDialogOpen && invoiceLifecycleStatus === INVOICE_STATUS.DRAFT}
       onClose={onCloseSaveDialog}
       onSaveDraft={onSaveDraft}
       onIssue={onIssue}

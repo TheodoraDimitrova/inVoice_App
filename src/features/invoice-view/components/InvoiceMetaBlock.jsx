@@ -16,7 +16,7 @@ const InvoiceMetaBlock = ({ invoice, isPreview }) => {
   return (
     <div className="flex w-full flex-col items-stretch space-y-2 sm:items-end sm:text-right">
       {isPreview && !hasPreviewNumber ? (
-        <p className="inline-flex self-start rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-800 sm:self-end print:text-[9px]">
+        <p className="inline-flex self-start rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-800 sm:self-end print:hidden">
           Преглед
         </p>
       ) : null}
