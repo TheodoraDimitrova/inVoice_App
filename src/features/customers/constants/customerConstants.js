@@ -1,7 +1,7 @@
 export const CUSTOMER_FORM_DEFAULTS = {
   customerType: "business",
   customerName: "",
-  customerCountry: "Bulgaria",
+  customerCountry: "България",
   companyIdentifier: "",
   customerVatRegistered: false,
   customerVatNumber: "",

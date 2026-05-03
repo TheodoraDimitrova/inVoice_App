@@ -7,6 +7,7 @@ import {
   updateDoc,
   where,
 } from "@firebase/firestore";
+import { normalizeCountryForProfile } from "../../../data/countries";
 import db from "../../../firebase";
 
 export const subscribeBusinessByUserId = ({ userId, onData, onError }) => {
@@ -31,7 +32,7 @@ export const mapBusinessToFormValues = (business) => {
     businessAddress: business.businessAddress ?? "",
     postCode: business.postCode ?? "",
     city: business.city ?? "",
-    country: "Bulgaria",
+    country: normalizeCountryForProfile(business.country),
     isVatRegistered:
       typeof business.isVatRegistered === "boolean"
         ? business.isVatRegistered

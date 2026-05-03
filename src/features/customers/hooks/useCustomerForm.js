@@ -32,7 +32,7 @@ export const useCustomerForm = ({ onSaved, saveCustomer }) => {
     setFormData({
       customerType: customer.customerType || "business",
       customerName: customer.customerName || "",
-      customerCountry: customer.customerCountry || "Bulgaria",
+      customerCountry: customer.customerCountry || "България",
       companyIdentifier: customer.companyIdentifier || "",
       customerVatRegistered: Boolean(customer.customerVatRegistered),
       customerVatNumber: customer.customerVatNumber || "",

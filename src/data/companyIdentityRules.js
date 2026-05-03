@@ -38,6 +38,15 @@ export const COMPANY_IDENTITY_RULES_BY_COUNTRY = Object.freeze({
       hint: "Фирма (9 цифри) или Фрийлансър (10 цифри).",
     },
   ],
+  България: [
+    {
+      id: "eik",
+      label: "ЕИК / Булстат",
+      pattern: "^(?:[0-9]{9}|[0-9]{10})$",
+      primary: true,
+      hint: "Фирма (9 цифри) или Фрийлансър (10 цифри).",
+    },
+  ],
   Croatia: [
     {
       id: "mb",

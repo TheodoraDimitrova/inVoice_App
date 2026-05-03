@@ -1,3 +1,5 @@
+import { DEFAULT_COUNTRY_BG } from "../../../data/countries";
+
 export const SETUP_FIELD_TO_PANEL = {
   businessName: "company",
   email: "company",
@@ -53,7 +55,7 @@ export const setupDefaultFormValues = {
   businessAddress: "",
   postCode: "",
   city: "",
-  country: "Bulgaria",
+  country: DEFAULT_COUNTRY_BG,
   isVatRegistered: false,
   vat: "",
   tic: "",

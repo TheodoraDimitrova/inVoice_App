@@ -1,11 +1,12 @@
 import { z } from "zod";
 import { isValidIBAN } from "ibantools";
-import { COUNTRIES } from "../data/countries";
+import { COUNTRIES, normalizeCountryForProfile } from "../data/countries";
 import { validatePrimaryCompanyIdentity } from "../data/companyIdentityRules";
 import { validateVatNumberFormat } from "../utils/vatNumberValidation";
 
 const PHONE_REGEX = /^[+]?[0-9][0-9\s-]{5,20}$/;
-const isSupportedCountry = (value) => COUNTRIES.includes(value);
+const isSupportedCountry = (value) =>
+  COUNTRIES.includes(normalizeCountryForProfile(value));
 
 export const setupProfileSchema = z
   .object({

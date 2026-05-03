@@ -4,6 +4,7 @@ export const COUNTRY_COMMERCIAL_RULES = Object.freeze({
   Austria: { currency: "EUR", standardVatRate: 20, iso2: "AT" },
   Belgium: { currency: "EUR", standardVatRate: 21, iso2: "BE" },
   Bulgaria: { currency: "EUR", standardVatRate: 20, iso2: "BG" },
+  България: { currency: "EUR", standardVatRate: 20, iso2: "BG" },
   Croatia: { currency: "EUR", standardVatRate: 25, iso2: "HR" },
   Cyprus: { currency: "EUR", standardVatRate: 19, iso2: "CY" },
   "Czech Republic": { currency: "CZK", standardVatRate: 21, iso2: "CZ" },

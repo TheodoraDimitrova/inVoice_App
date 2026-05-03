@@ -50,7 +50,7 @@ export const createDefaultInvoiceFormValues = () => {
     dueDate: addCalendarDaysToDateInput(issueDate, INVOICE_DUE_DAYS_AFTER_ISSUE),
     currency: "EUR",
     customerName: "",
-    customerCountry: "Bulgaria",
+    customerCountry: "България",
     companyIdentifier: "",
     customerVatRegistered: false,
     customerVatNumber: "",

@@ -4,11 +4,12 @@ import { TextField } from "@mui/material";
 import PlaceOutlinedIcon from "@mui/icons-material/PlaceOutlined";
 import { FormFieldHelperText } from "../../../components/FormFieldHelperText";
 import { gridFieldSx, setupProfileFieldProps } from "../../../utils/muiFieldSx";
+import { DEFAULT_COUNTRY_BG } from "../../../data/countries";
 import { SectionTitle } from "./SectionTitle";
 
 const fieldProps = setupProfileFieldProps;
 
-const PROFILE_COUNTRY_VALUE = "Bulgaria";
+const PROFILE_COUNTRY_VALUE = DEFAULT_COUNTRY_BG;
 
 export const AddressSection = ({ form, showTitle = true }) => {
   const { control, setValue } = form;
@@ -110,7 +111,7 @@ export const AddressSection = ({ form, showTitle = true }) => {
                 name={field.name}
                 inputRef={field.ref}
                 onBlur={field.onBlur}
-                value="България"
+                value={PROFILE_COUNTRY_VALUE}
                 disabled
                 error={!!fieldState.error}
                 helperText={

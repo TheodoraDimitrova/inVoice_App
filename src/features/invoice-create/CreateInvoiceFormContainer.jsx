@@ -245,7 +245,7 @@ const CreateInvoiceFormContainer = () => {
       setField("customerName", String(customer.customerName || "").trim());
       setField(
         "customerCountry",
-        String(customer.customerCountry || "Bulgaria").trim() || "Bulgaria",
+        String(customer.customerCountry || "България").trim() || "България",
       );
       setField(
         "customerAddress",

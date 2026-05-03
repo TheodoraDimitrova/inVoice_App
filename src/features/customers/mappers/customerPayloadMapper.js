@@ -5,7 +5,7 @@ export function toCustomerPayload(customerData) {
   return {
     customerType,
     customerName: String(customerData.customerName || "").trim(),
-    customerCountry: String(customerData.customerCountry || "Bulgaria").trim(),
+    customerCountry: String(customerData.customerCountry || "България").trim(),
     companyIdentifier:
       customerType === "business"
         ? String(customerData.companyIdentifier || "").trim()

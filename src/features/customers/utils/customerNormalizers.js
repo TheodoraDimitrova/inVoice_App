@@ -9,7 +9,7 @@ export function normalizeStoredCustomer(data, id) {
     ...CUSTOMER_FORM_DEFAULTS,
     customerType,
     customerName: String(data?.customerName || data?.name || "").trim(),
-    customerCountry: String(data?.customerCountry || "Bulgaria").trim(),
+    customerCountry: String(data?.customerCountry || "България").trim(),
     companyIdentifier:
       customerType === "business"
         ? String(data?.companyIdentifier || "").trim()

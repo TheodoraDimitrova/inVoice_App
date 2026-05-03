@@ -64,7 +64,7 @@ export const useCreateInvoiceHydration = ({
             customerAddress: inv.customerAddress || "",
             customerPostCode: inv.customerPostCode || "",
             customerCity: inv.customerCity || "",
-            customerCountry: inv.customerCountry || "Bulgaria",
+            customerCountry: inv.customerCountry || "България",
             customerEmail: inv.customerEmail || "",
             companyIdentifier: inv.companyIdentifier ?? inv.vat ?? "",
             customerVatRegistered: Boolean(inv.customerVatRegistered),
