@@ -1,14 +1,9 @@
 import React from "react";
 import DashboardActionsSvg from "./DashboardActionsSvg";
 import { InvoiceStatusBadge } from "./InvoiceStatusBadge";
-import {
-  formatInvoiceBadge,
-  formatStoredDate,
-} from "../features/invoice-view/utils/invoiceFormatters";
-import { computeInvoiceGrandTotalNumber } from "../utils/invoiceMetrics";
 
-const Table = ({ invoices, defaultVatRate = 0 }) => {
-  if (!Array.isArray(invoices) || invoices.length === 0) {
+const Table = ({ rows }) => {
+  if (!Array.isArray(rows) || rows.length === 0) {
     return (
       <p className="py-1 text-sm text-slate-500">
         Няма налични фактури.
@@ -35,52 +30,55 @@ const Table = ({ invoices, defaultVatRate = 0 }) => {
           </tr>
         </thead>
         <tbody>
-          {invoices.map((invoice) => {
-            const invoiceData = invoice.data || {};
-            const rowCurrency = String(invoiceData.currency || "EUR").toUpperCase();
-            const rowVatRate = Number(invoiceData.vatRate);
-            const computedTotal = computeInvoiceGrandTotalNumber(
-              invoiceData.itemList,
-              Number.isFinite(rowVatRate) ? rowVatRate : defaultVatRate
-            );
-
+          {rows.map((row) => {
+            const {
+              id,
+              invoiceData,
+              issueDateLabel,
+              badgeLabel,
+              statusBadge,
+              customerName,
+              amountLabel,
+            } = row;
             return (
               <tr
-                key={invoice.id}
+                key={id}
                 className="transition-colors hover:bg-emerald-500/5"
               >
                 <td className="whitespace-nowrap px-4 py-3">
                   <span className="inline-flex flex-col items-start gap-1">
                     <span className="text-[0.87rem] font-semibold leading-tight text-slate-900">
-                      {formatStoredDate(invoiceData.issueDate, invoiceData.timestamp)}
+                      {issueDateLabel}
                     </span>
                     <span className="block font-mono text-[0.79rem] font-medium leading-tight tabular-nums text-slate-600">
-                      № {formatInvoiceBadge(invoiceData)}
+                      № {badgeLabel}
                     </span>
                   </span>
                 </td>
                 <td className="whitespace-nowrap px-4 py-3 align-middle font-semibold text-[#1A1A1A]">
                   <span className="mb-1 inline-flex sm:hidden">
-                    <InvoiceStatusBadge invoiceData={invoiceData} variant="pill" />
+                    <InvoiceStatusBadge
+                      label={statusBadge.label}
+                      statusTone={statusBadge.statusTone}
+                      variant="pill"
+                    />
                   </span>
-                  <span className="block">{invoiceData.customerName || "—"}</span>
+                  <span className="block">{customerName}</span>
                 </td>
                 <td className="hidden whitespace-nowrap px-3 py-3 align-middle sm:table-cell">
                   <InvoiceStatusBadge
-                    invoiceData={invoiceData}
+                    label={statusBadge.label}
+                    statusTone={statusBadge.statusTone}
                     variant="pill"
                     className="whitespace-nowrap"
                   />
                 </td>
                 <td className="px-4 py-3 text-right font-mono tabular-nums text-slate-500">
-                  {computedTotal.toFixed(2)} {rowCurrency}
+                  {amountLabel}
                 </td>
                 <td className="w-[168px] whitespace-nowrap px-3 py-3 text-right align-middle">
                   <div className="flex w-full items-center justify-end gap-1">
-                    <DashboardActionsSvg
-                      invoiceId={invoice.id}
-                      invoiceData={invoiceData}
-                    />
+                    <DashboardActionsSvg invoiceId={id} invoiceData={invoiceData} />
                   </div>
                 </td>
               </tr>

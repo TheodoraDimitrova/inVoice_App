@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { showToast } from "../../../utils/functions";
 import {
-  INVOICE_STATUS,
+  canEditInvoiceLifecycle,
   normalizeInvoiceLifecycleStatus,
 } from "../../../utils/invoiceLifecycle";
 import { INVOICE_DUE_DAYS_AFTER_ISSUE } from "../constants/invoiceConstants";
@@ -50,7 +50,7 @@ export const useCreateInvoiceHydration = ({
           const life = normalizeInvoiceLifecycleStatus(inv);
           setInvoiceLifecycleStatus(life);
 
-          if (life === INVOICE_STATUS.PAID) {
+          if (!canEditInvoiceLifecycle(life)) {
             showToast("info", "Платените фактури не могат да се редактират.");
             navigate(`/invoices/${invoiceId}`, { replace: true });
             return;
@@ -112,7 +112,9 @@ export const useCreateInvoiceHydration = ({
           setInvoiceNumberPreview(validNumber ? String(validNumber) : "Чернова");
         } else {
           setIsEditing(false);
-          setInvoiceLifecycleStatus(INVOICE_STATUS.DRAFT);
+          setInvoiceLifecycleStatus(
+            normalizeInvoiceLifecycleStatus(null),
+          );
         }
 
         try {

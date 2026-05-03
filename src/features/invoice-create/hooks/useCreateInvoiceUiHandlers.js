@@ -17,7 +17,9 @@ export const useCreateInvoiceUiHandlers = ({
 
   const openSaveDialog = useCallback(
     (e) => {
-      e.preventDefault();
+      if (e && typeof e.preventDefault === "function") {
+        e.preventDefault();
+      }
       blurActiveElement();
       setSaveDialogOpen(true);
     },

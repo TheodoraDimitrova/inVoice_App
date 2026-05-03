@@ -2,11 +2,26 @@ import { useCallback } from "react";
 import { serverTimestamp } from "@firebase/firestore";
 import { auth } from "../../../firebase";
 import { showToast } from "../../../utils/functions";
-import { INVOICE_STATUS } from "../../../utils/invoiceLifecycle";
+import {
+  getInvoicePersistBlockReason,
+  getInvoicePersistSuccessKind,
+} from "../../../utils/invoiceLifecycle";
 import { INVOICE_DUE_DAYS_AFTER_ISSUE } from "../constants/invoiceConstants";
 import { addCalendarDaysToDateInput, toDateInput } from "../utils/date";
 import { usePersistDraftInvoice } from "./usePersistDraftInvoice";
 import { usePersistIssuedInvoice } from "./usePersistIssuedInvoice";
+
+const PERSIST_BLOCK_TOAST = {
+  paid_immutable: "Платена фактура не може да се променя.",
+  issued_cannot_revert_to_draft:
+    "Издадена фактура не може да се връща към чернова.",
+};
+
+const PERSIST_SUCCESS_TOAST = {
+  update_issued: "Промените по издадената фактура са запазени.",
+  first_issue: "Фактурата е издадена успешно!📜",
+  save_draft: "Черновата е запазена успешно.",
+};
 
 export const useInvoicePersistence = ({
   getValues,
@@ -50,22 +65,14 @@ export const useInvoicePersistence = ({
         return;
       }
 
-      if (
-        isEditing &&
-        invoiceLifecycleStatus === INVOICE_STATUS.ISSUED &&
-        action === "draft"
-      ) {
+      const blockReason = getInvoicePersistBlockReason({
+        isEditing,
+        lifecycleStatus: invoiceLifecycleStatus,
+        persistAction: action,
+      });
+      if (blockReason) {
         setSaveDialogOpen(false);
-        showToast(
-          "error",
-          "Издадена фактура не може да се връща към чернова.",
-        );
-        return;
-      }
-
-      if (isEditing && invoiceLifecycleStatus === INVOICE_STATUS.PAID) {
-        setSaveDialogOpen(false);
-        showToast("error", "Платена фактура не може да се променя.");
+        showToast("error", PERSIST_BLOCK_TOAST[blockReason]);
         return;
       }
 
@@ -115,19 +122,12 @@ export const useInvoicePersistence = ({
           await persistDraftInvoice({ basePayload, formData, invoiceItems });
         }
 
-        const updatingIssuedOnly =
-          isIssued &&
-          isEditing &&
-          invoiceLifecycleStatus === INVOICE_STATUS.ISSUED;
-
-        showToast(
-          "success",
-          updatingIssuedOnly
-            ? "Промените по издадената фактура са запазени."
-            : isIssued
-              ? "Фактурата е издадена успешно!📜"
-              : "Черновата е запазена успешно.",
-        );
+        const successKind = getInvoicePersistSuccessKind({
+          persistIssued: isIssued,
+          isEditing,
+          lifecycleStatus: invoiceLifecycleStatus,
+        });
+        showToast("success", PERSIST_SUCCESS_TOAST[successKind]);
         setSaveDialogOpen(false);
         navigate("/dashboard");
       } catch (err) {

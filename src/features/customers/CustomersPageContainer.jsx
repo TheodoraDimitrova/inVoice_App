@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import CustomersDialog from "./components/CustomersDialog";
 import CustomersPageView from "./components/CustomersPageView";
 import { useCustomerCrud } from "./hooks/useCustomerCrud";
@@ -28,19 +28,48 @@ const CustomersPageContainer = () => {
     refreshCustomers();
   }, [refreshCustomers]);
 
-  const handleDeleteCustomer = async (customerId) => {
-    const ok = await deleteCustomer(customerId);
-    if (ok) await refreshCustomers();
-  };
+  const handleDeleteCustomer = useCallback(
+    async (customerId) => {
+      const ok = await deleteCustomer(customerId);
+      if (ok) await refreshCustomers();
+    },
+    [deleteCustomer, refreshCustomers],
+  );
+
+  const [pendingDeleteId, setPendingDeleteId] = useState(null);
+  const [deleteInProgress, setDeleteInProgress] = useState(false);
+
+  const onRequestDelete = useCallback((id) => {
+    setPendingDeleteId(id);
+  }, []);
+
+  const onCancelDeleteDialog = useCallback(() => {
+    if (!deleteInProgress) setPendingDeleteId(null);
+  }, [deleteInProgress]);
+
+  const onConfirmDeleteDialog = useCallback(async () => {
+    if (!pendingDeleteId) return;
+    setDeleteInProgress(true);
+    try {
+      await handleDeleteCustomer(pendingDeleteId);
+    } finally {
+      setDeleteInProgress(false);
+      setPendingDeleteId(null);
+    }
+  }, [pendingDeleteId, handleDeleteCustomer]);
 
   return (
     <>
       <CustomersPageView
         sortedCustomers={sortedCustomers}
         onOpenAddDialog={openAddDialog}
-        onDeleteCustomer={handleDeleteCustomer}
         editingId={editingId}
         onStartEdit={openEditDialog}
+        onRequestDelete={onRequestDelete}
+        deleteDialogOpen={Boolean(pendingDeleteId)}
+        deleteInProgress={deleteInProgress}
+        onCancelDeleteDialog={onCancelDeleteDialog}
+        onConfirmDeleteDialog={onConfirmDeleteDialog}
       />
       <CustomersDialog
         open={dialogOpen}

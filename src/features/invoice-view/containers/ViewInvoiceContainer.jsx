@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import { useReactToPrint } from "react-to-print";
 import Loading from "../../../components/Loading";
@@ -7,8 +7,9 @@ import ViewInvoicePage from "../components/ViewInvoicePage";
 import { useInvoiceData } from "../hooks/useInvoiceData";
 import { useBusinessData } from "../hooks/useBusinessData";
 import {
-  INVOICE_STATUS,
-  normalizeInvoiceLifecycleStatus,
+  canMarkInvoicePaid,
+  getInvoiceStatusBadgePresentation,
+  isInvoiceLifecyclePaid,
 } from "../../../utils/invoiceLifecycle";
 import { markInvoicePaid } from "../../invoice-create/services/invoiceService";
 import { showToast } from "../../../utils/functions";
@@ -28,11 +29,14 @@ export const ViewInvoiceContainer = () => {
     content: () => componentRef.current,
   });
 
-  const lifecycleStatus = normalizeInvoiceLifecycleStatus(invoice);
   const canMarkPaid =
-    Boolean(id) &&
-    !previewData &&
-    lifecycleStatus === INVOICE_STATUS.ISSUED;
+    Boolean(id) && !previewData && canMarkInvoicePaid(invoice);
+  const showPaidBanner = !previewData && isInvoiceLifecyclePaid(invoice);
+
+  const invoiceStatusBadge = useMemo(
+    () => (invoice ? getInvoiceStatusBadgePresentation(invoice) : null),
+    [invoice],
+  );
 
   const confirmMarkInvoicePaid = useCallback(async () => {
     if (!id) return;
@@ -55,11 +59,12 @@ export const ViewInvoiceContainer = () => {
     <>
       <ViewInvoicePage
         invoice={invoice}
+        invoiceStatusBadge={invoiceStatusBadge}
         business={business}
         printRef={componentRef}
         onPrint={handlePrint}
         isPreview={Boolean(previewData)}
-        lifecycleStatus={lifecycleStatus}
+        showPaidBanner={showPaidBanner}
         canMarkPaid={canMarkPaid}
         markPaidBusy={markPaidBusy}
         markPaidActionsDisabled={markPaidBusy || markPaidDialogOpen}

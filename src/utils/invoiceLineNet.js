@@ -1,16 +1,10 @@
-/**
- * Net line amount before VAT: (unit price × qty) minus discounts.
- * - itemDiscountPercent: 0–100
- * - itemDiscountAmount: fixed amount in invoice currency
- * Legacy: itemDiscount alone was treated as percent in some UI; if itemDiscountPercent
- * is missing, itemDiscount is used as percent fallback.
- */
+// Calculates total amount (price × quantity)
 export function lineGross(item) {
   const cost = Number(item?.itemCost) || 0;
   const qty = Number(item?.itemQuantity) || 0;
   return cost * qty;
 }
-
+// Calculates amount after discounts, before VAT
 export function lineNetBeforeVat(item) {
   const gross = lineGross(item);
   let pct = Number(item?.itemDiscountPercent);
@@ -28,7 +22,7 @@ export function lineNetBeforeVat(item) {
   if (!Number.isFinite(net) || net < 0) net = 0;
   return net;
 }
-
+//// Calculates VAT amount based on net value
 export function lineVatAmount(item, fallbackVatRate = 0) {
   const net = lineNetBeforeVat(item);
   let rate = Number(item?.itemVatRate);
@@ -36,7 +30,7 @@ export function lineVatAmount(item, fallbackVatRate = 0) {
   rate = Math.max(0, rate);
   return (net * rate) / 100;
 }
-
+// Calculates final amount (net + VAT)
 export function lineTotalWithVat(item, fallbackVatRate = 0) {
   return lineNetBeforeVat(item) + lineVatAmount(item, fallbackVatRate);
 }

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import ProductsPageView from "./components/ProductsPageView";
 import ProductsDialog from "./components/ProductsDialog";
 import { useProductsData } from "./hooks/useProductsData";
@@ -37,17 +37,41 @@ const ProductsPageContainer = () => {
     refreshProducts();
   }, [refreshProducts]);
 
-  const handleDeleteProduct = async (productId) => {
-    const ok = await deleteProduct(productId);
-    if (ok) await refreshProducts();
-  };
+  const handleDeleteProduct = useCallback(
+    async (productId) => {
+      const ok = await deleteProduct(productId);
+      if (ok) await refreshProducts();
+    },
+    [deleteProduct, refreshProducts],
+  );
+
+  const [pendingDeleteId, setPendingDeleteId] = useState(null);
+  const [deleteInProgress, setDeleteInProgress] = useState(false);
+
+  const onRequestDelete = useCallback((id) => {
+    setPendingDeleteId(id);
+  }, []);
+
+  const onCancelDeleteDialog = useCallback(() => {
+    if (!deleteInProgress) setPendingDeleteId(null);
+  }, [deleteInProgress]);
+
+  const onConfirmDeleteDialog = useCallback(async () => {
+    if (!pendingDeleteId) return;
+    setDeleteInProgress(true);
+    try {
+      await handleDeleteProduct(pendingDeleteId);
+    } finally {
+      setDeleteInProgress(false);
+      setPendingDeleteId(null);
+    }
+  }, [pendingDeleteId, handleDeleteProduct]);
 
   return (
     <>
       <ProductsPageView
         sortedProducts={sortedProducts}
         onOpenAddDialog={openAddDialog}
-        onDeleteProduct={handleDeleteProduct}
         editingId={editingId}
         editData={editData}
         inlineSaving={inlineSaving}
@@ -56,6 +80,11 @@ const ProductsPageContainer = () => {
         onCancelEdit={cancelEdit}
         onSaveEdit={saveEdit}
         onUpdateField={updateField}
+        onRequestDelete={onRequestDelete}
+        deleteDialogOpen={Boolean(pendingDeleteId)}
+        deleteInProgress={deleteInProgress}
+        onCancelDeleteDialog={onCancelDeleteDialog}
+        onConfirmDeleteDialog={onConfirmDeleteDialog}
       />
       <ProductsDialog
         open={dialogOpen}

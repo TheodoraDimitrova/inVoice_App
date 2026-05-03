@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Button } from "@mui/material";
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import Table from "../../../components/Table";
+import { buildInvoiceTableRows } from "../../../utils/invoiceTableRows";
 import { AverageInvoiceCard } from "./metrics/AverageInvoiceCard";
 import { InvoicesCard } from "./metrics/InvoicesCard";
 import { PaymentStatusCard } from "./metrics/PaymentStatusCard";
@@ -22,6 +23,11 @@ const DashboardPageView = ({
   isBusinessVatRegistered,
   averageInvoiceLabel,
 }) => {
+  const invoiceTableRows = useMemo(
+    () => buildInvoiceTableRows(recentInvoices, vatRate),
+    [recentInvoices, vatRate],
+  );
+
   return (
     <main className="mx-auto max-w-[1100px] px-4 py-4 sm:px-6 sm:py-6">
       {!invoiceGateLoading && !canCreateInvoice ? (
@@ -109,7 +115,7 @@ const DashboardPageView = ({
         <h2 className="mb-3 text-[0.95rem] font-bold text-slate-700">
           Последни фактури
         </h2>
-        <Table invoices={recentInvoices} defaultVatRate={vatRate} />
+        <Table rows={invoiceTableRows} />
       </section>
     </main>
   );

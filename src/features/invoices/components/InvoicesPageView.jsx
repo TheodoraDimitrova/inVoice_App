@@ -1,7 +1,13 @@
-import React from "react";
+import React, { useMemo } from "react";
 import Table from "../../../components/Table";
+import { buildInvoiceTableRows } from "../../../utils/invoiceTableRows";
 
 const InvoicesPageView = ({ invoices, vatRate }) => {
+  const tableRows = useMemo(
+    () => buildInvoiceTableRows(invoices, vatRate),
+    [invoices, vatRate],
+  );
+
   return (
     <main className="mx-auto max-w-[1100px] px-4 py-4 sm:px-6 sm:py-6">
       <h1 className="mb-1 text-lg font-semibold leading-snug tracking-[-0.02em] text-[var(--color-brand-charcoal)] sm:text-xl">
@@ -15,7 +21,7 @@ const InvoicesPageView = ({ invoices, vatRate }) => {
       ) : null}
 
       <section className="max-w-full overflow-hidden rounded-3xl border border-slate-300/60 bg-gradient-to-b from-white/95 to-slate-50/95 p-4 shadow-[0_10px_28px_rgba(15,23,42,0.08)]">
-        <Table invoices={invoices} defaultVatRate={vatRate} />
+        <Table rows={tableRows} />
       </section>
     </main>
   );

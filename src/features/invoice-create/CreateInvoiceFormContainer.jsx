@@ -32,7 +32,15 @@ import {
 } from "./index";
 import CreateInvoiceFormView from "./components/CreateInvoiceFormView";
 import { InvoicePreviewContent } from "../invoice-view";
-import { INVOICE_STATUS } from "../../utils/invoiceLifecycle";
+import {
+  getInvoiceEditorPersistUiConfig,
+  normalizeInvoiceLifecycleStatus,
+} from "../../utils/invoiceLifecycle";
+
+const PRIMARY_PERSIST_LABEL = {
+  save_changes: "Запази промените",
+  save_invoice: "ЗАПАЗИ ФАКТУРА",
+};
 
 const CreateInvoiceFormContainer = () => {
   const defaultFormValues = useMemo(() => createDefaultInvoiceFormValues(), []);
@@ -40,8 +48,8 @@ const CreateInvoiceFormContainer = () => {
   const [products, setProducts] = useState([]);
   const { invoiceId } = useParams();
   const [isEditing, setIsEditing] = useState(false);
-  const [invoiceLifecycleStatus, setInvoiceLifecycleStatus] = useState(
-    INVOICE_STATUS.DRAFT,
+  const [invoiceLifecycleStatus, setInvoiceLifecycleStatus] = useState(() =>
+    normalizeInvoiceLifecycleStatus(null),
   );
 
   const [defaultBusinessVatRate, setDefaultBusinessVatRate] = useState(20);
@@ -105,18 +113,23 @@ const CreateInvoiceFormContainer = () => {
     invoiceNote,
   } = formValues;
 
+  const editorPersistUi = useMemo(
+    () => getInvoiceEditorPersistUiConfig(invoiceLifecycleStatus),
+    [invoiceLifecycleStatus],
+  );
+
   const handleIssueDateChange = useCallback(
     (e) => {
       const value = typeof e?.target?.value === "string" ? e.target.value : "";
       setField("issueDate", value);
-      if (invoiceLifecycleStatus === INVOICE_STATUS.DRAFT && value) {
+      if (editorPersistUi.syncDueDateFromIssueDate && value) {
         setField(
           "dueDate",
           addCalendarDaysToDateInput(value, INVOICE_DUE_DAYS_AFTER_ISSUE),
         );
       }
     },
-    [invoiceLifecycleStatus, setField],
+    [editorPersistUi.syncDueDateFromIssueDate, setField],
   );
 
   const { savedCustomers } = useInvoiceSavedCustomers();
@@ -218,10 +231,10 @@ const CreateInvoiceFormContainer = () => {
   });
 
   useEffect(() => {
-    if (invoiceLifecycleStatus === INVOICE_STATUS.ISSUED) {
+    if (editorPersistUi.closeSaveDialogOnIssued) {
       setSaveDialogOpen(false);
     }
-  }, [invoiceLifecycleStatus]);
+  }, [editorPersistUi.closeSaveDialogOnIssued]);
 
   useEffect(() => {
     setSelectedSavedCustomer(null);
@@ -370,6 +383,20 @@ const CreateInvoiceFormContainer = () => {
     grandTotal,
   });
 
+  const primaryPersistButtonLabel =
+    PRIMARY_PERSIST_LABEL[editorPersistUi.primaryPersistLabelKind];
+
+  const showSaveInvoiceDialog =
+    saveDialogOpen && editorPersistUi.showSaveChoiceDialog;
+
+  const handlePrimaryPersistClick = useCallback(() => {
+    if (editorPersistUi.primaryPersistRunsIssuedImmediately) {
+      persistInvoice("issued");
+    } else {
+      openSaveDialog();
+    }
+  }, [editorPersistUi.primaryPersistRunsIssuedImmediately, persistInvoice, openSaveDialog]);
+
   return (
     <CreateInvoiceFormView
       loading={loading}
@@ -382,13 +409,12 @@ const CreateInvoiceFormContainer = () => {
       showTotals={invoiceItems.length > 0}
       totalsProps={totalsProps}
       onPreview={handlePreviewInvoice}
-      onOpenSaveDialog={openSaveDialog}
-      saveDialogOpen={saveDialogOpen}
+      primaryPersistButtonLabel={primaryPersistButtonLabel}
+      onPrimaryPersistClick={handlePrimaryPersistClick}
+      showSaveInvoiceDialog={showSaveInvoiceDialog}
       onCloseSaveDialog={() => setSaveDialogOpen(false)}
       onSaveDraft={() => persistInvoice("draft")}
       onIssue={() => persistInvoice("issued")}
-      onPersistIssuedDirect={() => persistInvoice("issued")}
-      invoiceLifecycleStatus={invoiceLifecycleStatus}
       saveInProgress={saveInProgress}
       previewModalOpen={previewModalOpen}
       onClosePreview={() => setPreviewModalOpen(false)}

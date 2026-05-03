@@ -1,15 +1,13 @@
 import React from "react";
-import {
-  formatInvoiceBadge,
-  formatStoredDate,
-} from "../utils/invoiceFormatters";
+import { getInvoiceBadgeLabel } from "../../../utils/invoiceLifecycle";
+import { formatStoredDate } from "../utils/invoiceFormatters";
 
 const InvoiceMetaBlock = ({ invoice, isPreview }) => {
   if (!invoice) return null;
 
   const previewNumber = Number(invoice?.id);
   const hasPreviewNumber = Number.isFinite(previewNumber) && previewNumber > 0;
-  const badge = formatInvoiceBadge(invoice);
+  const badge = getInvoiceBadgeLabel(invoice);
   const issue = formatStoredDate(invoice.issueDate, invoice.timestamp);
   const due = formatStoredDate(invoice.dueDate, invoice.timestamp);
 
