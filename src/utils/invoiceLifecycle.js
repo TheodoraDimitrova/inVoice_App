@@ -42,7 +42,6 @@ export function shouldIncludeInvoiceInMetrics(status) {
   return status === INVOICE_STATUS.ISSUED || status === INVOICE_STATUS.PAID;
 }
 
-/** Маркиране като платена е позволено само за издадена (неплатена) фактура. */
 export function canMarkInvoicePaid(data) {
   return normalizeInvoiceLifecycleStatus(data) === INVOICE_STATUS.ISSUED;
 }
@@ -83,11 +82,7 @@ export function getInvoicePersistSuccessKind({
   isEditing,
   lifecycleStatus,
 }) {
-  if (
-    persistIssued &&
-    isEditing &&
-    lifecycleStatus === INVOICE_STATUS.ISSUED
-  ) {
+  if (persistIssued && isEditing && lifecycleStatus === INVOICE_STATUS.ISSUED) {
     return "update_issued";
   }
   if (persistIssued) return "first_issue";
@@ -100,7 +95,6 @@ const INVOICE_LIFECYCLE_LABEL_BG = {
   [INVOICE_STATUS.PAID]: "Платена",
 };
 
-/** Етикет за UI по нормализиран lifecycle (BG). */
 export function getInvoiceLifecycleLabel(invoiceData) {
   const s = normalizeInvoiceLifecycleStatus(invoiceData);
   return (
@@ -109,9 +103,6 @@ export function getInvoiceLifecycleLabel(invoiceData) {
   );
 }
 
-/**
- * Текст за „номер“ на фактура в списъци/преглед: чернова или допълнен числов id.
- */
 export function getInvoiceBadgeLabel(invoiceData) {
   const n = Number(invoiceData?.id);
   const hasNumber = Number.isFinite(n) && n > 0;
@@ -122,11 +113,6 @@ export function getInvoiceBadgeLabel(invoiceData) {
   return String(n).padStart(10, "0");
 }
 
-/**
- * Флагове за UI на контейнера „създай/редактирай фактура“ (persist + диалози).
- * Контейнерът не клонира по `INVOICE_STATUS` — само чете този обект.
- * @param {string} lifecycleStatus — нормализиран `draft` | `issued` | `paid`
- */
 export function getInvoiceEditorPersistUiConfig(lifecycleStatus) {
   const isDraft = lifecycleStatus === INVOICE_STATUS.DRAFT;
   const isIssued = lifecycleStatus === INVOICE_STATUS.ISSUED;
@@ -139,12 +125,8 @@ export function getInvoiceEditorPersistUiConfig(lifecycleStatus) {
   };
 }
 
-/** Същото като `getInvoiceEditorPersistUiConfig` (по-кратко име). */
 export const getInvoicePersistConfig = getInvoiceEditorPersistUiConfig;
 
-/**
- * Пропсове за презентационен badge: етикет + тон за цвят/икона (`draft` | `issued` | `paid`).
- */
 export function getInvoiceStatusBadgePresentation(invoiceData) {
   const statusTone = normalizeInvoiceLifecycleStatus(invoiceData);
   return {
