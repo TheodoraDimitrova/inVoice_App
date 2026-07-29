@@ -25,13 +25,17 @@ export const InvoiceTotalsSummary = ({
   const secondaryDiscount = formatSecondaryAmount
     ? formatSecondaryAmount(discountTotal)
     : "";
-  const secondaryVat = formatSecondaryAmount ? formatSecondaryAmount(vatTotal) : "";
+  const secondaryVat = formatSecondaryAmount
+    ? formatSecondaryAmount(vatTotal)
+    : "";
   const secondaryGrand = formatSecondaryAmount
     ? formatSecondaryAmount(grandTotal)
     : "";
 
   const hasDiscount = Number(discountTotal) > 0;
-  const negativeSecondaryDiscount = secondaryDiscount ? `−${secondaryDiscount}` : "";
+  const negativeSecondaryDiscount = secondaryDiscount
+    ? `−${secondaryDiscount}`
+    : "";
 
   const amt = (n) => `${Number(n || 0).toFixed(2)} ${currencyLabel}`;
 
@@ -57,7 +61,9 @@ export const InvoiceTotalsSummary = ({
           </div>
           {negativeSecondaryDiscount ? (
             <div className="flex justify-end">
-              <span className={secondaryClass}>{negativeSecondaryDiscount}</span>
+              <span className={secondaryClass}>
+                {negativeSecondaryDiscount}
+              </span>
             </div>
           ) : null}
         </>
@@ -69,7 +75,9 @@ export const InvoiceTotalsSummary = ({
         >
           {vatLabel}
         </span>
-        <span className={valueClass}>{showVatAmount ? amt(vatTotal) : "—"}</span>
+        <span className={valueClass}>
+          {showVatAmount ? amt(vatTotal) : "—"}
+        </span>
       </div>
       {showVatAmount && secondaryVat ? (
         <div className="flex justify-end">
@@ -78,16 +86,22 @@ export const InvoiceTotalsSummary = ({
       ) : null}
 
       <div className={`${rowClass} mt-1 border-t border-slate-300 pt-1.5`}>
-        <span className={`${labelClass} text-[11px] font-extrabold uppercase tracking-wide text-slate-900 sm:text-xs`}>
+        <span
+          className={`${labelClass} text-[11px] font-extrabold uppercase tracking-wide text-slate-900 sm:text-xs`}
+        >
           Крайна сума
         </span>
-        <span className={`${valueClass} text-sm font-black sm:text-[0.95rem] print:text-xs`}>
+        <span
+          className={`${valueClass} text-sm font-black sm:text-[0.95rem] print:text-xs`}
+        >
           {amt(grandTotal)}
         </span>
       </div>
       {secondaryGrand ? (
         <div className="flex justify-end pt-0.5">
-          <span className={`${secondaryClass} font-semibold`}>{secondaryGrand}</span>
+          <span className={`${secondaryClass} font-semibold`}>
+            {secondaryGrand}
+          </span>
         </div>
       ) : null}
     </div>
