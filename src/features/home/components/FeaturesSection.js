@@ -70,10 +70,10 @@ const FeaturesSection = () => {
     <section id="features" className="page-shell pt-12 md:pt-14 pb-14 md:pb-16">
       <div className="mb-8 text-center">
         <h2 className="text-[1.55rem] md:text-[1.95rem] font-semibold text-slate-900 tracking-[-0.01em]">
-          Кой може да използва Invoicer?
+          Кой може да използва Factura BG?
         </h2>
         <p className="text-slate-600 mt-3 max-w-3xl mx-auto text-sm sm:text-base">
-          Invoicer е създаден за модерни екипи и независими професионалисти,
+          Factura BG е създаден за модерни екипи и независими професионалисти,
           които имат нужда от практично и съобразено фактуриране.
         </p>
       </div>

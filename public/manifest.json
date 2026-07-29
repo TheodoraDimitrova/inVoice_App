@@ -1,6 +1,6 @@
 {
-  "short_name": "Invoicer",
-  "name": "A invoice management system",
+  "short_name": "Factura BG",
+  "name": "Factura BG — система за фактури",
   "icons": [
     {
       "src": "favicon.ico",

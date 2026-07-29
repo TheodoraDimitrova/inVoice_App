@@ -1,4 +1,4 @@
-## Invoicer
+## Factura BG
 
 An online invoicing software that helps you craft and print professional invoices for your customers for free! Keep your business and clients with one invoicing software.
 
@@ -20,7 +20,7 @@ FIREBASE_ADMIN_PROJECT_ID=your_firebase_project_id
 FIREBASE_ADMIN_CLIENT_EMAIL=your_service_account_client_email
 FIREBASE_ADMIN_PRIVATE_KEY=your_service_account_private_key_with_escaped_newlines
 RESEND_API_KEY=your_resend_api_key
-AUTH_EMAIL_FROM="Invoicer <no-reply@your-domain.com>"
+AUTH_EMAIL_FROM="Factura BG <no-reply@facturabg.bg>"
 AUTH_APP_ORIGIN=https://your-app-domain.com
 
 Notes:

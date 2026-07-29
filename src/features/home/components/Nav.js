@@ -16,7 +16,7 @@ const Nav = ({ loggedIn, onSignOut, ...props }) => {
                 className="inline-flex items-center leading-none no-underline"
               >
                 <span className="m-0 cursor-pointer text-xl leading-tight text-[var(--color-brand-charcoal)] sm:text-2xl">
-                  Invoicer
+                  Factura BG
                 </span>
               </Link>
 

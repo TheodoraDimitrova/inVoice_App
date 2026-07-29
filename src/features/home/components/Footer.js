@@ -6,7 +6,7 @@ const Footer = () => {
     <footer className="w-full border-t border-slate-200 bg-white/90">
       <div className="page-shell py-4 md:py-8 flex flex-col items-center  md:text-left md:flex-row md:items-center justify-between gap-4 w-full">
         <p className="text-sm text-slate-600 ">
-          &copy; {new Date().getFullYear()} Invoicer
+          &copy; {new Date().getFullYear()} Factura BG
         </p>
 
         <nav className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm md:justify-end">

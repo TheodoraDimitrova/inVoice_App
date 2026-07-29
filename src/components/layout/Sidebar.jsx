@@ -61,7 +61,7 @@ export const Sidebar = ({ pathname, userEmail, onNavClick }) => (
         to="/dashboard"
         className="text-lg font-semibold tracking-[-0.02em] text-slate-800 no-underline"
       >
-        Invoicer
+        Factura BG
       </NavLink>
     </div>
     <nav className="flex-1 px-1 pt-4" aria-label="основна навигация">

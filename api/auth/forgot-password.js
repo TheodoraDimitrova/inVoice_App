@@ -67,7 +67,7 @@ function buildTemplate(resetLink) {
 <div style="font-family:Arial,sans-serif;line-height:1.5;color:#0f172a;max-width:560px;margin:0 auto;">
   <h2 style="margin:0 0 16px;">Възстановяване на парола</h2>
   <p style="margin:0 0 16px;">
-    Получихме заявка за смяна на паролата за вашия профил в Invoicer.
+    Получихме заявка за смяна на паролата за вашия профил в Factura BG.
   </p>
   <p style="margin:0 0 20px;">
     Натиснете бутона по-долу, за да създадете нова парола:
@@ -84,16 +84,36 @@ function buildTemplate(resetLink) {
   `.trim();
 }
 
+function normalizeFromAddress(raw) {
+  const value = String(raw || "").trim();
+  if (!value) return "Factura BG <no-reply@facturabg.bg>";
+  // Allow "<email@domain>" pasted from forms → "email@domain"
+  const onlyAngle = value.match(/^<([^<>@\s]+@[^<>@\s]+)>$/);
+  if (onlyAngle) return onlyAngle[1];
+  return value;
+}
+
 async function sendResetEmail({ email, resetLink }) {
   const resend = new Resend(getEnv("RESEND_API_KEY"));
-  const from = process.env.AUTH_EMAIL_FROM || "Invoicer <no-reply@invoicerapp.com>";
+  const from = normalizeFromAddress(
+    process.env.AUTH_EMAIL_FROM || "Factura BG <no-reply@facturabg.bg>",
+  );
 
-  await resend.emails.send({
+  const { data, error } = await resend.emails.send({
     from,
     to: email,
-    subject: "Възстановяване на парола - Invoicer",
+    subject: "Възстановяване на парола - Factura BG",
     html: buildTemplate(resetLink),
   });
+
+  if (error) {
+    console.error("resend_send_failed", error);
+    throw new Error(
+      `resend_failed:${error.name || "unknown"}:${error.message || "send_error"}`,
+    );
+  }
+
+  console.log("resend_send_ok", { id: data?.id, to: email, from });
 }
 
 module.exports = async function handler(req, res) {
@@ -120,6 +140,11 @@ module.exports = async function handler(req, res) {
     await sendResetEmail({ email, resetLink });
     return res.status(200).json({ ok: true });
   } catch (error) {
+    console.error("forgot_password_failed", {
+      code: error?.code,
+      message: error?.message,
+    });
+
     // Keep response generic to avoid account enumeration.
     if (error?.code === "auth/user-not-found") {
       return res.status(200).json({ ok: true });
@@ -127,6 +152,9 @@ module.exports = async function handler(req, res) {
     if (String(error?.message || "").startsWith("missing_env:")) {
       return res.status(500).json({ ok: false, reason: "server_not_configured" });
     }
-    return res.status(200).json({ ok: true });
+    if (String(error?.message || "").startsWith("resend_failed:")) {
+      return res.status(500).json({ ok: false, reason: "email_send_failed" });
+    }
+    return res.status(500).json({ ok: false, reason: "request_failed" });
   }
 };

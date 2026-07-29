@@ -23,7 +23,7 @@ const AuthView = ({
       <div className="relative hidden min-h-screen overflow-hidden border-r border-[var(--color-border-soft)] bg-[#e6faf1] md:col-span-5 md:block">
         <img
           src={authIllustration}
-          alt="Invoicer — фактуриране и бизнес процеси"
+          alt="Factura BG — фактуриране и бизнес процеси"
           className="absolute inset-0 h-full w-full object-cover object-center"
         />
       </div>
@@ -33,7 +33,7 @@ const AuthView = ({
           <div className="flex w-full max-w-md flex-col items-center text-center">
             <Link to="/" className="no-underline mb-6 md:mb-8 block w-full">
               <span className="text-[1.35rem] font-semibold tracking-[-0.02em] text-[var(--color-brand-charcoal)] sm:text-2xl">
-                Invoicer
+                Factura BG
               </span>
             </Link>
 
