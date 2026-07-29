@@ -43,7 +43,7 @@ const AuthContainer = () => {
         loading,
         onOpen: openDialog,
         onClose: closeDialog,
-        onEmailChange: (e) => setEmail(e.target.value),
+        onEmailChange: setEmail,
         onSubmit: submit,
       }}
     />

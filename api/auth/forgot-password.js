@@ -57,7 +57,7 @@ function getPasswordResetActionSettings() {
   const appOrigin = process.env.AUTH_APP_ORIGIN || process.env.APP_ORIGIN;
   const safeOrigin = (appOrigin || "").trim() || "http://localhost:3000";
   return {
-    url: `${safeOrigin}/auth`,
+    url: `${safeOrigin}/login`,
     handleCodeInApp: false,
   };
 }

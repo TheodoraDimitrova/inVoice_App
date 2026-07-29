@@ -63,7 +63,7 @@ const AuthView = ({
                 errors={errors}
                 onSubmit={onLogin}
                 onGoogleLogin={onGoogleLogin}
-                onForgotPassword={forgotPassword.openDialog}
+                onForgotPassword={forgotPassword.onOpen}
                 onSwitchToRegister={onSwitchToRegister}
               />
             )}
@@ -74,10 +74,10 @@ const AuthView = ({
 
     <ForgotPasswordDialog
       open={forgotPassword.open}
-      onClose={forgotPassword.closeDialog}
+      onClose={forgotPassword.onClose}
       email={forgotPassword.email}
-      onEmailChange={forgotPassword.setEmail}
-      onSubmit={forgotPassword.submit}
+      onEmailChange={forgotPassword.onEmailChange}
+      onSubmit={forgotPassword.onSubmit}
       loading={forgotPassword.loading}
     />
   </div>
